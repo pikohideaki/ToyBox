@@ -5,6 +5,7 @@ let AttackEffect   = {};  /* library of attack card effect functions */
 let ReactionEffect = {};  /* library of reaction card effect functions */
 let GenFuncs       = {};  /* object to access from everywhere */
 
+let AsyncFuncs     = {};  /* async functions (object globally access) */
 
 
 

@@ -7,7 +7,7 @@ function SendSignal( player_id, signal ) {
 }
 
 
-function* CatchSignal( signals_to_me ) {
+async function CatchSignal( signals_to_me ) {
 	let Me = Game.Me();
 
 	if ( signals_to_me == null ) return;
@@ -93,6 +93,7 @@ $( function() {
 		FBref_SignalToMe.on( 'value', function( FBsnapshot ) {
 			GenFuncs['CatchSignal'] = CatchSignal( FBsnapshot.val() );  /* generator 作成 */
 			GenFuncs['CatchSignal'].next();  /* generator開始 */
+			// AsyncFuncs['CatchSignal']
 		});
 	});
 

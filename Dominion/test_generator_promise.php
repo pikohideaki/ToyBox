@@ -46,33 +46,52 @@ include( $Filename_sDc );
 <script type="text/javascript">
 
 $( function() {
-	let gen;
 
-	function* gfn( resolve, str ) {
-		$('.logs').append( 'ジェネレーター 開始！<br>' );
-		for ( let i = 1; i <= 10; ++i ) {
-			yield; /* ボタン操作待ち */
-			$('.logs').append( `click ${i}回目<br>` );
-		}
-		resolve( str );  /* 渡されたresolveを実行しpromisedgenを解決 */
-	}
+	// async function asynctest() {
+	// 	console.log('start');
+	// 	await setTimeout( () => console.log('a'), 1000 );
+	// 	await setTimeout( () => console.log('b'), 1000 );
+	// 	await setTimeout( () => console.log('c'), 1000 );
+	// 	yield;
+	// 	console.log('d');
+	// 	await setTimeout( () => console.log('e'), 1000 );
+	// }
 
-	function promisedgen(str) {
-		return new Promise( function(resolve) {
-			gen = gfn( resolve, str );  /* resolveを渡しておく */
-			gen.next();  /* generator生成 */
-		});
-	}
+	// $('.next').click( () => asynctest.next() );
+	// $('.end' ).click( () => asynctest.return() );
 
-	function log(str) {
-		$('.logs').append( `${str}<br>` );  /* 解決したらstrが表示される */
-		return Promise.resolve(str);
-	}
+	// asynctest();
 
-	$('.next').click( () => gen.next() );
-	$('.end').click( () => gen.return() );
 
-	promisedgen('ジェネレーター 終了!').then(log);
+
+
+	// let gen;
+
+	// function* gfn( resolve, str ) {
+	// 	$('.logs').append( 'ジェネレーター 開始！<br>' );
+	// 	for ( let i = 1; i <= 10; ++i ) {
+	// 		yield; /* ボタン操作待ち */
+	// 		$('.logs').append( `click ${i}回目<br>` );
+	// 	}
+	// 	resolve( str );  /* 渡されたresolveを実行しpromisedgenを解決 */
+	// }
+
+	// function promisedgen(str) {
+	// 	return new Promise( function(resolve) {
+	// 		gen = gfn( resolve, str );  /* resolveを渡しておく */
+	// 		gen.next();  /* generator生成 */
+	// 	});
+	// }
+
+	// function log(str) {
+	// 	$('.logs').append( `${str}<br>` );  /* 解決したらstrが表示される */
+	// 	return Promise.resolve(str);
+	// }
+
+	// $('.next').click( () => gen.next() );
+	// $('.end').click( () => gen.return() );
+
+	// promisedgen('ジェネレーター 終了!').then(log);
 });
 </script>
 </html>
