@@ -1,0 +1,36 @@
+/* 拡張セットごとの色を定義，サプライ表示で使用 （明度100）*/
+
+td.color_Original    {
+	background-color: #FFC888; /*#765C3D*/
+}
+td.color_Intrigue    {
+	background-color: #FFF4F3; /* #8B8584 */
+}
+td.color_Seaside     {
+	background-color: #8DBDFF; /* #759DD4 */
+}
+td.color_Alchemy     {
+	background-color: #E4A1FF; /* #89619A */
+}
+td.color_Prosperity  {
+	background-color: #FFFE8A; /* #A7A65B */
+}
+td.color_Cornucopia  {
+	background-color: #FF934A; /* #EE8945 */
+}
+td.color_Hinterlands {
+	background-color: #D0FF88; /* #8FB05E */
+}
+td.color_Dark_Ages   {
+	background-color: #FF8457; /* #B55D3E */
+}
+td.color_Guilds      {
+	background-color: #FF8A8E; /* #E57B7F */
+}
+td.color_Adventures  {
+	background-color: #FFE7D7; /* #81756D */
+}
+td.color_Empires     {
+	background-color: #FFD357; /* #D0AC46 */
+}
+

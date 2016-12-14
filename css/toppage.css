@@ -1,0 +1,62 @@
+
+
+.logo {
+	height: 65px;
+}
+
+.contents-list-item {
+	height: 230px;
+	width: 40%;
+	min-width: 380px;
+	max-width: 450px;
+	float:left;
+	margin-left: 30px;
+	margin-top: 20px;
+	background-color: #D3EAFF;
+	padding: 10px;
+	border: none;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.contents-list-item:hover {
+	cursor: pointer;
+}
+
+
+.contents-list-item p {
+	font-size: 16px;
+	line-height: 24px;
+	width: 100%;
+}
+
+
+.contents-list {
+	margin: 30px;
+}
+
+.dominion-section {
+	margin-bottom: 60px;
+}
+
+
+@media( max-width: 800px ) {
+	/* 画面幅が1200px 以下のとき */
+	.contents-list-item {
+		width: 90%;
+	}
+
+}
+
+
+@media( max-width: 380px ) {
+	/* 画面幅が550px 以下のとき */
+	body {
+		width: 380px;
+	}
+	.contents-list-item {
+		width: 90%;
+	}
+
+}
+
+

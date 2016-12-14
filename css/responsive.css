@@ -1,0 +1,10 @@
+
+@media (max-width: 750px) {
+	.header-right {
+		display: none;
+	}
+	.sub-menu-icon {
+		display: block;
+	}
+}
+

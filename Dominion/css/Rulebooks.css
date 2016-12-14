@@ -1,0 +1,19 @@
+
+body {
+	width: 100%;
+}
+
+.rulebook-cover {
+	/*width: 200px;*/
+	height: 200px;
+}
+
+.rulebook-box {
+	width: 200px;
+	height: 200px;
+	display: block;
+	float: left;
+	text-align: center;
+	margin: 30px;
+}
+

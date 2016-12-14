@@ -1,0 +1,27 @@
+
+
+/* radio, checkbox thin version */
+
+.checkbox_on_blue_header {
+	margin: 0 0 2px 15px;
+	padding: 6px 12px 6px 42px;
+	/*color: black;*/
+	/*font-weight: normal;*/
+	background: none;
+	border-color: #53b300;
+}
+
+.checkbox_on_blue_header:hover {
+	background-color: #656E8F;
+}
+.checkbox_on_blue_header:hover:after {
+	border-color: #FFFF00;
+}
+.radio:after, .checkbox:after {
+	border: 2px solid #ccc;
+}
+
+.checkbox:before {
+	border-right: 3px solid #FFFF00;
+	border-bottom: 3px solid #FFFF00;
+}

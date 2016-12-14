@@ -1,0 +1,401 @@
+
+/*
+
+.ZoomedCard {
+	position : absolute;
+}
+*/
+
+
+
+.leftside {
+	position: fixed;
+	top    : 0;
+	/*right  : ;*/
+	bottom : 0;
+	left   : 0;
+
+	width : 300px;
+	height : 100%;
+	background-color : #AAE8F3;
+}
+.chat-wrapper {
+	margin : 10px;
+	height : 70%;
+}
+.chat_list {
+	/*width : 280px;*/
+	overflow : scroll;
+	background-color : white;
+	height : 70%;
+	padding : 10px;
+}
+.chat_mymsgbox {
+	height : 30%;
+	margin-top : 10px;
+}
+.chat_textbox {
+	max-width: 200px;
+	max-height: 100px;
+
+	max-height : 100px ;  /*IE8以下とAndroid4.3以下用フォールバック */
+	max-height : -webkit-calc(100% - 48px) ;
+	max-height : calc(100% - 48px) ;
+	float: left;
+}
+.chat_enter {
+	margin-left : 10px;
+	float : left;
+}
+.settings {
+	margin : 10px;
+	height : 20%;
+}
+
+
+
+.rightside {
+	margin-left : 300px;
+}
+
+.main {
+	margin: 20px;
+}
+
+.space {
+	height: 600px;
+	width: 100%;
+}
+
+
+
+
+.Common-Area {
+	background-color: #B5C8F1;
+	border-radius: 10px;
+	padding: 5px;
+	float : left;
+	margin-right : 10px;
+	margin-bottom : 10px;
+}
+
+.SupplyArea-wrapper {
+	padding: 5px;
+	float : left;
+}
+
+.SupplyArea_line23 {
+	float : left;
+}
+.SupplyArea {
+	float : left;
+}
+
+.TrashPile-wrapper {
+	float: left;
+	margin-left: 10px;
+	margin-top: 20px;
+	padding: 5px;
+}
+
+.TrashPile {
+	float: left;
+	height : 160px;
+	width  : 100px;
+	padding-top : 35px;
+	padding-left : 10px;
+	background-image: url(../image/200px-Trash2.jpg);
+	background-size: cover;
+}
+
+
+
+
+.OtherPlayers-wrapper {
+	float : left;
+}
+
+.OtherPlayer {
+	/*float : left;*/
+	padding: 10px;
+	border-radius: 10px;
+	background-color: #AFA78F; /*#D9CFB1;*/
+	margin-bottom :5px;
+	margin-right :5px;
+}
+
+.OtherPlayer .player_name,.player_TurnCount {
+	width: 100%;
+	margin-bottom: 5px;
+	color :white;
+	font-weight: bold;
+}
+
+.sCardArea {
+	float: left;
+	height : 81px;
+	padding: 5px;
+	border-radius: 7px;
+	background-color: #e6ecf0;
+}
+
+.sOpen {
+	width : 365px;
+	height : 81px;
+	padding: 5px;
+	/*margin-left : 10px;*/
+	margin-bottom: 3px;
+}
+
+.OtherPlayer_Buttons {
+	float : left;
+	margin-left : 10px;
+	margin-bottom: 3px;
+}
+
+.sPlayArea {
+	width: 258px;  /* 365px - 104px - 3px */
+	margin-bottom: 3px;
+}
+.sAside {
+	width : 104px;
+	margin-left : 3px;
+	margin-bottom: 3px;
+}
+.sDeck {
+	width : 57px;
+}
+.sHandCards {
+	width : 245px;
+	margin-left : 3px;
+}
+.sDiscardPile {
+	width : 57px;
+	margin-left : 3px;
+}
+
+
+
+
+.PlayArea-wrapper {
+	margin-top: 10px;
+	width: 100%;
+}
+.TurnInfo {
+	float: left;
+	display : inline-block;
+	padding: 0;
+	margin: 0 0 5px 10px;
+	width: 70%;
+}
+.Message {
+	margin: 10px;
+}
+
+
+.PlayersCards {
+	margin-top: 10px;
+}
+
+
+.CardAreaOfPlayer {
+	height: 130px;
+	width: 100%;
+	padding: 5px;
+	float: left;
+	border-radius: 10px;
+}
+
+.Open {
+	background-color: #ACDCD0;
+	width : 100%;
+	display : none;
+	margin-bottom: 10px;
+}
+.PlayArea {
+	background-color: #C0EA73;
+	width: 75%;
+}
+.Aside {
+	background-color: #A7E92D;
+	width : 23% ;  /*IE8以下とAndroid4.3以下用フォールバック */
+	width : -webkit-calc(25% - 5px) ;
+	width : calc(25% - 5px) ;
+	margin-left : 5px;
+}
+.Deck {
+	background-color: #75CCBE;
+	width : 90px;
+}
+.HandCards {
+	/*background-color: #e6ecf0;*/
+	background-color: #F0C067;
+	width : 85% ; /* IE8以下とAndroid4.3以下用フォールバック */
+	width : -webkit-calc(100% - 190px) ;
+	width : calc(100% - 190px) ;
+	margin: 0 5px;
+}
+.DiscardPile {
+	background-color: #F8984F;
+	width: 90px;
+}
+
+
+
+
+
+
+.MyArea {
+	position: absolute;
+	bottom : 5%;
+	left   : 5%;
+	width  : 80%;
+	background-color: rgba(175, 167, 143, 0.6); /* #AFA78F */
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.MessageToMe {
+	margin-bottom: 10px;
+	background-color: rgba(230, 236, 240, 1); /* #e6ecf0 */
+	border-radius: 10px;
+	padding : 10px;
+	/*display : none;*/
+}
+
+.MyCardArea {
+	height: 130px;
+	width: 100%;
+	padding: 5px;
+	background-color: rgba(230, 236, 240, 0.6); /* #e6ecf0 */
+	border-radius: 10px;
+	float: left;
+}
+
+.MyOpen {
+	border-radius: 10px;
+	width : 100%;
+	display : none;
+	margin-bottom: 5px;
+}
+.MyPlayArea {
+	border-radius: 10px;
+	width: 75%;
+}
+.MyAside {
+	border-radius: 10px;
+	width : 23% ;  /*IE8以下とAndroid4.3以下用フォールバック */
+	width : -webkit-calc(25% - 5px) ;
+	width : calc(25% - 5px) ;
+	margin-left : 5px;
+	margin-bottom: 5px;
+}
+
+.MyDeck {
+	width: 90px;
+}
+.MyHandCards {
+	width : 70% ; /* IE8以下とAndroid4.3以下用フォールバック */
+	width : -webkit-calc(100% - 190px);
+	width : calc(100% - 190px);
+	min-width: 415px;
+	margin: 0 5px;
+}
+.MyDiscardPile {
+	width: 90px;
+}
+.MyArea .buttons {
+	margin-left: 95px;
+	margin-top:5px;
+	height : 50px;
+}
+
+/*.MyArea .buttons .button,input[type=button] {
+	margin-left: 5px;
+}*/
+
+
+
+
+.BlackCover {
+	position: fixed;
+	top    : 0;
+	right  : 0;
+	bottom : 0;
+	left   : 300px;
+	background-color: rgba(0, 0, 0, 0.4);
+	z-index: 1000;
+	display: none;
+}
+
+.MyArea-wrapper {
+	z-index: 500;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+.dialog-wrapper {
+	z-index: 1000;
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.dialog {
+	position: absolute;
+	top: 20%;
+
+	left : 34% ; /* IE8以下とAndroid4.3以下用フォールバック */
+	left : -webkit-calc((100% - 450px) / 2);
+	left : calc((100% - 450px) / 2);
+
+	background-color: #e6ecf0;
+	padding: 20px 10px 40px 10px;
+	border-radius: 10px;
+	width: 450px;
+	height: auto;
+	text-align: center;
+}
+.dialog_text {
+	margin-bottom : 10px;
+}
+.dialog_contents {
+	display : inline-block;
+}
+
+
+
+.CardView-wrapper {
+	z-index: 2000;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.CardView {
+	position: absolute;
+	top    : 50px;
+	right  : 50px;
+	bottom : 50px;
+	left   : 50px;
+	height: auto;
+	text-align: center;
+}
+
+.CardView_zoom {
+	display : inline-block;
+	height : 55%;
+	margin-bottom : 5%;
+}
+.CardView_list {
+	display : inline-block;
+	height : 40%;
+}
+.CardView_list .card_biggest {
+	width:75px;
+	height:115px;
+	margin: 2px;
+	border-radius: 6px;
+}
+.CardView_zoom .card_biggest {
+
+}
+
+.CardView_list .card_biggest:hover{
+	cursor: pointer;
+}
+

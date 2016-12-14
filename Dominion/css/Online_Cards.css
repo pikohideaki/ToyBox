@@ -1,0 +1,2653 @@
+
+
+
+.card {
+	width:75px;
+	height:115px;
+	margin: 2px;
+	border-radius: 6px;
+	z-index: 5;
+
+	padding : 0;
+	border: 0px;
+	background-size: cover;
+	display: block;
+	float: left;
+	position: relative;
+	background-position:left top;
+	background-repeat: no-repeat;
+}
+
+
+
+
+
+.card.face:hover {
+    /* 位置 */
+    position: relative;
+}
+.card.face:hover:after {
+    content: attr(data-card_name_jp);
+
+    /* 位置 */
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+
+    /* 文字 */
+    font-weight: normal;
+    color: black;
+    white-space: nowrap;
+
+    /* 背景 */
+    background-color: white;
+    padding: 3px;
+    border: 1px silver solid;
+    border-radius: 3px;
+    box-shadow: 1px 1px 3px silver;
+}
+
+
+
+
+
+.card_biggest {
+	width:285px;
+	height:437px;
+	/*width : auto;*/
+	/*height : 100%;*/
+	margin: 10px;
+	border-radius: 25px;
+
+	padding : 0;
+	border: 0px;
+	background-size: cover;
+	display: block;
+	float: left;
+	position: relative;
+	background-position:left top;
+	background-repeat: no-repeat;
+}
+
+
+
+
+
+
+.SupplyArea.line1 .card {
+	width:60px;
+	height:92px;
+	border-radius: 4px;
+}
+
+
+.OtherPlayers-wrapper .card {
+	width:45px;
+	height:69px;
+	margin: 1px;
+	border-radius: 2px;
+}
+
+.card.pointer:hover{
+	cursor: pointer;
+}
+
+.face { /* カード ： 表 */
+
+}
+
+.card.down { /* カード ： 裏 */
+	background-image: url(../image/s_Card_back.png);
+}
+
+.supply-card-wrapper {
+	float:left;
+	/*display: inline-block;*/
+	/*margin: 3px;*/
+}
+
+
+.supply_text {
+	/*text-align:center;*/
+	margin: 3px;
+}
+
+
+.card-num-of-remaining {
+	position : absolute;
+	bottom : 3px;
+	right  : 3px;
+
+	padding: 3px;
+	border-radius: 3px;
+
+	color:white;
+	font-size:1.0em;
+	font-weight: bold;
+	vertical-align: middle;
+	border: 1px solid #DDD;
+
+	background: #7abcff; /* Old browsers */
+	background: -moz-linear-gradient(top, #7abcff 0%, #60abf8 44%, #4096ee 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7abcff), color-stop(44%,#60abf8), color-stop(100%,#4096ee)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%); /* IE10+ */
+	background: linear-gradient(top, #7abcff 0%,#60abf8 44%,#4096ee 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7abcff', endColorstr='#4096ee',GradientType=0 ); /* IE6-9 */
+}
+.card-num-of-remaining.disabled {
+	background: gray;
+}
+
+.card-cost-coin {
+	position : absolute;
+	z-index: 10;
+	bottom : 3px;
+	left   : 3px;
+
+	padding: 3px;
+	border-radius: 3px;
+
+	color: #69501C;
+	font-size:1.0em;
+	font-weight: bold;
+	vertical-align: middle;
+	border: 1px solid #DDD;
+
+/* 7abcff -> FFE37B */
+/* 60abf8 -> F8E161 */
+/* 4096ee -> EEB440 */
+	background: #FFE37B; /* Old browsers */
+	background: -moz-linear-gradient(top, #FFE37B 0%, #F8E161 44%, #EEB440 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFE37B), color-stop(44%,#F8E161), color-stop(100%,#EEB440)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #FFE37B 0%,#F8E161 44%,#EEB440 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #FFE37B 0%,#F8E161 44%,#EEB440 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #FFE37B 0%,#F8E161 44%,#EEB440 100%); /* IE10+ */
+	background: linear-gradient(top, #FFE37B 0%,#F8E161 44%,#EEB440 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#FFE37B', endColorstr='#EEB440',GradientType=0 ); /* IE6-9 */
+}
+
+.down .card-cost-coin { /* 裏向きのときは非表示 */
+	display :none;
+}
+
+
+.zoom_card {
+	position : absolute;
+	z-index: 100;
+	top   : 3px;
+	right : 3px;
+
+	padding: 3px;
+	border-radius: 3px;
+
+	color: #69501C;
+	font-size:0.8em;
+	font-weight: normal;
+	vertical-align: middle;
+	border: 1px solid #DDD;
+
+/* 7abcff -> FFE37B -> FFFFFF */
+/* 60abf8 -> F8E161 -> F8F8F8 */
+/* 4096ee -> EEB440 -> EEEEEE */
+	background: #FFFFFF; /* Old browsers */
+	background: -moz-linear-gradient(top, #FFFFFF 0%, #F8F8F8 44%, #EEEEEE 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(44%,#F8F8F8), color-stop(100%,#EEEEEE)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #FFFFFF 0%,#F8F8F8 44%,#EEEEEE 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #FFFFFF 0%,#F8F8F8 44%,#EEEEEE 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #FFFFFF 0%,#F8F8F8 44%,#EEEEEE 100%); /* IE10+ */
+	background: linear-gradient(top, #FFFFFF 0%,#F8F8F8 44%,#EEEEEE 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#FFFFFF', endColorstr='#EEEEEE',GradientType=0 ); /* IE6-9 */
+	cursor : pointer;
+}
+
+.SupplyArea.line1 .zoom_card {
+	display : none;
+}
+.down .zoom_card { /* 裏向きのときは非表示 */
+	display : none;
+}
+
+
+
+
+/* 01. 基本 */
+/*
+.card.face[data-card_no="1"] {
+	background-image: url(../image/01_Original_115x75/s_Copper.png);
+}
+.card.face[data-card_no="2"] {
+	background-image: url(../image/01_Original_115x75/s_Silver.png);
+}
+.card.face[data-card_no="3"] {
+	background-image: url(../image/01_Original_115x75/s_Gold.png);
+}
+.card.face[data-card_no="4"] {
+	background-image: url(../image/01_Original_115x75/s_Estate.png);
+}
+.card.face[data-card_no="5"] {
+	background-image: url(../image/01_Original_115x75/s_Duchy.png);
+}
+.card.face[data-card_no="6"] {
+	background-image: url(../image/01_Original_115x75/s_Province.png);
+}
+.card.face[data-card_no="7"] {
+	background-image: url(../image/01_Original_115x75/s_Curse.png);
+}
+.card.face[data-card_no="8"] {
+	background-image: url(../image/01_Original_115x75/s_Market.png);
+}
+.card.face[data-card_no="9"] {
+	background-image: url(../image/01_Original_115x75/s_Remodel.png);
+}
+.card.face[data-card_no="10"] {
+	background-image: url(../image/01_Original_115x75/s_Smithy.png);
+}
+.card.face[data-card_no="11"] {
+	background-image: url(../image/01_Original_115x75/s_Moneylender.png);
+}
+.card.face[data-card_no="12"] {
+	background-image: url(../image/01_Original_115x75/s_Woodcutter.png);
+}
+.card.face[data-card_no="13"] {
+	background-image: url(../image/01_Original_115x75/s_Council_Room.png);
+}
+.card.face[data-card_no="14"] {
+	background-image: url(../image/01_Original_115x75/s_Throne_Room.png);
+}
+.card.face[data-card_no="15"] {
+	background-image: url(../image/01_Original_115x75/s_Laboratory.png);
+}
+.card.face[data-card_no="16"] {
+	background-image: url(../image/01_Original_115x75/s_Mine.png);
+}
+.card.face[data-card_no="17"] {
+	background-image: url(../image/01_Original_115x75/s_Workshop.png);
+}
+.card.face[data-card_no="18"] {
+	background-image: url(../image/01_Original_115x75/s_Chancellor.png);
+}
+.card.face[data-card_no="19"] {
+	background-image: url(../image/01_Original_115x75/s_Feast.png);
+}
+.card.face[data-card_no="20"] {
+	background-image: url(../image/01_Original_115x75/s_Festival.png);
+}
+.card.face[data-card_no="21"] {
+	background-image: url(../image/01_Original_115x75/s_Library.png);
+}
+.card.face[data-card_no="22"] {
+	background-image: url(../image/01_Original_115x75/s_Cellar.png);
+}
+.card.face[data-card_no="23"] {
+	background-image: url(../image/01_Original_115x75/s_Gardens.png);
+}
+.card.face[data-card_no="24"] {
+	background-image: url(../image/01_Original_115x75/s_Thief.png);
+}
+.card.face[data-card_no="25"] {
+	background-image: url(../image/01_Original_115x75/s_Adventurer.png);
+}
+.card.face[data-card_no="26"] {
+	background-image: url(../image/01_Original_115x75/s_Moat.png);
+}
+.card.face[data-card_no="27"] {
+	background-image: url(../image/01_Original_115x75/s_Witch.png);
+}
+.card.face[data-card_no="28"] {
+	background-image: url(../image/01_Original_115x75/s_Spy.png);
+}
+.card.face[data-card_no="29"] {
+	background-image: url(../image/01_Original_115x75/s_Militia.png);
+}
+.card.face[data-card_no="30"] {
+	background-image: url(../image/01_Original_115x75/s_Village.png);
+}
+.card.face[data-card_no="31"] {
+	background-image: url(../image/01_Original_115x75/s_Bureaucrat.png);
+}
+.card.face[data-card_no="32"] {
+	background-image: url(../image/01_Original_115x75/s_Chapel.png);
+}
+*/
+
+
+/* 02. 陰謀 */
+/*
+.card.face[data-card_no="33"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Great_Hall.png);
+}
+.card.face[data-card_no="34"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Upgrade.png);
+}
+.card.face[data-card_no="35"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Masquerade.png);
+}
+.card.face[data-card_no="36"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Nobles.png);
+}
+.card.face[data-card_no="37"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Conspirator.png);
+}
+.card.face[data-card_no="38"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Trading_Post.png);
+}
+.card.face[data-card_no="39"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Mining_Village.png);
+}
+.card.face[data-card_no="40"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Duke.png);
+}
+.card.face[data-card_no="41"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Torturer.png);
+}
+.card.face[data-card_no="42"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Swindler.png);
+}
+.card.face[data-card_no="43"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Steward.png);
+}
+.card.face[data-card_no="44"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Baron.png);
+}
+.card.face[data-card_no="45"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Minion.png);
+}
+.card.face[data-card_no="46"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Scout.png);
+}
+.card.face[data-card_no="47"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Pawn.png);
+}
+.card.face[data-card_no="48"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Ironworks.png);
+}
+.card.face[data-card_no="49"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Coppersmith.png);
+}
+.card.face[data-card_no="50"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Courtyard.png);
+}
+.card.face[data-card_no="51"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Wishing_Well.png);
+}
+.card.face[data-card_no="52"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Harem.png);
+}
+.card.face[data-card_no="53"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Saboteur.png);
+}
+.card.face[data-card_no="54"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Bridge.png);
+}
+.card.face[data-card_no="55"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Secret_Chamber.png);
+}
+.card.face[data-card_no="56"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Shanty_Town.png);
+}
+.card.face[data-card_no="57"] {
+	background-image: url(../image/02_Intrigue_115x75/s_Tribute.png);
+}
+*/
+
+/* 05. 繁栄 */
+/*
+.card.face[data-card_no="100"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Quarry.png);
+}
+.card.face[data-card_no="101"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Grand_Market.png);
+}
+.card.face[data-card_no="102"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Counting_House.png);
+}
+.card.face[data-card_no="103"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Hoard.png);
+}
+.card.face[data-card_no="104"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Expand.png);
+}
+.card.face[data-card_no="105"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Monument.png);
+}
+.card.face[data-card_no="106"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Kings_Court.png);
+}
+.card.face[data-card_no="107"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Peddler.png);
+}
+.card.face[data-card_no="108"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Royal_Seal.png);
+}
+.card.face[data-card_no="109"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Bank.png);
+}
+.card.face[data-card_no="110"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Contraband.png);
+}
+.card.face[data-card_no="111"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Trade_Route.png);
+}
+.card.face[data-card_no="112"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Talisman.png);
+}
+.card.face[data-card_no="113"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Bishop.png);
+}
+.card.face[data-card_no="114"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Loan.png);
+}
+.card.face[data-card_no="115"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Colony.png);
+}
+.card.face[data-card_no="116"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Mint.png);
+}
+.card.face[data-card_no="117"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Rabble.png);
+}
+.card.face[data-card_no="118"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Forge.png);
+}
+.card.face[data-card_no="119"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Venture.png);
+}
+.card.face[data-card_no="120"] {
+	background-image: url(../image/05_Prosperity_115x75/s_City.png);
+}
+.card.face[data-card_no="121"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Goons.png);
+}
+.card.face[data-card_no="122"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Platinum.png);
+}
+.card.face[data-card_no="123"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Watchtower.png);
+}
+.card.face[data-card_no="124"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Vault.png);
+}
+.card.face[data-card_no="125"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Mountebank.png);
+}
+.card.face[data-card_no="126"] {
+	background-image: url(../image/05_Prosperity_115x75/s_Workers_Village.png);
+}
+*/
+
+
+
+
+.card.face[data-card_no="1"] {
+	background-image : url(../image/115x75/s_Copper.png);
+}
+.card.face[data-card_no="2"] {
+	background-image : url(../image/115x75/s_Silver.png);
+}
+.card.face[data-card_no="3"] {
+	background-image : url(../image/115x75/s_Gold.png);
+}
+.card.face[data-card_no="4"] {
+	background-image : url(../image/115x75/s_Estate.png);
+}
+.card.face[data-card_no="5"] {
+	background-image : url(../image/115x75/s_Duchy.png);
+}
+.card.face[data-card_no="6"] {
+	background-image : url(../image/115x75/s_Province.png);
+}
+.card.face[data-card_no="7"] {
+	background-image : url(../image/115x75/s_Curse.png);
+}
+.card.face[data-card_no="8"] {
+	background-image : url(../image/115x75/s_Market.png);
+}
+.card.face[data-card_no="9"] {
+	background-image : url(../image/115x75/s_Remodel.png);
+}
+.card.face[data-card_no="10"] {
+	background-image : url(../image/115x75/s_Smithy.png);
+}
+.card.face[data-card_no="11"] {
+	background-image : url(../image/115x75/s_Moneylender.png);
+}
+.card.face[data-card_no="12"] {
+	background-image : url(../image/115x75/s_Woodcutter.png);
+}
+.card.face[data-card_no="13"] {
+	background-image : url(../image/115x75/s_Council_Room.png);
+}
+.card.face[data-card_no="14"] {
+	background-image : url(../image/115x75/s_Throne_Room.png);
+}
+.card.face[data-card_no="15"] {
+	background-image : url(../image/115x75/s_Laboratory.png);
+}
+.card.face[data-card_no="16"] {
+	background-image : url(../image/115x75/s_Mine.png);
+}
+.card.face[data-card_no="17"] {
+	background-image : url(../image/115x75/s_Workshop.png);
+}
+.card.face[data-card_no="18"] {
+	background-image : url(../image/115x75/s_Chancellor.png);
+}
+.card.face[data-card_no="19"] {
+	background-image : url(../image/115x75/s_Feast.png);
+}
+.card.face[data-card_no="20"] {
+	background-image : url(../image/115x75/s_Festival.png);
+}
+.card.face[data-card_no="21"] {
+	background-image : url(../image/115x75/s_Library.png);
+}
+.card.face[data-card_no="22"] {
+	background-image : url(../image/115x75/s_Cellar.png);
+}
+.card.face[data-card_no="23"] {
+	background-image : url(../image/115x75/s_Gardens.png);
+}
+.card.face[data-card_no="24"] {
+	background-image : url(../image/115x75/s_Thief.png);
+}
+.card.face[data-card_no="25"] {
+	background-image : url(../image/115x75/s_Adventurer.png);
+}
+.card.face[data-card_no="26"] {
+	background-image : url(../image/115x75/s_Moat.png);
+}
+.card.face[data-card_no="27"] {
+	background-image : url(../image/115x75/s_Witch.png);
+}
+.card.face[data-card_no="28"] {
+	background-image : url(../image/115x75/s_Spy.png);
+}
+.card.face[data-card_no="29"] {
+	background-image : url(../image/115x75/s_Militia.png);
+}
+.card.face[data-card_no="30"] {
+	background-image : url(../image/115x75/s_Village.png);
+}
+.card.face[data-card_no="31"] {
+	background-image : url(../image/115x75/s_Bureaucrat.png);
+}
+.card.face[data-card_no="32"] {
+	background-image : url(../image/115x75/s_Chapel.png);
+}
+.card.face[data-card_no="33"] {
+	background-image : url(../image/115x75/s_Great_Hall.png);
+}
+.card.face[data-card_no="34"] {
+	background-image : url(../image/115x75/s_Upgrade.png);
+}
+.card.face[data-card_no="35"] {
+	background-image : url(../image/115x75/s_Masquerade.png);
+}
+.card.face[data-card_no="36"] {
+	background-image : url(../image/115x75/s_Nobles.png);
+}
+.card.face[data-card_no="37"] {
+	background-image : url(../image/115x75/s_Conspirator.png);
+}
+.card.face[data-card_no="38"] {
+	background-image : url(../image/115x75/s_Trading_Post.png);
+}
+.card.face[data-card_no="39"] {
+	background-image : url(../image/115x75/s_Mining_Village.png);
+}
+.card.face[data-card_no="40"] {
+	background-image : url(../image/115x75/s_Duke.png);
+}
+.card.face[data-card_no="41"] {
+	background-image : url(../image/115x75/s_Torturer.png);
+}
+.card.face[data-card_no="42"] {
+	background-image : url(../image/115x75/s_Swindler.png);
+}
+.card.face[data-card_no="43"] {
+	background-image : url(../image/115x75/s_Steward.png);
+}
+.card.face[data-card_no="44"] {
+	background-image : url(../image/115x75/s_Baron.png);
+}
+.card.face[data-card_no="45"] {
+	background-image : url(../image/115x75/s_Minion.png);
+}
+.card.face[data-card_no="46"] {
+	background-image : url(../image/115x75/s_Scout.png);
+}
+.card.face[data-card_no="47"] {
+	background-image : url(../image/115x75/s_Pawn.png);
+}
+.card.face[data-card_no="48"] {
+	background-image : url(../image/115x75/s_Ironworks.png);
+}
+.card.face[data-card_no="49"] {
+	background-image : url(../image/115x75/s_Coppersmith.png);
+}
+.card.face[data-card_no="50"] {
+	background-image : url(../image/115x75/s_Courtyard.png);
+}
+.card.face[data-card_no="51"] {
+	background-image : url(../image/115x75/s_Wishing_Well.png);
+}
+.card.face[data-card_no="52"] {
+	background-image : url(../image/115x75/s_Harem.png);
+}
+.card.face[data-card_no="53"] {
+	background-image : url(../image/115x75/s_Saboteur.png);
+}
+.card.face[data-card_no="54"] {
+	background-image : url(../image/115x75/s_Bridge.png);
+}
+.card.face[data-card_no="55"] {
+	background-image : url(../image/115x75/s_Secret_Chamber.png);
+}
+.card.face[data-card_no="56"] {
+	background-image : url(../image/115x75/s_Shanty_Town.png);
+}
+.card.face[data-card_no="57"] {
+	background-image : url(../image/115x75/s_Tribute.png);
+}
+.card.face[data-card_no="58"] {
+	background-image : url(../image/115x75/s_Sea_Hag.png);
+}
+.card.face[data-card_no="59"] {
+	background-image : url(../image/115x75/s_Pirate_Ship.png);
+}
+.card.face[data-card_no="60"] {
+	background-image : url(../image/115x75/s_Fishing_Village.png);
+}
+.card.face[data-card_no="61"] {
+	background-image : url(../image/115x75/s_Cutpurse.png);
+}
+.card.face[data-card_no="62"] {
+	background-image : url(../image/115x75/s_Native_Village.png);
+}
+.card.face[data-card_no="63"] {
+	background-image : url(../image/115x75/s_Navigator.png);
+}
+.card.face[data-card_no="64"] {
+	background-image : url(../image/115x75/s_Tactician.png);
+}
+.card.face[data-card_no="65"] {
+	background-image : url(../image/115x75/s_Island.png);
+}
+.card.face[data-card_no="66"] {
+	background-image : url(../image/115x75/s_Merchant_Ship.png);
+}
+.card.face[data-card_no="67"] {
+	background-image : url(../image/115x75/s_Pearl_Diver.png);
+}
+.card.face[data-card_no="68"] {
+	background-image : url(../image/115x75/s_Outpost.png);
+}
+.card.face[data-card_no="69"] {
+	background-image : url(../image/115x75/s_Warehouse.png);
+}
+.card.face[data-card_no="70"] {
+	background-image : url(../image/115x75/s_Ambassador.png);
+}
+.card.face[data-card_no="71"] {
+	background-image : url(../image/115x75/s_Caravan.png);
+}
+.card.face[data-card_no="72"] {
+	background-image : url(../image/115x75/s_Treasure_Map.png);
+}
+.card.face[data-card_no="73"] {
+	background-image : url(../image/115x75/s_Explorer.png);
+}
+.card.face[data-card_no="74"] {
+	background-image : url(../image/115x75/s_Haven.png);
+}
+.card.face[data-card_no="75"] {
+	background-image : url(../image/115x75/s_Lighthouse.png);
+}
+.card.face[data-card_no="76"] {
+	background-image : url(../image/115x75/s_Bazaar.png);
+}
+.card.face[data-card_no="77"] {
+	background-image : url(../image/115x75/s_Salvager.png);
+}
+.card.face[data-card_no="78"] {
+	background-image : url(../image/115x75/s_Wharf.png);
+}
+.card.face[data-card_no="79"] {
+	background-image : url(../image/115x75/s_Treasury.png);
+}
+.card.face[data-card_no="80"] {
+	background-image : url(../image/115x75/s_Smugglers.png);
+}
+.card.face[data-card_no="81"] {
+	background-image : url(../image/115x75/s_Lookout.png);
+}
+.card.face[data-card_no="82"] {
+	background-image : url(../image/115x75/s_Ghost_Ship.png);
+}
+.card.face[data-card_no="83"] {
+	background-image : url(../image/115x75/s_Embargo.png);
+}
+.card.face[data-card_no="84"] {
+	background-image : url(../image/115x75/s_Black_Market.png);
+}
+.card.face[data-card_no="85"] {
+	background-image : url(../image/115x75/s_Envoy.png);
+}
+.card.face[data-card_no="86"] {
+	background-image : url(../image/115x75/s_Stash.png);
+}
+.card.face[data-card_no="87"] {
+	background-image : url(../image/115x75/s_Apothecary.png);
+}
+.card.face[data-card_no="88"] {
+	background-image : url(../image/115x75/s_Philosophers_Stone.png);
+}
+.card.face[data-card_no="89"] {
+	background-image : url(../image/115x75/s_Golem.png);
+}
+.card.face[data-card_no="90"] {
+	background-image : url(../image/115x75/s_Possession.png);
+}
+.card.face[data-card_no="91"] {
+	background-image : url(../image/115x75/s_University.png);
+}
+.card.face[data-card_no="92"] {
+	background-image : url(../image/115x75/s_Familiar.png);
+}
+.card.face[data-card_no="93"] {
+	background-image : url(../image/115x75/s_Apprentice.png);
+}
+.card.face[data-card_no="94"] {
+	background-image : url(../image/115x75/s_Scrying_Pool.png);
+}
+.card.face[data-card_no="95"] {
+	background-image : url(../image/115x75/s_Vineyard.png);
+}
+.card.face[data-card_no="96"] {
+	background-image : url(../image/115x75/s_Transmute.png);
+}
+.card.face[data-card_no="97"] {
+	background-image : url(../image/115x75/s_Potion.png);
+}
+.card.face[data-card_no="98"] {
+	background-image : url(../image/115x75/s_Herbalist.png);
+}
+.card.face[data-card_no="99"] {
+	background-image : url(../image/115x75/s_Alchemist.png);
+}
+.card.face[data-card_no="100"] {
+	background-image : url(../image/115x75/s_Quarry.png);
+}
+.card.face[data-card_no="101"] {
+	background-image : url(../image/115x75/s_Grand_Market.png);
+}
+.card.face[data-card_no="102"] {
+	background-image : url(../image/115x75/s_Counting_House.png);
+}
+.card.face[data-card_no="103"] {
+	background-image : url(../image/115x75/s_Hoard.png);
+}
+.card.face[data-card_no="104"] {
+	background-image : url(../image/115x75/s_Expand.png);
+}
+.card.face[data-card_no="105"] {
+	background-image : url(../image/115x75/s_Monument.png);
+}
+.card.face[data-card_no="106"] {
+	background-image : url(../image/115x75/s_Kings_Court.png);
+}
+.card.face[data-card_no="107"] {
+	background-image : url(../image/115x75/s_Peddler.png);
+}
+.card.face[data-card_no="108"] {
+	background-image : url(../image/115x75/s_Royal_Seal.png);
+}
+.card.face[data-card_no="109"] {
+	background-image : url(../image/115x75/s_Bank.png);
+}
+.card.face[data-card_no="110"] {
+	background-image : url(../image/115x75/s_Contraband.png);
+}
+.card.face[data-card_no="111"] {
+	background-image : url(../image/115x75/s_Trade_Route.png);
+}
+.card.face[data-card_no="112"] {
+	background-image : url(../image/115x75/s_Talisman.png);
+}
+.card.face[data-card_no="113"] {
+	background-image : url(../image/115x75/s_Bishop.png);
+}
+.card.face[data-card_no="114"] {
+	background-image : url(../image/115x75/s_Loan.png);
+}
+.card.face[data-card_no="115"] {
+	background-image : url(../image/115x75/s_Colony.png);
+}
+.card.face[data-card_no="116"] {
+	background-image : url(../image/115x75/s_Mint.png);
+}
+.card.face[data-card_no="117"] {
+	background-image : url(../image/115x75/s_Rabble.png);
+}
+.card.face[data-card_no="118"] {
+	background-image : url(../image/115x75/s_Forge.png);
+}
+.card.face[data-card_no="119"] {
+	background-image : url(../image/115x75/s_Venture.png);
+}
+.card.face[data-card_no="120"] {
+	background-image : url(../image/115x75/s_City.png);
+}
+.card.face[data-card_no="121"] {
+	background-image : url(../image/115x75/s_Goons.png);
+}
+.card.face[data-card_no="122"] {
+	background-image : url(../image/115x75/s_Platinum.png);
+}
+.card.face[data-card_no="123"] {
+	background-image : url(../image/115x75/s_Watchtower.png);
+}
+.card.face[data-card_no="124"] {
+	background-image : url(../image/115x75/s_Vault.png);
+}
+.card.face[data-card_no="125"] {
+	background-image : url(../image/115x75/s_Mountebank.png);
+}
+.card.face[data-card_no="126"] {
+	background-image : url(../image/115x75/s_Workers_Village.png);
+}
+.card.face[data-card_no="127"] {
+	background-image : url(../image/115x75/s_Menagerie.png);
+}
+.card.face[data-card_no="128"] {
+	background-image : url(../image/115x75/s_Horse_Traders.png);
+}
+.card.face[data-card_no="129"] {
+	background-image : url(../image/115x75/s_Fortune_Teller.png);
+}
+.card.face[data-card_no="130"] {
+	background-image : url(../image/115x75/s_Diadem.png);
+}
+.card.face[data-card_no="131"] {
+	background-image : url(../image/115x75/s_Princess.png);
+}
+.card.face[data-card_no="132"] {
+	background-image : url(../image/115x75/s_Bag_of_Gold.png);
+}
+.card.face[data-card_no="133"] {
+	background-image : url(../image/115x75/s_Remake.png);
+}
+.card.face[data-card_no="134"] {
+	background-image : url(../image/115x75/s_Harvest.png);
+}
+.card.face[data-card_no="135"] {
+	background-image : url(../image/115x75/s_Hunting_Party.png);
+}
+.card.face[data-card_no="136"] {
+	background-image : url(../image/115x75/s_Hamlet.png);
+}
+.card.face[data-card_no="137"] {
+	background-image : url(../image/115x75/s_Jester.png);
+}
+.card.face[data-card_no="138"] {
+	background-image : url(../image/115x75/s_Farming_Village.png);
+}
+.card.face[data-card_no="139"] {
+	background-image : url(../image/115x75/s_Tournament.png);
+}
+.card.face[data-card_no="140"] {
+	background-image : url(../image/115x75/s_Fairgrounds.png);
+}
+.card.face[data-card_no="141"] {
+	background-image : url(../image/115x75/s_Horn_of_Plenty.png);
+}
+.card.face[data-card_no="142"] {
+	background-image : url(../image/115x75/s_Young_Witch.png);
+}
+.card.face[data-card_no="143"] {
+	background-image : url(../image/115x75/s_Trusty_Steed.png);
+}
+.card.face[data-card_no="144"] {
+	background-image : url(../image/115x75/s_Followers.png);
+}
+.card.face[data-card_no="145"] {
+	background-image : url(../image/115x75/s_Oasis.png);
+}
+.card.face[data-card_no="146"] {
+	background-image : url(../image/115x75/s_Highway.png);
+}
+.card.face[data-card_no="147"] {
+	background-image : url(../image/115x75/s_Develop.png);
+}
+.card.face[data-card_no="148"] {
+	background-image : url(../image/115x75/s_Scheme.png);
+}
+.card.face[data-card_no="149"] {
+	background-image : url(../image/115x75/s_Mandarin.png);
+}
+.card.face[data-card_no="150"] {
+	background-image : url(../image/115x75/s_Noble_Brigand.png);
+}
+.card.face[data-card_no="151"] {
+	background-image : url(../image/115x75/s_Stables.png);
+}
+.card.face[data-card_no="152"] {
+	background-image : url(../image/115x75/s_Crossroads.png);
+}
+.card.face[data-card_no="153"] {
+	background-image : url(../image/115x75/s_Fools_Gold.png);
+}
+.card.face[data-card_no="154"] {
+	background-image : url(../image/115x75/s_Trader.png);
+}
+.card.face[data-card_no="155"] {
+	background-image : url(../image/115x75/s_Duchess.png);
+}
+.card.face[data-card_no="156"] {
+	background-image : url(../image/115x75/s_Spice_Merchant.png);
+}
+.card.face[data-card_no="157"] {
+	background-image : url(../image/115x75/s_Tunnel.png);
+}
+.card.face[data-card_no="158"] {
+	background-image : url(../image/115x75/s_Border_Village.png);
+}
+.card.face[data-card_no="159"] {
+	background-image : url(../image/115x75/s_Silk_Road.png);
+}
+.card.face[data-card_no="160"] {
+	background-image : url(../image/115x75/s_Oracle.png);
+}
+.card.face[data-card_no="161"] {
+	background-image : url(../image/115x75/s_Embassy.png);
+}
+.card.face[data-card_no="162"] {
+	background-image : url(../image/115x75/s_Cartographer.png);
+}
+.card.face[data-card_no="163"] {
+	background-image : url(../image/115x75/s_Haggler.png);
+}
+.card.face[data-card_no="164"] {
+	background-image : url(../image/115x75/s_Farmland.png);
+}
+.card.face[data-card_no="165"] {
+	background-image : url(../image/115x75/s_Ill-Gotten_Gains.png);
+}
+.card.face[data-card_no="166"] {
+	background-image : url(../image/115x75/s_Margrave.png);
+}
+.card.face[data-card_no="167"] {
+	background-image : url(../image/115x75/s_Cache.png);
+}
+.card.face[data-card_no="168"] {
+	background-image : url(../image/115x75/s_Inn.png);
+}
+.card.face[data-card_no="169"] {
+	background-image : url(../image/115x75/s_Nomad_Camp.png);
+}
+.card.face[data-card_no="170"] {
+	background-image : url(../image/115x75/s_Jack_of_All_Trades.png);
+}
+.card.face[data-card_no="171"] {
+	background-image : url(../image/115x75/s_Walled_Village.png);
+}
+.card.face[data-card_no="172"] {
+	background-image : url(../image/115x75/s_Governor.png);
+}
+.card.face[data-card_no="173"] {
+	background-image : url(../image/115x75/s_Market_Square.png);
+}
+.card.face[data-card_no="174"] {
+	background-image : url(../image/115x75/s_Ruined_Market.png);
+}
+.card.face[data-card_no="175"] {
+	background-image : url(../image/115x75/s_Hermit.png);
+}
+.card.face[data-card_no="176"] {
+	background-image : url(../image/115x75/s_Ironmonger.png);
+}
+.card.face[data-card_no="177"] {
+	background-image : url(../image/115x75/s_Hunting_Grounds.png);
+}
+.card.face[data-card_no="178"] {
+	background-image : url(../image/115x75/s_Knights.png);
+}
+.card.face[data-card_no="179"] {
+	background-image : url(../image/115x75/s_Sir_Vander.png);
+}
+.card.face[data-card_no="180"] {
+	background-image : url(../image/115x75/s_Sir_Destry.png);
+}
+.card.face[data-card_no="181"] {
+	background-image : url(../image/115x75/s_Sir_Bailey.png);
+}
+.card.face[data-card_no="182"] {
+	background-image : url(../image/115x75/s_Sir_Martin.png);
+}
+.card.face[data-card_no="183"] {
+	background-image : url(../image/115x75/s_Sir_Michael.png);
+}
+.card.face[data-card_no="184"] {
+	background-image : url(../image/115x75/s_Dame_Anna.png);
+}
+.card.face[data-card_no="185"] {
+	background-image : url(../image/115x75/s_Dame_Josephine.png);
+}
+.card.face[data-card_no="186"] {
+	background-image : url(../image/115x75/s_Dame_Sylvia.png);
+}
+.card.face[data-card_no="187"] {
+	background-image : url(../image/115x75/s_Dame_Natalie.png);
+}
+.card.face[data-card_no="188"] {
+	background-image : url(../image/115x75/s_Dame_Molly.png);
+}
+.card.face[data-card_no="189"] {
+	background-image : url(../image/115x75/s_Counterfeit.png);
+}
+.card.face[data-card_no="190"] {
+	background-image : url(../image/115x75/s_Poor_House.png);
+}
+.card.face[data-card_no="191"] {
+	background-image : url(../image/115x75/s_Madman.png);
+}
+.card.face[data-card_no="192"] {
+	background-image : url(../image/115x75/s_Cultist.png);
+}
+.card.face[data-card_no="193"] {
+	background-image : url(../image/115x75/s_Necropolis.png);
+}
+.card.face[data-card_no="194"] {
+	background-image : url(../image/115x75/s_Wandering_Minstrel.png);
+}
+.card.face[data-card_no="195"] {
+	background-image : url(../image/115x75/s_Overgrown_Estate.png);
+}
+.card.face[data-card_no="196"] {
+	background-image : url(../image/115x75/s_Junk_Dealer.png);
+}
+.card.face[data-card_no="197"] {
+	background-image : url(../image/115x75/s_Sage.png);
+}
+.card.face[data-card_no="198"] {
+	background-image : url(../image/115x75/s_Procession.png);
+}
+.card.face[data-card_no="199"] {
+	background-image : url(../image/115x75/s_Scavenger.png);
+}
+.card.face[data-card_no="200"] {
+	background-image : url(../image/115x75/s_Forager.png);
+}
+.card.face[data-card_no="201"] {
+	background-image : url(../image/115x75/s_Altar.png);
+}
+.card.face[data-card_no="202"] {
+	background-image : url(../image/115x75/s_Bandit_Camp.png);
+}
+.card.face[data-card_no="203"] {
+	background-image : url(../image/115x75/s_Death_Cart.png);
+}
+.card.face[data-card_no="204"] {
+	background-image : url(../image/115x75/s_Marauder.png);
+}
+.card.face[data-card_no="205"] {
+	background-image : url(../image/115x75/s_Squire.png);
+}
+.card.face[data-card_no="206"] {
+	background-image : url(../image/115x75/s_Fortress.png);
+}
+.card.face[data-card_no="207"] {
+	background-image : url(../image/115x75/s_Survivors.png);
+}
+.card.face[data-card_no="208"] {
+	background-image : url(../image/115x75/s_Rebuild.png);
+}
+.card.face[data-card_no="209"] {
+	background-image : url(../image/115x75/s_Catacombs.png);
+}
+.card.face[data-card_no="210"] {
+	background-image : url(../image/115x75/s_Rogue.png);
+}
+.card.face[data-card_no="211"] {
+	background-image : url(../image/115x75/s_Ruined_Library.png);
+}
+.card.face[data-card_no="212"] {
+	background-image : url(../image/115x75/s_Hovel.png);
+}
+.card.face[data-card_no="213"] {
+	background-image : url(../image/115x75/s_Rats.png);
+}
+.card.face[data-card_no="214"] {
+	background-image : url(../image/115x75/s_Abandoned_Mine.png);
+}
+.card.face[data-card_no="215"] {
+	background-image : url(../image/115x75/s_Ruined_Village.png);
+}
+.card.face[data-card_no="216"] {
+	background-image : url(../image/115x75/s_Graverobber.png);
+}
+.card.face[data-card_no="217"] {
+	background-image : url(../image/115x75/s_Count.png);
+}
+.card.face[data-card_no="218"] {
+	background-image : url(../image/115x75/s_Band_of_Misfits.png);
+}
+.card.face[data-card_no="219"] {
+	background-image : url(../image/115x75/s_Mystic.png);
+}
+.card.face[data-card_no="220"] {
+	background-image : url(../image/115x75/s_Armory.png);
+}
+.card.face[data-card_no="221"] {
+	background-image : url(../image/115x75/s_Ruins.png);
+}
+.card.face[data-card_no="222"] {
+	background-image : url(../image/115x75/s_Urchin.png);
+}
+.card.face[data-card_no="223"] {
+	background-image : url(../image/115x75/s_Vagrant.png);
+}
+.card.face[data-card_no="224"] {
+	background-image : url(../image/115x75/s_Feodum.png);
+}
+.card.face[data-card_no="225"] {
+	background-image : url(../image/115x75/s_Storeroom.png);
+}
+.card.face[data-card_no="226"] {
+	background-image : url(../image/115x75/s_Beggar.png);
+}
+.card.face[data-card_no="227"] {
+	background-image : url(../image/115x75/s_Mercenary.png);
+}
+.card.face[data-card_no="228"] {
+	background-image : url(../image/115x75/s_Pillage.png);
+}
+.card.face[data-card_no="229"] {
+	background-image : url(../image/115x75/s_Spoils.png);
+}
+.card.face[data-card_no="230"] {
+	background-image : url(../image/115x75/s_Stonemason.png);
+}
+.card.face[data-card_no="231"] {
+	background-image : url(../image/115x75/s_Doctor.png);
+}
+.card.face[data-card_no="232"] {
+	background-image : url(../image/115x75/s_Taxman.png);
+}
+.card.face[data-card_no="233"] {
+	background-image : url(../image/115x75/s_Journeyman.png);
+}
+.card.face[data-card_no="234"] {
+	background-image : url(../image/115x75/s_Merchant_Guild.png);
+}
+.card.face[data-card_no="235"] {
+	background-image : url(../image/115x75/s_Advisor.png);
+}
+.card.face[data-card_no="236"] {
+	background-image : url(../image/115x75/s_Herald.png);
+}
+.card.face[data-card_no="237"] {
+	background-image : url(../image/115x75/s_Butcher.png);
+}
+.card.face[data-card_no="238"] {
+	background-image : url(../image/115x75/s_Baker.png);
+}
+.card.face[data-card_no="239"] {
+	background-image : url(../image/115x75/s_Plaza.png);
+}
+.card.face[data-card_no="240"] {
+	background-image : url(../image/115x75/s_Masterpiece.png);
+}
+.card.face[data-card_no="241"] {
+	background-image : url(../image/115x75/s_Soothsayer.png);
+}
+.card.face[data-card_no="242"] {
+	background-image : url(../image/115x75/s_Candlestick_Maker.png);
+}
+.card.face[data-card_no="243"] {
+	background-image : url(../image/115x75/s_Prince.png);
+}
+.card.face[data-card_no="244"] {
+	background-image : url(../image/115x75/s_Guide.png);
+}
+.card.face[data-card_no="245"] {
+	background-image : url(../image/115x75/s_Relic.png);
+}
+.card.face[data-card_no="246"] {
+	background-image : url(../image/115x75/s_Lost_City.png);
+}
+.card.face[data-card_no="247"] {
+	background-image : url(../image/115x75/s_Distant_Lands.png);
+}
+.card.face[data-card_no="248"] {
+	background-image : url(../image/115x75/s_Storyteller.png);
+}
+.card.face[data-card_no="249"] {
+	background-image : url(../image/115x75/s_Magpie.png);
+}
+.card.face[data-card_no="250"] {
+	background-image : url(../image/115x75/s_Page.png);
+}
+.card.face[data-card_no="251"] {
+	background-image : url(../image/115x75/s_Giant.png);
+}
+.card.face[data-card_no="252"] {
+	background-image : url(../image/115x75/s_Artificer.png);
+}
+.card.face[data-card_no="253"] {
+	background-image : url(../image/115x75/s_Royal_Carriage.png);
+}
+.card.face[data-card_no="254"] {
+	background-image : url(../image/115x75/s_Messenger.png);
+}
+.card.face[data-card_no="255"] {
+	background-image : url(../image/115x75/s_Miser.png);
+}
+.card.face[data-card_no="256"] {
+	background-image : url(../image/115x75/s_Caravan_Guard.png);
+}
+.card.face[data-card_no="257"] {
+	background-image : url(../image/115x75/s_Gear.png);
+}
+.card.face[data-card_no="258"] {
+	background-image : url(../image/115x75/s_Dungeon.png);
+}
+.card.face[data-card_no="259"] {
+	background-image : url(../image/115x75/s_Raze.png);
+}
+.card.face[data-card_no="260"] {
+	background-image : url(../image/115x75/s_Swamp_Hag.png);
+}
+.card.face[data-card_no="261"] {
+	background-image : url(../image/115x75/s_Ratcatcher.png);
+}
+.card.face[data-card_no="262"] {
+	background-image : url(../image/115x75/s_Peasant.png);
+}
+.card.face[data-card_no="263"] {
+	background-image : url(../image/115x75/s_Haunted_Woods.png);
+}
+.card.face[data-card_no="264"] {
+	background-image : url(../image/115x75/s_Bridge_Troll.png);
+}
+.card.face[data-card_no="265"] {
+	background-image : url(../image/115x75/s_Duplicate.png);
+}
+.card.face[data-card_no="266"] {
+	background-image : url(../image/115x75/s_Transmogrify.png);
+}
+.card.face[data-card_no="267"] {
+	background-image : url(../image/115x75/s_Coin_of_the_Realm.png);
+}
+.card.face[data-card_no="268"] {
+	background-image : url(../image/115x75/s_Treasure_Trove.png);
+}
+.card.face[data-card_no="269"] {
+	background-image : url(../image/115x75/s_Amulet.png);
+}
+.card.face[data-card_no="270"] {
+	background-image : url(../image/115x75/s_Port.png);
+}
+.card.face[data-card_no="271"] {
+	background-image : url(../image/115x75/s_Hireling.png);
+}
+.card.face[data-card_no="272"] {
+	background-image : url(../image/115x75/s_Ranger.png);
+}
+.card.face[data-card_no="273"] {
+	background-image : url(../image/115x75/s_Wine_Merchant.png);
+}
+.card.face[data-card_no="274"] {
+	background-image : url(../image/115x75/s_Travelling_Fair.png);
+}
+.card.face[data-card_no="275"] {
+	background-image : url(../image/115x75/s_Lost_Arts.png);
+}
+.card.face[data-card_no="276"] {
+	background-image : url(../image/115x75/s_Seaway.png);
+}
+.card.face[data-card_no="277"] {
+	background-image : url(../image/115x75/s_Raid.png);
+}
+.card.face[data-card_no="278"] {
+	background-image : url(../image/115x75/s_Trade.png);
+}
+.card.face[data-card_no="279"] {
+	background-image : url(../image/115x75/s_Mission.png);
+}
+.card.face[data-card_no="280"] {
+	background-image : url(../image/115x75/s_Borrow.png);
+}
+.card.face[data-card_no="281"] {
+	background-image : url(../image/115x75/s_Pilgrimage.png);
+}
+.card.face[data-card_no="282"] {
+	background-image : url(../image/115x75/s_Inheritance.png);
+}
+.card.face[data-card_no="283"] {
+	background-image : url(../image/115x75/s_Bonfire.png);
+}
+.card.face[data-card_no="284"] {
+	background-image : url(../image/115x75/s_Expedition.png);
+}
+.card.face[data-card_no="285"] {
+	background-image : url(../image/115x75/s_Quest.png);
+}
+.card.face[data-card_no="286"] {
+	background-image : url(../image/115x75/s_Training.png);
+}
+.card.face[data-card_no="287"] {
+	background-image : url(../image/115x75/s_Scouting_Party.png);
+}
+.card.face[data-card_no="288"] {
+	background-image : url(../image/115x75/s_Ball.png);
+}
+.card.face[data-card_no="289"] {
+	background-image : url(../image/115x75/s_Save.png);
+}
+.card.face[data-card_no="290"] {
+	background-image : url(../image/115x75/s_Alms.png);
+}
+.card.face[data-card_no="291"] {
+	background-image : url(../image/115x75/s_Pathfinding.png);
+}
+.card.face[data-card_no="292"] {
+	background-image : url(../image/115x75/s_Plan.png);
+}
+.card.face[data-card_no="293"] {
+	background-image : url(../image/115x75/s_Ferry.png);
+}
+.card.face[data-card_no="294"] {
+	background-image : url(../image/115x75/s_Warrior.png);
+}
+.card.face[data-card_no="295"] {
+	background-image : url(../image/115x75/s_Teacher.png);
+}
+.card.face[data-card_no="296"] {
+	background-image : url(../image/115x75/s_Fugitive.png);
+}
+.card.face[data-card_no="297"] {
+	background-image : url(../image/115x75/s_Champion.png);
+}
+.card.face[data-card_no="298"] {
+	background-image : url(../image/115x75/s_Treasure_Hunter.png);
+}
+.card.face[data-card_no="299"] {
+	background-image : url(../image/115x75/s_Hero.png);
+}
+.card.face[data-card_no="300"] {
+	background-image : url(../image/115x75/s_Soldier.png);
+}
+.card.face[data-card_no="301"] {
+	background-image : url(../image/115x75/s_Disciple.png);
+}
+.card.face[data-card_no="302"] {
+	background-image : url(../image/115x75/s_Summon.png);
+}
+.card.face[data-card_no="303"] {
+	background-image : url(../image/115x75/s_Engineer.png);
+}
+.card.face[data-card_no="304"] {
+	background-image : url(../image/115x75/s_City_Quarter.png);
+}
+.card.face[data-card_no="305"] {
+	background-image : url(../image/115x75/s_Overlord.png);
+}
+.card.face[data-card_no="306"] {
+	background-image : url(../image/115x75/s_Royal_Blacksmith.png);
+}
+/*.card.face[data-card_no="307"] {
+	background-image : url(../image/115x75/s_Encampment/Plunder.png);
+}
+.card.face[data-card_no="308"] {
+	background-image : url(../image/115x75/s_Patrician/Emporium.png);
+}
+.card.face[data-card_no="309"] {
+	background-image : url(../image/115x75/s_Settlers/Bustling_Village.png);
+}
+.card.face[data-card_no="310"] {
+	background-image : url(../image/115x75/s_Castles.png);
+}
+.card.face[data-card_no="311"] {
+	background-image : url(../image/115x75/s_Catapult/Rocks.png);
+}
+*/.card.face[data-card_no="312"] {
+	background-image : url(../image/115x75/s_Chariot_Race.png);
+}
+.card.face[data-card_no="313"] {
+	background-image : url(../image/115x75/s_Enchantress.png);
+}
+.card.face[data-card_no="314"] {
+	background-image : url(../image/115x75/s_Farmers_Market.png);
+}
+/*.card.face[data-card_no="315"] {
+	background-image : url(../image/115x75/s_Gladiator/Fortune.png);
+}*/
+.card.face[data-card_no="316"] {
+	background-image : url(../image/115x75/s_Sacrifice.png);
+}
+.card.face[data-card_no="317"] {
+	background-image : url(../image/115x75/s_Temple.png);
+}
+.card.face[data-card_no="318"] {
+	background-image : url(../image/115x75/s_Villa.png);
+}
+.card.face[data-card_no="319"] {
+	background-image : url(../image/115x75/s_Archive.png);
+}
+.card.face[data-card_no="320"] {
+	background-image : url(../image/115x75/s_Capital.png);
+}
+.card.face[data-card_no="321"] {
+	background-image : url(../image/115x75/s_Charm.png);
+}
+.card.face[data-card_no="322"] {
+	background-image : url(../image/115x75/s_Crown.png);
+}
+.card.face[data-card_no="323"] {
+	background-image : url(../image/115x75/s_Forum.png);
+}
+.card.face[data-card_no="324"] {
+	background-image : url(../image/115x75/s_Groundskeeper.png);
+}
+.card.face[data-card_no="325"] {
+	background-image : url(../image/115x75/s_Legionary.png);
+}
+.card.face[data-card_no="326"] {
+	background-image : url(../image/115x75/s_Wild_Hunt.png);
+}
+.card.face[data-card_no="327"] {
+	background-image : url(../image/115x75/s_Triumph.png);
+}
+.card.face[data-card_no="328"] {
+	background-image : url(../image/115x75/s_Annex.png);
+}
+.card.face[data-card_no="329"] {
+	background-image : url(../image/115x75/s_Donate.png);
+}
+.card.face[data-card_no="330"] {
+	background-image : url(../image/115x75/s_Advance.png);
+}
+.card.face[data-card_no="331"] {
+	background-image : url(../image/115x75/s_Delve.png);
+}
+.card.face[data-card_no="332"] {
+	background-image : url(../image/115x75/s_Tax.png);
+}
+.card.face[data-card_no="333"] {
+	background-image : url(../image/115x75/s_Banquet.png);
+}
+.card.face[data-card_no="334"] {
+	background-image : url(../image/115x75/s_Ritual.png);
+}
+.card.face[data-card_no="335"] {
+	background-image : url(../image/115x75/s_Salt_the_Earth.png);
+}
+.card.face[data-card_no="336"] {
+	background-image : url(../image/115x75/s_Wedding.png);
+}
+.card.face[data-card_no="337"] {
+	background-image : url(../image/115x75/s_Windfall.png);
+}
+.card.face[data-card_no="338"] {
+	background-image : url(../image/115x75/s_Conquest.png);
+}
+.card.face[data-card_no="339"] {
+	background-image : url(../image/115x75/s_Dominate.png);
+}
+.card.face[data-card_no="340"] {
+	background-image : url(../image/115x75/s_Aqueduct.png);
+}
+.card.face[data-card_no="341"] {
+	background-image : url(../image/115x75/s_Arena.png);
+}
+.card.face[data-card_no="342"] {
+	background-image : url(../image/115x75/s_Bandit_Fort.png);
+}
+.card.face[data-card_no="343"] {
+	background-image : url(../image/115x75/s_Basilica.png);
+}
+.card.face[data-card_no="344"] {
+	background-image : url(../image/115x75/s_Baths.png);
+}
+.card.face[data-card_no="345"] {
+	background-image : url(../image/115x75/s_Battlefield.png);
+}
+.card.face[data-card_no="346"] {
+	background-image : url(../image/115x75/s_Colonnade.png);
+}
+.card.face[data-card_no="347"] {
+	background-image : url(../image/115x75/s_Defiled_Shrine.png);
+}
+.card.face[data-card_no="348"] {
+	background-image : url(../image/115x75/s_Fountain.png);
+}
+.card.face[data-card_no="349"] {
+	background-image : url(../image/115x75/s_Keep.png);
+}
+.card.face[data-card_no="350"] {
+	background-image : url(../image/115x75/s_Labyrinth.png);
+}
+.card.face[data-card_no="351"] {
+	background-image : url(../image/115x75/s_Mountain_Pass.png);
+}
+.card.face[data-card_no="352"] {
+	background-image : url(../image/115x75/s_Museum.png);
+}
+.card.face[data-card_no="353"] {
+	background-image : url(../image/115x75/s_Obelisk.png);
+}
+.card.face[data-card_no="354"] {
+	background-image : url(../image/115x75/s_Orchard.png);
+}
+.card.face[data-card_no="355"] {
+	background-image : url(../image/115x75/s_Palace.png);
+}
+.card.face[data-card_no="356"] {
+	background-image : url(../image/115x75/s_Tomb.png);
+}
+.card.face[data-card_no="357"] {
+	background-image : url(../image/115x75/s_Tower.png);
+}
+.card.face[data-card_no="358"] {
+	background-image : url(../image/115x75/s_Triumphal_Arch.png);
+}
+.card.face[data-card_no="359"] {
+	background-image : url(../image/115x75/s_Wall.png);
+}
+.card.face[data-card_no="360"] {
+	background-image : url(../image/115x75/s_Wolf_Den.png);
+}
+.card.face[data-card_no="361"] {
+	background-image : url(../image/115x75/s_Sauna_Avanto.png);
+}
+
+
+
+
+.card_biggest.face[data-card_no="1"] {
+	background-image : url(../image/450x690/Copper@2x.png);
+}
+.card_biggest.face[data-card_no="2"] {
+	background-image : url(../image/450x690/Silver@2x.png);
+}
+.card_biggest.face[data-card_no="3"] {
+	background-image : url(../image/450x690/Gold@2x.png);
+}
+.card_biggest.face[data-card_no="4"] {
+	background-image : url(../image/450x690/Estate@2x.png);
+}
+.card_biggest.face[data-card_no="5"] {
+	background-image : url(../image/450x690/Duchy@2x.png);
+}
+.card_biggest.face[data-card_no="6"] {
+	background-image : url(../image/450x690/Province@2x.png);
+}
+.card_biggest.face[data-card_no="7"] {
+	background-image : url(../image/450x690/Curse@2x.png);
+}
+.card_biggest.face[data-card_no="8"] {
+	background-image : url(../image/450x690/Market@2x.png);
+}
+.card_biggest.face[data-card_no="9"] {
+	background-image : url(../image/450x690/Remodel@2x.png);
+}
+.card_biggest.face[data-card_no="10"] {
+	background-image : url(../image/450x690/Smithy@2x.png);
+}
+.card_biggest.face[data-card_no="11"] {
+	background-image : url(../image/450x690/Moneylender@2x.png);
+}
+.card_biggest.face[data-card_no="12"] {
+	background-image : url(../image/450x690/Woodcutter@2x.png);
+}
+.card_biggest.face[data-card_no="13"] {
+	background-image : url(../image/450x690/Council_Room@2x.png);
+}
+.card_biggest.face[data-card_no="14"] {
+	background-image : url(../image/450x690/Throne_Room@2x.png);
+}
+.card_biggest.face[data-card_no="15"] {
+	background-image : url(../image/450x690/Laboratory@2x.png);
+}
+.card_biggest.face[data-card_no="16"] {
+	background-image : url(../image/450x690/Mine@2x.png);
+}
+.card_biggest.face[data-card_no="17"] {
+	background-image : url(../image/450x690/Workshop@2x.png);
+}
+.card_biggest.face[data-card_no="18"] {
+	background-image : url(../image/450x690/Chancellor@2x.png);
+}
+.card_biggest.face[data-card_no="19"] {
+	background-image : url(../image/450x690/Feast@2x.png);
+}
+.card_biggest.face[data-card_no="20"] {
+	background-image : url(../image/450x690/Festival@2x.png);
+}
+.card_biggest.face[data-card_no="21"] {
+	background-image : url(../image/450x690/Library@2x.png);
+}
+.card_biggest.face[data-card_no="22"] {
+	background-image : url(../image/450x690/Cellar@2x.png);
+}
+.card_biggest.face[data-card_no="23"] {
+	background-image : url(../image/450x690/Gardens@2x.png);
+}
+.card_biggest.face[data-card_no="24"] {
+	background-image : url(../image/450x690/Thief@2x.png);
+}
+.card_biggest.face[data-card_no="25"] {
+	background-image : url(../image/450x690/Adventurer@2x.png);
+}
+.card_biggest.face[data-card_no="26"] {
+	background-image : url(../image/450x690/Moat@2x.png);
+}
+.card_biggest.face[data-card_no="27"] {
+	background-image : url(../image/450x690/Witch@2x.png);
+}
+.card_biggest.face[data-card_no="28"] {
+	background-image : url(../image/450x690/Spy@2x.png);
+}
+.card_biggest.face[data-card_no="29"] {
+	background-image : url(../image/450x690/Militia@2x.png);
+}
+.card_biggest.face[data-card_no="30"] {
+	background-image : url(../image/450x690/Village@2x.png);
+}
+.card_biggest.face[data-card_no="31"] {
+	background-image : url(../image/450x690/Bureaucrat@2x.png);
+}
+.card_biggest.face[data-card_no="32"] {
+	background-image : url(../image/450x690/Chapel@2x.png);
+}
+.card_biggest.face[data-card_no="33"] {
+	background-image : url(../image/450x690/Great_Hall@2x.png);
+}
+.card_biggest.face[data-card_no="34"] {
+	background-image : url(../image/450x690/Upgrade@2x.png);
+}
+.card_biggest.face[data-card_no="35"] {
+	background-image : url(../image/450x690/Masquerade@2x.png);
+}
+.card_biggest.face[data-card_no="36"] {
+	background-image : url(../image/450x690/Nobles@2x.png);
+}
+.card_biggest.face[data-card_no="37"] {
+	background-image : url(../image/450x690/Conspirator@2x.png);
+}
+.card_biggest.face[data-card_no="38"] {
+	background-image : url(../image/450x690/Trading_Post@2x.png);
+}
+.card_biggest.face[data-card_no="39"] {
+	background-image : url(../image/450x690/Mining_Village@2x.png);
+}
+.card_biggest.face[data-card_no="40"] {
+	background-image : url(../image/450x690/Duke@2x.png);
+}
+.card_biggest.face[data-card_no="41"] {
+	background-image : url(../image/450x690/Torturer@2x.png);
+}
+.card_biggest.face[data-card_no="42"] {
+	background-image : url(../image/450x690/Swindler@2x.png);
+}
+.card_biggest.face[data-card_no="43"] {
+	background-image : url(../image/450x690/Steward@2x.png);
+}
+.card_biggest.face[data-card_no="44"] {
+	background-image : url(../image/450x690/Baron@2x.png);
+}
+.card_biggest.face[data-card_no="45"] {
+	background-image : url(../image/450x690/Minion@2x.png);
+}
+.card_biggest.face[data-card_no="46"] {
+	background-image : url(../image/450x690/Scout@2x.png);
+}
+.card_biggest.face[data-card_no="47"] {
+	background-image : url(../image/450x690/Pawn@2x.png);
+}
+.card_biggest.face[data-card_no="48"] {
+	background-image : url(../image/450x690/Ironworks@2x.png);
+}
+.card_biggest.face[data-card_no="49"] {
+	background-image : url(../image/450x690/Coppersmith@2x.png);
+}
+.card_biggest.face[data-card_no="50"] {
+	background-image : url(../image/450x690/Courtyard@2x.png);
+}
+.card_biggest.face[data-card_no="51"] {
+	background-image : url(../image/450x690/Wishing_Well@2x.png);
+}
+.card_biggest.face[data-card_no="52"] {
+	background-image : url(../image/450x690/Harem@2x.png);
+}
+.card_biggest.face[data-card_no="53"] {
+	background-image : url(../image/450x690/Saboteur@2x.png);
+}
+.card_biggest.face[data-card_no="54"] {
+	background-image : url(../image/450x690/Bridge@2x.png);
+}
+.card_biggest.face[data-card_no="55"] {
+	background-image : url(../image/450x690/Secret_Chamber@2x.png);
+}
+.card_biggest.face[data-card_no="56"] {
+	background-image : url(../image/450x690/Shanty_Town@2x.png);
+}
+.card_biggest.face[data-card_no="57"] {
+	background-image : url(../image/450x690/Tribute@2x.png);
+}
+.card_biggest.face[data-card_no="58"] {
+	background-image : url(../image/450x690/Sea_Hag@2x.png);
+}
+.card_biggest.face[data-card_no="59"] {
+	background-image : url(../image/450x690/Pirate_Ship@2x.png);
+}
+.card_biggest.face[data-card_no="60"] {
+	background-image : url(../image/450x690/Fishing_Village@2x.png);
+}
+.card_biggest.face[data-card_no="61"] {
+	background-image : url(../image/450x690/Cutpurse@2x.png);
+}
+.card_biggest.face[data-card_no="62"] {
+	background-image : url(../image/450x690/Native_Village@2x.png);
+}
+.card_biggest.face[data-card_no="63"] {
+	background-image : url(../image/450x690/Navigator@2x.png);
+}
+.card_biggest.face[data-card_no="64"] {
+	background-image : url(../image/450x690/Tactician@2x.png);
+}
+.card_biggest.face[data-card_no="65"] {
+	background-image : url(../image/450x690/Island@2x.png);
+}
+.card_biggest.face[data-card_no="66"] {
+	background-image : url(../image/450x690/Merchant_Ship@2x.png);
+}
+.card_biggest.face[data-card_no="67"] {
+	background-image : url(../image/450x690/Pearl_Diver@2x.png);
+}
+.card_biggest.face[data-card_no="68"] {
+	background-image : url(../image/450x690/Outpost@2x.png);
+}
+.card_biggest.face[data-card_no="69"] {
+	background-image : url(../image/450x690/Warehouse@2x.png);
+}
+.card_biggest.face[data-card_no="70"] {
+	background-image : url(../image/450x690/Ambassador@2x.png);
+}
+.card_biggest.face[data-card_no="71"] {
+	background-image : url(../image/450x690/Caravan@2x.png);
+}
+.card_biggest.face[data-card_no="72"] {
+	background-image : url(../image/450x690/Treasure_Map@2x.png);
+}
+.card_biggest.face[data-card_no="73"] {
+	background-image : url(../image/450x690/Explorer@2x.png);
+}
+.card_biggest.face[data-card_no="74"] {
+	background-image : url(../image/450x690/Haven@2x.png);
+}
+.card_biggest.face[data-card_no="75"] {
+	background-image : url(../image/450x690/Lighthouse@2x.png);
+}
+.card_biggest.face[data-card_no="76"] {
+	background-image : url(../image/450x690/Bazaar@2x.png);
+}
+.card_biggest.face[data-card_no="77"] {
+	background-image : url(../image/450x690/Salvager@2x.png);
+}
+.card_biggest.face[data-card_no="78"] {
+	background-image : url(../image/450x690/Wharf@2x.png);
+}
+.card_biggest.face[data-card_no="79"] {
+	background-image : url(../image/450x690/Treasury@2x.png);
+}
+.card_biggest.face[data-card_no="80"] {
+	background-image : url(../image/450x690/Smugglers@2x.png);
+}
+.card_biggest.face[data-card_no="81"] {
+	background-image : url(../image/450x690/Lookout@2x.png);
+}
+.card_biggest.face[data-card_no="82"] {
+	background-image : url(../image/450x690/Ghost_Ship@2x.png);
+}
+.card_biggest.face[data-card_no="83"] {
+	background-image : url(../image/450x690/Embargo@2x.png);
+}
+.card_biggest.face[data-card_no="84"] {
+	background-image : url(../image/450x690/Black_Market@2x.png);
+}
+.card_biggest.face[data-card_no="85"] {
+	background-image : url(../image/450x690/Envoy@2x.png);
+}
+.card_biggest.face[data-card_no="86"] {
+	background-image : url(../image/450x690/Stash@2x.png);
+}
+.card_biggest.face[data-card_no="87"] {
+	background-image : url(../image/450x690/Apothecary@2x.png);
+}
+.card_biggest.face[data-card_no="88"] {
+	background-image : url(../image/450x690/Philosophers_Stone@2x.png);
+}
+.card_biggest.face[data-card_no="89"] {
+	background-image : url(../image/450x690/Golem@2x.png);
+}
+.card_biggest.face[data-card_no="90"] {
+	background-image : url(../image/450x690/Possession@2x.png);
+}
+.card_biggest.face[data-card_no="91"] {
+	background-image : url(../image/450x690/University@2x.png);
+}
+.card_biggest.face[data-card_no="92"] {
+	background-image : url(../image/450x690/Familiar@2x.png);
+}
+.card_biggest.face[data-card_no="93"] {
+	background-image : url(../image/450x690/Apprentice@2x.png);
+}
+.card_biggest.face[data-card_no="94"] {
+	background-image : url(../image/450x690/Scrying_Pool@2x.png);
+}
+.card_biggest.face[data-card_no="95"] {
+	background-image : url(../image/450x690/Vineyard@2x.png);
+}
+.card_biggest.face[data-card_no="96"] {
+	background-image : url(../image/450x690/Transmute@2x.png);
+}
+.card_biggest.face[data-card_no="97"] {
+	background-image : url(../image/450x690/Potion@2x.png);
+}
+.card_biggest.face[data-card_no="98"] {
+	background-image : url(../image/450x690/Herbalist@2x.png);
+}
+.card_biggest.face[data-card_no="99"] {
+	background-image : url(../image/450x690/Alchemist@2x.png);
+}
+.card_biggest.face[data-card_no="100"] {
+	background-image : url(../image/450x690/Quarry@2x.png);
+}
+.card_biggest.face[data-card_no="101"] {
+	background-image : url(../image/450x690/Grand_Market@2x.png);
+}
+.card_biggest.face[data-card_no="102"] {
+	background-image : url(../image/450x690/Counting_House@2x.png);
+}
+.card_biggest.face[data-card_no="103"] {
+	background-image : url(../image/450x690/Hoard@2x.png);
+}
+.card_biggest.face[data-card_no="104"] {
+	background-image : url(../image/450x690/Expand@2x.png);
+}
+.card_biggest.face[data-card_no="105"] {
+	background-image : url(../image/450x690/Monument@2x.png);
+}
+.card_biggest.face[data-card_no="106"] {
+	background-image : url(../image/450x690/Kings_Court@2x.png);
+}
+.card_biggest.face[data-card_no="107"] {
+	background-image : url(../image/450x690/Peddler@2x.png);
+}
+.card_biggest.face[data-card_no="108"] {
+	background-image : url(../image/450x690/Royal_Seal@2x.png);
+}
+.card_biggest.face[data-card_no="109"] {
+	background-image : url(../image/450x690/Bank@2x.png);
+}
+.card_biggest.face[data-card_no="110"] {
+	background-image : url(../image/450x690/Contraband@2x.png);
+}
+.card_biggest.face[data-card_no="111"] {
+	background-image : url(../image/450x690/Trade_Route@2x.png);
+}
+.card_biggest.face[data-card_no="112"] {
+	background-image : url(../image/450x690/Talisman@2x.png);
+}
+.card_biggest.face[data-card_no="113"] {
+	background-image : url(../image/450x690/Bishop@2x.png);
+}
+.card_biggest.face[data-card_no="114"] {
+	background-image : url(../image/450x690/Loan@2x.png);
+}
+.card_biggest.face[data-card_no="115"] {
+	background-image : url(../image/450x690/Colony@2x.png);
+}
+.card_biggest.face[data-card_no="116"] {
+	background-image : url(../image/450x690/Mint@2x.png);
+}
+.card_biggest.face[data-card_no="117"] {
+	background-image : url(../image/450x690/Rabble@2x.png);
+}
+.card_biggest.face[data-card_no="118"] {
+	background-image : url(../image/450x690/Forge@2x.png);
+}
+.card_biggest.face[data-card_no="119"] {
+	background-image : url(../image/450x690/Venture@2x.png);
+}
+.card_biggest.face[data-card_no="120"] {
+	background-image : url(../image/450x690/City@2x.png);
+}
+.card_biggest.face[data-card_no="121"] {
+	background-image : url(../image/450x690/Goons@2x.png);
+}
+.card_biggest.face[data-card_no="122"] {
+	background-image : url(../image/450x690/Platinum@2x.png);
+}
+.card_biggest.face[data-card_no="123"] {
+	background-image : url(../image/450x690/Watchtower@2x.png);
+}
+.card_biggest.face[data-card_no="124"] {
+	background-image : url(../image/450x690/Vault@2x.png);
+}
+.card_biggest.face[data-card_no="125"] {
+	background-image : url(../image/450x690/Mountebank@2x.png);
+}
+.card_biggest.face[data-card_no="126"] {
+	background-image : url(../image/450x690/Workers_Village@2x.png);
+}
+.card_biggest.face[data-card_no="127"] {
+	background-image : url(../image/450x690/Menagerie@2x.png);
+}
+.card_biggest.face[data-card_no="128"] {
+	background-image : url(../image/450x690/Horse_Traders@2x.png);
+}
+.card_biggest.face[data-card_no="129"] {
+	background-image : url(../image/450x690/Fortune_Teller@2x.png);
+}
+.card_biggest.face[data-card_no="130"] {
+	background-image : url(../image/450x690/Diadem@2x.png);
+}
+.card_biggest.face[data-card_no="131"] {
+	background-image : url(../image/450x690/Princess@2x.png);
+}
+.card_biggest.face[data-card_no="132"] {
+	background-image : url(../image/450x690/Bag_of_Gold@2x.png);
+}
+.card_biggest.face[data-card_no="133"] {
+	background-image : url(../image/450x690/Remake@2x.png);
+}
+.card_biggest.face[data-card_no="134"] {
+	background-image : url(../image/450x690/Harvest@2x.png);
+}
+.card_biggest.face[data-card_no="135"] {
+	background-image : url(../image/450x690/Hunting_Party@2x.png);
+}
+.card_biggest.face[data-card_no="136"] {
+	background-image : url(../image/450x690/Hamlet@2x.png);
+}
+.card_biggest.face[data-card_no="137"] {
+	background-image : url(../image/450x690/Jester@2x.png);
+}
+.card_biggest.face[data-card_no="138"] {
+	background-image : url(../image/450x690/Farming_Village@2x.png);
+}
+.card_biggest.face[data-card_no="139"] {
+	background-image : url(../image/450x690/Tournament@2x.png);
+}
+.card_biggest.face[data-card_no="140"] {
+	background-image : url(../image/450x690/Fairgrounds@2x.png);
+}
+.card_biggest.face[data-card_no="141"] {
+	background-image : url(../image/450x690/Horn_of_Plenty@2x.png);
+}
+.card_biggest.face[data-card_no="142"] {
+	background-image : url(../image/450x690/Young_Witch@2x.png);
+}
+.card_biggest.face[data-card_no="143"] {
+	background-image : url(../image/450x690/Trusty_Steed@2x.png);
+}
+.card_biggest.face[data-card_no="144"] {
+	background-image : url(../image/450x690/Followers@2x.png);
+}
+.card_biggest.face[data-card_no="145"] {
+	background-image : url(../image/450x690/Oasis@2x.png);
+}
+.card_biggest.face[data-card_no="146"] {
+	background-image : url(../image/450x690/Highway@2x.png);
+}
+.card_biggest.face[data-card_no="147"] {
+	background-image : url(../image/450x690/Develop@2x.png);
+}
+.card_biggest.face[data-card_no="148"] {
+	background-image : url(../image/450x690/Scheme@2x.png);
+}
+.card_biggest.face[data-card_no="149"] {
+	background-image : url(../image/450x690/Mandarin@2x.png);
+}
+.card_biggest.face[data-card_no="150"] {
+	background-image : url(../image/450x690/Noble_Brigand@2x.png);
+}
+.card_biggest.face[data-card_no="151"] {
+	background-image : url(../image/450x690/Stables@2x.png);
+}
+.card_biggest.face[data-card_no="152"] {
+	background-image : url(../image/450x690/Crossroads@2x.png);
+}
+.card_biggest.face[data-card_no="153"] {
+	background-image : url(../image/450x690/Fools_Gold@2x.png);
+}
+.card_biggest.face[data-card_no="154"] {
+	background-image : url(../image/450x690/Trader@2x.png);
+}
+.card_biggest.face[data-card_no="155"] {
+	background-image : url(../image/450x690/Duchess@2x.png);
+}
+.card_biggest.face[data-card_no="156"] {
+	background-image : url(../image/450x690/Spice_Merchant@2x.png);
+}
+.card_biggest.face[data-card_no="157"] {
+	background-image : url(../image/450x690/Tunnel@2x.png);
+}
+.card_biggest.face[data-card_no="158"] {
+	background-image : url(../image/450x690/Border_Village@2x.png);
+}
+.card_biggest.face[data-card_no="159"] {
+	background-image : url(../image/450x690/Silk_Road@2x.png);
+}
+.card_biggest.face[data-card_no="160"] {
+	background-image : url(../image/450x690/Oracle@2x.png);
+}
+.card_biggest.face[data-card_no="161"] {
+	background-image : url(../image/450x690/Embassy@2x.png);
+}
+.card_biggest.face[data-card_no="162"] {
+	background-image : url(../image/450x690/Cartographer@2x.png);
+}
+.card_biggest.face[data-card_no="163"] {
+	background-image : url(../image/450x690/Haggler@2x.png);
+}
+.card_biggest.face[data-card_no="164"] {
+	background-image : url(../image/450x690/Farmland@2x.png);
+}
+.card_biggest.face[data-card_no="165"] {
+	background-image : url(../image/450x690/Ill-Gotten_Gains@2x.png);
+}
+.card_biggest.face[data-card_no="166"] {
+	background-image : url(../image/450x690/Margrave@2x.png);
+}
+.card_biggest.face[data-card_no="167"] {
+	background-image : url(../image/450x690/Cache@2x.png);
+}
+.card_biggest.face[data-card_no="168"] {
+	background-image : url(../image/450x690/Inn@2x.png);
+}
+.card_biggest.face[data-card_no="169"] {
+	background-image : url(../image/450x690/Nomad_Camp@2x.png);
+}
+.card_biggest.face[data-card_no="170"] {
+	background-image : url(../image/450x690/Jack_of_All_Trades@2x.png);
+}
+.card_biggest.face[data-card_no="171"] {
+	background-image : url(../image/450x690/Walled_Village@2x.png);
+}
+.card_biggest.face[data-card_no="172"] {
+	background-image : url(../image/450x690/Governor@2x.png);
+}
+.card_biggest.face[data-card_no="173"] {
+	background-image : url(../image/450x690/Market_Square@2x.png);
+}
+.card_biggest.face[data-card_no="174"] {
+	background-image : url(../image/450x690/Ruined_Market@2x.png);
+}
+.card_biggest.face[data-card_no="175"] {
+	background-image : url(../image/450x690/Hermit@2x.png);
+}
+.card_biggest.face[data-card_no="176"] {
+	background-image : url(../image/450x690/Ironmonger@2x.png);
+}
+.card_biggest.face[data-card_no="177"] {
+	background-image : url(../image/450x690/Hunting_Grounds@2x.png);
+}
+.card_biggest.face[data-card_no="178"] {
+	background-image : url(../image/450x690/Knights@2x.png);
+}
+.card_biggest.face[data-card_no="179"] {
+	background-image : url(../image/450x690/Sir_Vander@2x.png);
+}
+.card_biggest.face[data-card_no="180"] {
+	background-image : url(../image/450x690/Sir_Destry@2x.png);
+}
+.card_biggest.face[data-card_no="181"] {
+	background-image : url(../image/450x690/Sir_Bailey@2x.png);
+}
+.card_biggest.face[data-card_no="182"] {
+	background-image : url(../image/450x690/Sir_Martin@2x.png);
+}
+.card_biggest.face[data-card_no="183"] {
+	background-image : url(../image/450x690/Sir_Michael@2x.png);
+}
+.card_biggest.face[data-card_no="184"] {
+	background-image : url(../image/450x690/Dame_Anna@2x.png);
+}
+.card_biggest.face[data-card_no="185"] {
+	background-image : url(../image/450x690/Dame_Josephine@2x.png);
+}
+.card_biggest.face[data-card_no="186"] {
+	background-image : url(../image/450x690/Dame_Sylvia@2x.png);
+}
+.card_biggest.face[data-card_no="187"] {
+	background-image : url(../image/450x690/Dame_Natalie@2x.png);
+}
+.card_biggest.face[data-card_no="188"] {
+	background-image : url(../image/450x690/Dame_Molly@2x.png);
+}
+.card_biggest.face[data-card_no="189"] {
+	background-image : url(../image/450x690/Counterfeit@2x.png);
+}
+.card_biggest.face[data-card_no="190"] {
+	background-image : url(../image/450x690/Poor_House@2x.png);
+}
+.card_biggest.face[data-card_no="191"] {
+	background-image : url(../image/450x690/Madman@2x.png);
+}
+.card_biggest.face[data-card_no="192"] {
+	background-image : url(../image/450x690/Cultist@2x.png);
+}
+.card_biggest.face[data-card_no="193"] {
+	background-image : url(../image/450x690/Necropolis@2x.png);
+}
+.card_biggest.face[data-card_no="194"] {
+	background-image : url(../image/450x690/Wandering_Minstrel@2x.png);
+}
+.card_biggest.face[data-card_no="195"] {
+	background-image : url(../image/450x690/Overgrown_Estate@2x.png);
+}
+.card_biggest.face[data-card_no="196"] {
+	background-image : url(../image/450x690/Junk_Dealer@2x.png);
+}
+.card_biggest.face[data-card_no="197"] {
+	background-image : url(../image/450x690/Sage@2x.png);
+}
+.card_biggest.face[data-card_no="198"] {
+	background-image : url(../image/450x690/Procession@2x.png);
+}
+.card_biggest.face[data-card_no="199"] {
+	background-image : url(../image/450x690/Scavenger@2x.png);
+}
+.card_biggest.face[data-card_no="200"] {
+	background-image : url(../image/450x690/Forager@2x.png);
+}
+.card_biggest.face[data-card_no="201"] {
+	background-image : url(../image/450x690/Altar@2x.png);
+}
+.card_biggest.face[data-card_no="202"] {
+	background-image : url(../image/450x690/Bandit_Camp@2x.png);
+}
+.card_biggest.face[data-card_no="203"] {
+	background-image : url(../image/450x690/Death_Cart@2x.png);
+}
+.card_biggest.face[data-card_no="204"] {
+	background-image : url(../image/450x690/Marauder@2x.png);
+}
+.card_biggest.face[data-card_no="205"] {
+	background-image : url(../image/450x690/Squire@2x.png);
+}
+.card_biggest.face[data-card_no="206"] {
+	background-image : url(../image/450x690/Fortress@2x.png);
+}
+.card_biggest.face[data-card_no="207"] {
+	background-image : url(../image/450x690/Survivors@2x.png);
+}
+.card_biggest.face[data-card_no="208"] {
+	background-image : url(../image/450x690/Rebuild@2x.png);
+}
+.card_biggest.face[data-card_no="209"] {
+	background-image : url(../image/450x690/Catacombs@2x.png);
+}
+.card_biggest.face[data-card_no="210"] {
+	background-image : url(../image/450x690/Rogue@2x.png);
+}
+.card_biggest.face[data-card_no="211"] {
+	background-image : url(../image/450x690/Ruined_Library@2x.png);
+}
+.card_biggest.face[data-card_no="212"] {
+	background-image : url(../image/450x690/Hovel@2x.png);
+}
+.card_biggest.face[data-card_no="213"] {
+	background-image : url(../image/450x690/Rats@2x.png);
+}
+.card_biggest.face[data-card_no="214"] {
+	background-image : url(../image/450x690/Abandoned_Mine@2x.png);
+}
+.card_biggest.face[data-card_no="215"] {
+	background-image : url(../image/450x690/Ruined_Village@2x.png);
+}
+.card_biggest.face[data-card_no="216"] {
+	background-image : url(../image/450x690/Graverobber@2x.png);
+}
+.card_biggest.face[data-card_no="217"] {
+	background-image : url(../image/450x690/Count@2x.png);
+}
+.card_biggest.face[data-card_no="218"] {
+	background-image : url(../image/450x690/Band_of_Misfits@2x.png);
+}
+.card_biggest.face[data-card_no="219"] {
+	background-image : url(../image/450x690/Mystic@2x.png);
+}
+.card_biggest.face[data-card_no="220"] {
+	background-image : url(../image/450x690/Armory@2x.png);
+}
+.card_biggest.face[data-card_no="221"] {
+	background-image : url(../image/450x690/Ruins@2x.png);
+}
+.card_biggest.face[data-card_no="222"] {
+	background-image : url(../image/450x690/Urchin@2x.png);
+}
+.card_biggest.face[data-card_no="223"] {
+	background-image : url(../image/450x690/Vagrant@2x.png);
+}
+.card_biggest.face[data-card_no="224"] {
+	background-image : url(../image/450x690/Feodum@2x.png);
+}
+.card_biggest.face[data-card_no="225"] {
+	background-image : url(../image/450x690/Storeroom@2x.png);
+}
+.card_biggest.face[data-card_no="226"] {
+	background-image : url(../image/450x690/Beggar@2x.png);
+}
+.card_biggest.face[data-card_no="227"] {
+	background-image : url(../image/450x690/Mercenary@2x.png);
+}
+.card_biggest.face[data-card_no="228"] {
+	background-image : url(../image/450x690/Pillage@2x.png);
+}
+.card_biggest.face[data-card_no="229"] {
+	background-image : url(../image/450x690/Spoils@2x.png);
+}
+.card_biggest.face[data-card_no="230"] {
+	background-image : url(../image/450x690/Stonemason@2x.png);
+}
+.card_biggest.face[data-card_no="231"] {
+	background-image : url(../image/450x690/Doctor@2x.png);
+}
+.card_biggest.face[data-card_no="232"] {
+	background-image : url(../image/450x690/Taxman@2x.png);
+}
+.card_biggest.face[data-card_no="233"] {
+	background-image : url(../image/450x690/Journeyman@2x.png);
+}
+.card_biggest.face[data-card_no="234"] {
+	background-image : url(../image/450x690/Merchant_Guild@2x.png);
+}
+.card_biggest.face[data-card_no="235"] {
+	background-image : url(../image/450x690/Advisor@2x.png);
+}
+.card_biggest.face[data-card_no="236"] {
+	background-image : url(../image/450x690/Herald@2x.png);
+}
+.card_biggest.face[data-card_no="237"] {
+	background-image : url(../image/450x690/Butcher@2x.png);
+}
+.card_biggest.face[data-card_no="238"] {
+	background-image : url(../image/450x690/Baker@2x.png);
+}
+.card_biggest.face[data-card_no="239"] {
+	background-image : url(../image/450x690/Plaza@2x.png);
+}
+.card_biggest.face[data-card_no="240"] {
+	background-image : url(../image/450x690/Masterpiece@2x.png);
+}
+.card_biggest.face[data-card_no="241"] {
+	background-image : url(../image/450x690/Soothsayer@2x.png);
+}
+.card_biggest.face[data-card_no="242"] {
+	background-image : url(../image/450x690/Candlestick_Maker@2x.png);
+}
+.card_biggest.face[data-card_no="243"] {
+	background-image : url(../image/450x690/Prince@2x.png);
+}
+.card_biggest.face[data-card_no="244"] {
+	background-image : url(../image/450x690/Guide@2x.png);
+}
+.card_biggest.face[data-card_no="245"] {
+	background-image : url(../image/450x690/Relic@2x.png);
+}
+.card_biggest.face[data-card_no="246"] {
+	background-image : url(../image/450x690/Lost_City@2x.png);
+}
+.card_biggest.face[data-card_no="247"] {
+	background-image : url(../image/450x690/Distant_Lands@2x.png);
+}
+.card_biggest.face[data-card_no="248"] {
+	background-image : url(../image/450x690/Storyteller@2x.png);
+}
+.card_biggest.face[data-card_no="249"] {
+	background-image : url(../image/450x690/Magpie@2x.png);
+}
+.card_biggest.face[data-card_no="250"] {
+	background-image : url(../image/450x690/Page@2x.png);
+}
+.card_biggest.face[data-card_no="251"] {
+	background-image : url(../image/450x690/Giant@2x.png);
+}
+.card_biggest.face[data-card_no="252"] {
+	background-image : url(../image/450x690/Artificer@2x.png);
+}
+.card_biggest.face[data-card_no="253"] {
+	background-image : url(../image/450x690/Royal_Carriage@2x.png);
+}
+.card_biggest.face[data-card_no="254"] {
+	background-image : url(../image/450x690/Messenger@2x.png);
+}
+.card_biggest.face[data-card_no="255"] {
+	background-image : url(../image/450x690/Miser@2x.png);
+}
+.card_biggest.face[data-card_no="256"] {
+	background-image : url(../image/450x690/Caravan_Guard@2x.png);
+}
+.card_biggest.face[data-card_no="257"] {
+	background-image : url(../image/450x690/Gear@2x.png);
+}
+.card_biggest.face[data-card_no="258"] {
+	background-image : url(../image/450x690/Dungeon@2x.png);
+}
+.card_biggest.face[data-card_no="259"] {
+	background-image : url(../image/450x690/Raze@2x.png);
+}
+.card_biggest.face[data-card_no="260"] {
+	background-image : url(../image/450x690/Swamp_Hag@2x.png);
+}
+.card_biggest.face[data-card_no="261"] {
+	background-image : url(../image/450x690/Ratcatcher@2x.png);
+}
+.card_biggest.face[data-card_no="262"] {
+	background-image : url(../image/450x690/Peasant@2x.png);
+}
+.card_biggest.face[data-card_no="263"] {
+	background-image : url(../image/450x690/Haunted_Woods@2x.png);
+}
+.card_biggest.face[data-card_no="264"] {
+	background-image : url(../image/450x690/Bridge_Troll@2x.png);
+}
+.card_biggest.face[data-card_no="265"] {
+	background-image : url(../image/450x690/Duplicate@2x.png);
+}
+.card_biggest.face[data-card_no="266"] {
+	background-image : url(../image/450x690/Transmogrify@2x.png);
+}
+.card_biggest.face[data-card_no="267"] {
+	background-image : url(../image/450x690/Coin_of_the_Realm@2x.png);
+}
+.card_biggest.face[data-card_no="268"] {
+	background-image : url(../image/450x690/Treasure_Trove@2x.png);
+}
+.card_biggest.face[data-card_no="269"] {
+	background-image : url(../image/450x690/Amulet@2x.png);
+}
+.card_biggest.face[data-card_no="270"] {
+	background-image : url(../image/450x690/Port@2x.png);
+}
+.card_biggest.face[data-card_no="271"] {
+	background-image : url(../image/450x690/Hireling@2x.png);
+}
+.card_biggest.face[data-card_no="272"] {
+	background-image : url(../image/450x690/Ranger@2x.png);
+}
+.card_biggest.face[data-card_no="273"] {
+	background-image : url(../image/450x690/Wine_Merchant@2x.png);
+}
+.card_biggest.face[data-card_no="274"] {
+	background-image : url(../image/450x690/Travelling_Fair@2x.png);
+}
+.card_biggest.face[data-card_no="275"] {
+	background-image : url(../image/450x690/Lost_Arts@2x.png);
+}
+.card_biggest.face[data-card_no="276"] {
+	background-image : url(../image/450x690/Seaway@2x.png);
+}
+.card_biggest.face[data-card_no="277"] {
+	background-image : url(../image/450x690/Raid@2x.png);
+}
+.card_biggest.face[data-card_no="278"] {
+	background-image : url(../image/450x690/Trade@2x.png);
+}
+.card_biggest.face[data-card_no="279"] {
+	background-image : url(../image/450x690/Mission@2x.png);
+}
+.card_biggest.face[data-card_no="280"] {
+	background-image : url(../image/450x690/Borrow@2x.png);
+}
+.card_biggest.face[data-card_no="281"] {
+	background-image : url(../image/450x690/Pilgrimage@2x.png);
+}
+.card_biggest.face[data-card_no="282"] {
+	background-image : url(../image/450x690/Inheritance@2x.png);
+}
+.card_biggest.face[data-card_no="283"] {
+	background-image : url(../image/450x690/Bonfire@2x.png);
+}
+.card_biggest.face[data-card_no="284"] {
+	background-image : url(../image/450x690/Expedition@2x.png);
+}
+.card_biggest.face[data-card_no="285"] {
+	background-image : url(../image/450x690/Quest@2x.png);
+}
+.card_biggest.face[data-card_no="286"] {
+	background-image : url(../image/450x690/Training@2x.png);
+}
+.card_biggest.face[data-card_no="287"] {
+	background-image : url(../image/450x690/Scouting_Party@2x.png);
+}
+.card_biggest.face[data-card_no="288"] {
+	background-image : url(../image/450x690/Ball@2x.png);
+}
+.card_biggest.face[data-card_no="289"] {
+	background-image : url(../image/450x690/Save@2x.png);
+}
+.card_biggest.face[data-card_no="290"] {
+	background-image : url(../image/450x690/Alms@2x.png);
+}
+.card_biggest.face[data-card_no="291"] {
+	background-image : url(../image/450x690/Pathfinding@2x.png);
+}
+.card_biggest.face[data-card_no="292"] {
+	background-image : url(../image/450x690/Plan@2x.png);
+}
+.card_biggest.face[data-card_no="293"] {
+	background-image : url(../image/450x690/Ferry@2x.png);
+}
+.card_biggest.face[data-card_no="294"] {
+	background-image : url(../image/450x690/Warrior@2x.png);
+}
+.card_biggest.face[data-card_no="295"] {
+	background-image : url(../image/450x690/Teacher@2x.png);
+}
+.card_biggest.face[data-card_no="296"] {
+	background-image : url(../image/450x690/Fugitive@2x.png);
+}
+.card_biggest.face[data-card_no="297"] {
+	background-image : url(../image/450x690/Champion@2x.png);
+}
+.card_biggest.face[data-card_no="298"] {
+	background-image : url(../image/450x690/Treasure_Hunter@2x.png);
+}
+.card_biggest.face[data-card_no="299"] {
+	background-image : url(../image/450x690/Hero@2x.png);
+}
+.card_biggest.face[data-card_no="300"] {
+	background-image : url(../image/450x690/Soldier@2x.png);
+}
+.card_biggest.face[data-card_no="301"] {
+	background-image : url(../image/450x690/Disciple@2x.png);
+}
+.card_biggest.face[data-card_no="302"] {
+	background-image : url(../image/450x690/Summon@2x.png);
+}
+.card_biggest.face[data-card_no="303"] {
+	background-image : url(../image/450x690/Engineer@2x.png);
+}
+.card_biggest.face[data-card_no="304"] {
+	background-image : url(../image/450x690/City_Quarter@2x.png);
+}
+.card_biggest.face[data-card_no="305"] {
+	background-image : url(../image/450x690/Overlord@2x.png);
+}
+.card_biggest.face[data-card_no="306"] {
+	background-image : url(../image/450x690/Royal_Blacksmith@2x.png);
+}
+/*.card_biggest.face[data-card_no="307"] {
+	background-image : url(../image/450x690/Encampment/Plunder@2x.png);
+}
+.card_biggest.face[data-card_no="308"] {
+	background-image : url(../image/450x690/Patrician/Emporium@2x.png);
+}
+.card_biggest.face[data-card_no="309"] {
+	background-image : url(../image/450x690/Settlers/Bustling_Village@2x.png);
+}
+.card_biggest.face[data-card_no="310"] {
+	background-image : url(../image/450x690/Castles@2x.png);
+}
+.card_biggest.face[data-card_no="311"] {
+	background-image : url(../image/450x690/Catapult/Rocks@2x.png);
+}*/
+.card_biggest.face[data-card_no="312"] {
+	background-image : url(../image/450x690/Chariot_Race@2x.png);
+}
+.card_biggest.face[data-card_no="313"] {
+	background-image : url(../image/450x690/Enchantress@2x.png);
+}
+.card_biggest.face[data-card_no="314"] {
+	background-image : url(../image/450x690/Farmers_Market@2x.png);
+}
+/*.card_biggest.face[data-card_no="315"] {
+	background-image : url(../image/450x690/Gladiator/Fortune@2x.png);
+}*/
+.card_biggest.face[data-card_no="316"] {
+	background-image : url(../image/450x690/Sacrifice@2x.png);
+}
+.card_biggest.face[data-card_no="317"] {
+	background-image : url(../image/450x690/Temple@2x.png);
+}
+.card_biggest.face[data-card_no="318"] {
+	background-image : url(../image/450x690/Villa@2x.png);
+}
+.card_biggest.face[data-card_no="319"] {
+	background-image : url(../image/450x690/Archive@2x.png);
+}
+.card_biggest.face[data-card_no="320"] {
+	background-image : url(../image/450x690/Capital@2x.png);
+}
+.card_biggest.face[data-card_no="321"] {
+	background-image : url(../image/450x690/Charm@2x.png);
+}
+.card_biggest.face[data-card_no="322"] {
+	background-image : url(../image/450x690/Crown@2x.png);
+}
+.card_biggest.face[data-card_no="323"] {
+	background-image : url(../image/450x690/Forum@2x.png);
+}
+.card_biggest.face[data-card_no="324"] {
+	background-image : url(../image/450x690/Groundskeeper@2x.png);
+}
+.card_biggest.face[data-card_no="325"] {
+	background-image : url(../image/450x690/Legionary@2x.png);
+}
+.card_biggest.face[data-card_no="326"] {
+	background-image : url(../image/450x690/Wild_Hunt@2x.png);
+}
+.card_biggest.face[data-card_no="327"] {
+	background-image : url(../image/450x690/Triumph@2x.png);
+}
+.card_biggest.face[data-card_no="328"] {
+	background-image : url(../image/450x690/Annex@2x.png);
+}
+.card_biggest.face[data-card_no="329"] {
+	background-image : url(../image/450x690/Donate@2x.png);
+}
+.card_biggest.face[data-card_no="330"] {
+	background-image : url(../image/450x690/Advance@2x.png);
+}
+.card_biggest.face[data-card_no="331"] {
+	background-image : url(../image/450x690/Delve@2x.png);
+}
+.card_biggest.face[data-card_no="332"] {
+	background-image : url(../image/450x690/Tax@2x.png);
+}
+.card_biggest.face[data-card_no="333"] {
+	background-image : url(../image/450x690/Banquet@2x.png);
+}
+.card_biggest.face[data-card_no="334"] {
+	background-image : url(../image/450x690/Ritual@2x.png);
+}
+.card_biggest.face[data-card_no="335"] {
+	background-image : url(../image/450x690/Salt_the_Earth@2x.png);
+}
+.card_biggest.face[data-card_no="336"] {
+	background-image : url(../image/450x690/Wedding@2x.png);
+}
+.card_biggest.face[data-card_no="337"] {
+	background-image : url(../image/450x690/Windfall@2x.png);
+}
+.card_biggest.face[data-card_no="338"] {
+	background-image : url(../image/450x690/Conquest@2x.png);
+}
+.card_biggest.face[data-card_no="339"] {
+	background-image : url(../image/450x690/Dominate@2x.png);
+}
+.card_biggest.face[data-card_no="340"] {
+	background-image : url(../image/450x690/Aqueduct@2x.png);
+}
+.card_biggest.face[data-card_no="341"] {
+	background-image : url(../image/450x690/Arena@2x.png);
+}
+.card_biggest.face[data-card_no="342"] {
+	background-image : url(../image/450x690/Bandit_Fort@2x.png);
+}
+.card_biggest.face[data-card_no="343"] {
+	background-image : url(../image/450x690/Basilica@2x.png);
+}
+.card_biggest.face[data-card_no="344"] {
+	background-image : url(../image/450x690/Baths@2x.png);
+}
+.card_biggest.face[data-card_no="345"] {
+	background-image : url(../image/450x690/Battlefield@2x.png);
+}
+.card_biggest.face[data-card_no="346"] {
+	background-image : url(../image/450x690/Colonnade@2x.png);
+}
+.card_biggest.face[data-card_no="347"] {
+	background-image : url(../image/450x690/Defiled_Shrine@2x.png);
+}
+.card_biggest.face[data-card_no="348"] {
+	background-image : url(../image/450x690/Fountain@2x.png);
+}
+.card_biggest.face[data-card_no="349"] {
+	background-image : url(../image/450x690/Keep@2x.png);
+}
+.card_biggest.face[data-card_no="350"] {
+	background-image : url(../image/450x690/Labyrinth@2x.png);
+}
+.card_biggest.face[data-card_no="351"] {
+	background-image : url(../image/450x690/Mountain_Pass@2x.png);
+}
+.card_biggest.face[data-card_no="352"] {
+	background-image : url(../image/450x690/Museum@2x.png);
+}
+.card_biggest.face[data-card_no="353"] {
+	background-image : url(../image/450x690/Obelisk@2x.png);
+}
+.card_biggest.face[data-card_no="354"] {
+	background-image : url(../image/450x690/Orchard@2x.png);
+}
+.card_biggest.face[data-card_no="355"] {
+	background-image : url(../image/450x690/Palace@2x.png);
+}
+.card_biggest.face[data-card_no="356"] {
+	background-image : url(../image/450x690/Tomb@2x.png);
+}
+.card_biggest.face[data-card_no="357"] {
+	background-image : url(../image/450x690/Tower@2x.png);
+}
+.card_biggest.face[data-card_no="358"] {
+	background-image : url(../image/450x690/Triumphal_Arch@2x.png);
+}
+.card_biggest.face[data-card_no="359"] {
+	background-image : url(../image/450x690/Wall@2x.png);
+}
+.card_biggest.face[data-card_no="360"] {
+	background-image : url(../image/450x690/Wolf_Den@2x.png);
+}
+/*.card_biggest.face[data-card_no="361"] {
+	background-image : url(../image/450x690/Sauna/Avanto@2x.png);
+}*/
