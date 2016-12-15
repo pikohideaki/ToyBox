@@ -498,7 +498,7 @@ $( function() {
 
 		let updates = {};
 		updates['Supply'] = Game.Supply;
-		updates[`Players/${player_id}/DiscardPile`] = Game.Me().DiscardPile;
+		updates[`Players/${myid}/DiscardPile`] = Game.Me().DiscardPile;
 		FBref_Game.update( updates ).then( EndAttackCardEffect );  // Endシグナルを送る
 	};
 

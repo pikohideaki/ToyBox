@@ -858,7 +858,7 @@ $( function() {
 
 
 
-	ReactionEffect['Secret Chamber'] = function*() {
+	ReactionEffect['Secret Chamber'] = function*( Resolve_GetReactionCardEffect ) {
 		Me.DrawCards(2);
 		FBref_Players.child( myid ).set( Me );
 

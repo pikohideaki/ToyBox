@@ -3,8 +3,8 @@
 let CardEffect     = {};  /* library of card effect functions */
 let AttackEffect   = {};  /* library of attack card effect functions */
 let ReactionEffect = {};  /* library of reaction card effect functions */
-let GenFuncs       = {};  /* object to access from everywhere */
 
+let GenFuncs       = {};  /* object to access from everywhere */
 let AsyncFuncs     = {};  /* async functions (object globally access) */
 
 
@@ -99,6 +99,69 @@ function GetCardEffect( playing_card_no, playing_card_ID ) {
 	} );
  } );
 }
+
+
+
+
+
+
+function GetReactionCardEffect( card_name_eng ) {
+ return new Promise( function( resolve, reject ) {
+
+	switch ( card_name_eng ) {
+		case 'Moat' :  /* 26. 堀 */
+			EndAttackCardEffect();
+			GenFuncs['CatchSignal'].return();  // アタック効果を飛ばして終了
+			return;
+
+		case 'Secret Chamber' : /* 55. 秘密の部屋 */
+			GenFuncs[ card_name_eng ]
+			  = ReactionEffect[ card_name_eng ]( resolve );  /* generator 作成 */
+			GenFuncs[ card_name_eng ].next();  /* generator開始 */
+			return;
+
+		default :
+			return;
+	}
+ });
+}
+
+
+
+
+
+
+function GetAttackCardEffect( card_name ) {
+	switch ( card_name ) {
+		case 'Witch'      :  /* 27. 魔女 */
+		case 'Swindler'   :  /* 42. 詐欺師 */
+		case 'Minion'     :  /* 45. 寵臣 */
+			AttackEffect[ card_name ]();
+			break;
+
+		case 'Militia'    :  /* 29. 民兵 */
+		case 'Bureaucrat' :  /* 31. 役人 */
+		case 'Thief'      :  /* 24. 泥棒 */
+		case 'Spy'        :  /* 28. 密偵 */
+
+		case 'Torturer'   :  /* 41. 拷問人 */
+		case 'Saboteur'   :  /* 53. 破壊工作員 */
+
+			GenFuncs[ `AttackEffect_${ card_name }` ] = AttackEffect[ card_name ]();  /* generator 作成 */
+			GenFuncs[ `AttackEffect_${ card_name }` ].next();  /* generator開始 */
+			break;
+
+		default :
+			break;
+	}
+}
+
+
+
+
+
+
+
 
 
 
