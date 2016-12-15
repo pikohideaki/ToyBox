@@ -7,11 +7,10 @@ function SendSignal( player_id, signal ) {
 }
 
 
-async function CatchSignal( signals_to_me ) {
+function* CatchSignal( signals_to_me ) {
 	let Me = Game.Me();
 
 	if ( signals_to_me == null ) return;
-
 
 	/* received a signal from attacker */
 	if ( signals_to_me.Attack ) {  /* アタックのとき */
@@ -93,7 +92,6 @@ $( function() {
 		FBref_SignalToMe.on( 'value', function( FBsnapshot ) {
 			GenFuncs['CatchSignal'] = CatchSignal( FBsnapshot.val() );  /* generator 作成 */
 			GenFuncs['CatchSignal'].next();  /* generator開始 */
-			// AsyncFuncs['CatchSignal']
 		});
 	});
 
