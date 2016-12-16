@@ -28,9 +28,19 @@ $( function() {
 		console.log( AllCardsNo );
 	});
 
+
+	// カードリスト
 	$('.card_view').click( function() {
 		$('.CardView-wrapper').fadeToggle();
+		$card = $('.CardView_zoom .card_biggest');
+		$card.width( $card.height() * 15 / 23 );
 	});
+
+	$(window).resize( function() {
+		$card = $('.CardView_zoom .card_biggest');
+		$card.width( $card.height() * 15 / 23 );
+	} );
+
 
 	// $('.main').on( 'click', '.zoom_card', function(event) {
 	// 	event.stopImmediatePropagation();

@@ -471,8 +471,7 @@ $( function() {
 	CardEffect['Witch'] = function* ( Resolve_GetCardEffect ) {
 		StartActionCardEffect( '呪いを獲得して下さい。' );
 
-		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		FBref_SignalEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Witch.next(); } );  // (1) 再開
+		Monitor_FBref_SignalEnd_on( 'Witch' );  // End受信 -> (1) 再開
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			SendSignal( id, { Attack : true, card_name : 'Witch', } );
@@ -486,11 +485,11 @@ $( function() {
 			Hide_OKbtn_OtherPlayer( id, 'Witch' );
 			FBref_MessageTo.child(id).set('');  // reset
 		}
-
 		/* 終了処理 */
-		FBref_SignalEnd.off();  /* 監視終了 */
-		Game.Players.forEach( (player) => player.ResetFaceDown(true) );  // 公開したリアクションカードを戻す
-		EndActionCardEffect( Resolve_GetCardEffect );
+		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
+		Game.Players.forEach( (player) => player.ResetFaceDown(false) );  // 公開したリアクションカードを戻す
+		FBref_Players.set( Game.Players )
+		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
 	};
 
 	AttackEffect['Witch'] = function() {  /* アタックされる側 */
@@ -516,7 +515,7 @@ $( function() {
 		StartActionCardEffect( '手札が3枚になるまで捨てて下さい。' );
 
 		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		FBref_SignalEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Militia.next(); } );  // (1) 再開
+		Monitor_FBref_SignalEnd_on( 'Militia' );  // End受信 -> (1) 再開
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			SendSignal( id, { Attack : true, card_name : 'Militia', } );
@@ -532,7 +531,7 @@ $( function() {
 		}
 
 		/* 終了処理 */
-		FBref_SignalEnd.off();  /* 監視終了 */
+		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown(true) );  // 公開したリアクションカードを戻す
 		EndActionCardEffect( Resolve_GetCardEffect );
 	};
@@ -581,7 +580,7 @@ $( function() {
 		FBref_Game.update( updates );
 
 		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		FBref_SignalEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Bureaucrat.next(); } );  // (1) 再開
+		Monitor_FBref_SignalEnd_on( 'Bureaucrat' );  // End受信 -> (1) 再開
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			SendSignal( id, { Attack : true, card_name : 'Bureaucrat', } );

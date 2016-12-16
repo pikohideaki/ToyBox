@@ -35,3 +35,7 @@ function IsReactionCard( Cardlist, card_no ) {
 	return Cardlist[ card_no ].category.match( /Reaction/ );
 }
 
+function IsAttackCard( Cardlist, card_no ) {
+	return Cardlist[ card_no ].category.match( /Attack/ );
+}
+

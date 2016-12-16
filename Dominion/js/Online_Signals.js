@@ -13,13 +13,13 @@ function* CatchSignal( signals_to_me ) {
 	if ( signals_to_me == null ) return;
 
 	/* received a signal from attacker */
-	if ( signals_to_me.Attack ) {  /* アタックのとき */
 
-		// (1) リアクションカードの効果
+	if ( signals_to_me.listen_reaction ) {
+		// リアクションカードの効果
 		rc = Me.GetReactionCards();
 		for ( let i = 0; i < rc.length; ++i ) {  /* リアクションカードが無いならスキップに */
 			let card_name_eng = Cardlist[ rc[i].card_no ].name_eng;
-			let card_name_jp = Cardlist[ rc[i].card_no ].name_jp;
+			let card_name_jp  = Cardlist[ rc[i].card_no ].name_jp;
 
 			ShowDialog( {
 				message  : `${card_name_jp}を公開しますか？`,
@@ -37,12 +37,12 @@ function* CatchSignal( signals_to_me ) {
 				rc[i].face = true;
 				FBref_Players.child(`${myid}/HandCards`).set( Me.HandCards )
 				.then( () => GetReactionCardEffect( card_name_eng ) );
+				yield;
 			}
 		}
+	}
 
-		if ( rc.length > 0 ) yield;  // wait for Reaction Cards
-
-		// (2) アタック効果
+	if ( signals_to_me.Attack ) {  /* アタックのとき */
 		GetAttackCardEffect( signals_to_me.card_name );
 	}
 }

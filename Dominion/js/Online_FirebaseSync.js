@@ -32,6 +32,7 @@ Initialize = FBref_Room.once('value').then( function( FBsnapshot ) {
 
 
 Initialize.then( function() {  /* 初期設定終わったら */
+FBref_SignalEnd.off();
 
 	// 通信状態の表示
 	FBref_connected.on('value', function(snap) {

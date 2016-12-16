@@ -859,8 +859,8 @@ $( function() {
 
 
 	ReactionEffect['Secret Chamber'] = function*( Resolve_GetReactionCardEffect ) {
-		Me.DrawCards(2);
-		FBref_Players.child( myid ).set( Me );
+		Game.Me().DrawCards(2);
+		FBref_Players.child( myid ).set( Game.Me() );
 
 		let put_back_num = 0;
 		while ( put_back_num < 2 ) {
@@ -869,19 +869,21 @@ $( function() {
 			yield;  // (1)
 			put_back_num++;
 		}
+		Resolve_GetReactionCardEffect();
 		GenFuncs['CatchSignal'].next();
 	};
 
 	$('.MyHandCards').on( 'click', '.card.SecretChamber_PutBackToDeck', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
+		Game.Me().HandCards.forEach( (card) => card.face = false );  // 裏向きに
 		Game.Me().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
 
 		FBref_Players.child( myid ).update( {
 			HandCards : Game.Me().HandCards,
 			Deck      : Game.Me().Deck,
 		} )
-		.then( GenFuncs['CatchSignal'].next() );
+		.then( GenFuncs['Secret Chamber'].next() );  // (1)
 	} );
 
 

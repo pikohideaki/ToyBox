@@ -166,7 +166,8 @@
 	width : 57px;
 }
 .sHandCards {
-	width : 245px;
+	/*width : 245px;*/
+	width : 250px;
 	margin-left : 3px;
 }
 .sDiscardPile {

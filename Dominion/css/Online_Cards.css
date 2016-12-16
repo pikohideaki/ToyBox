@@ -53,10 +53,11 @@
 
 
 .card_biggest {
-	width:285px;
-	height:437px;
-	/*width : auto;*/
-	/*height : 100%;*/
+	/*width:285px;*/
+	/*height:437px;*/
+	/*width : 200px;*/
+	height : 100%;
+	/*width : set by jQuery */
 	margin: 10px;
 	border-radius: 25px;
 

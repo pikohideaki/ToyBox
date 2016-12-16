@@ -1,6 +1,4 @@
 
-
-
 function ShowDialog( options ) {
 	$('.dialog_text'    ).html( options.message  || '' );
 	$('.dialog_contents').html( options.contents || '' );
