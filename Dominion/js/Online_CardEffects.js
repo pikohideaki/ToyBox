@@ -8,13 +8,14 @@ let GenFuncs       = {};  /* object to access from everywhere */
 // let AsyncFuncs     = {};  /* async functions (object globally access) */
 
 
+// yield の右に書いた文が nextの評価値になる
+// promise が resolve したら next したい
+// promise が渡されないyield文は普通に待つ（nextはMyAsync(g)を呼ぶことでできる）
 function MyAsync( genfunc ) {
-	// yield の右に書いた文が nextの評価値になる
-	// promise が resolve したら next したい
 	let n = genfunc.next();
-	if ( n.done ) return;
-	if ( n.value instanceof Promise ) n.value.then( () => MyAsync( genfunc ) );  // if n is undone
-	else MyAsync( genfunc );
+	if ( n.done ) return Promise.resolve();
+	if ( n.value instanceof Promise ) return n.value.then( () => MyAsync( genfunc ) );  // if n is undone
+	// else return MyAsync( genfunc );
 }
 
 
@@ -24,18 +25,18 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	FBref_Room.child('chat').push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
 
 	// アタックカードならまずリアクションカードの解決
-	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
-		FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
-		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			SendSignal( id, { listen_reaction : true } );
+	// if ( IsAttackCard( Cardlist, playing_card_no ) ) {
+	// 	FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
+	// 	for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+	// 		SendSignal( id, { listen_reaction : true } );
 
-			Show_OKbtn_OtherPlayer( id );
-			yield;
-			Hide_OKbtn_OtherPlayer( id );
-		}
-	}
+	// 		Show_OKbtn_OtherPlayer( id );
+	// 		yield;
+	// 		Hide_OKbtn_OtherPlayer( id );
+	// 	}
+	// }
 
-	// 共謀者 このターンにプレイしたアクションカードの枚数
+	// このターンにプレイしたアクションカードの枚数 （for 共謀者）
 	if ( IsActionCard( Cardlist, playing_card_no ) ) {
 		Game.TurnInfo.played_actioncards_num++;
 	}
@@ -55,7 +56,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	switch ( playing_card_name ) {
 		case 'Copper' :  // 銅細工師の効果
 			Game.TurnInfo.coin += Game.TurnInfo.add_copper_coin;
-			yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin )
+			yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin );
 			break;
 
 		/* 中断なし */
@@ -107,10 +108,11 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 		case 'Secret Chamber' :  // 55. 秘密の部屋
 		case 'Masquerade'     :  // 35. 仮面舞踏会
 
-			GenFuncs[ playing_card_name ]
-				= CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );  // generator 作成
-			GenFuncs[ playing_card_name ].next();  // generator開始
-			yield;
+			// GenFuncs[ playing_card_name ]
+			// 	= CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );  // generator 作成
+			// GenFuncs[ playing_card_name ].next();  // generator開始
+			// yield;
+			yield* CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );
 			break;
 
 		default :
@@ -196,7 +198,8 @@ function StartActionCardEffect( Message ) {
 function EndActionCardEffect( Resolve_GetCardEffect ) {
 	return new Promise( function( resolve, reject ) {
 		FBref_Game.child('phase').set( 'ActionPhase' )
-		.then( Resolve_GetCardEffect )  /* GetCardEffectを終了 */
+		.then( () => GenFuncs['GetCardEffect'].return() )  /* GetCardEffectを終了 */
+		// .then( Resolve_GetCardEffect )  /* GetCardEffectを終了 */
 		.then( resolve );
 	});
 }

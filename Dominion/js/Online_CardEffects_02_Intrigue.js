@@ -3,9 +3,9 @@ $( function() {
 
 
 	/* 37. 共謀者 */
-	CardEffect['Conspirator'] = function( Resolve_GetCardEffect ) {
+	CardEffect['Conspirator'] = function() {
 		if ( Game.TurnInfo.played_actioncards_num < 3 ) {
-			EndActionCardEffect( Resolve_GetCardEffect );
+			EndActionCardEffect();
 			return
 		}
 		// このターンにアクションカードを3枚以上プレイしているとき
@@ -16,7 +16,7 @@ $( function() {
 		updates['TurnInfo'] = Game.TurnInfo;
 		updates[`Players/${Game.player().id}`] = Game.player();
 		FBref_Game.update( updates )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+		.then( EndActionCardEffect );
 	};
 
 
@@ -24,10 +24,10 @@ $( function() {
 
 
 	/* 34. 改良 */
-	CardEffect['Upgrade'] = function* ( Resolve_GetCardEffect ) {
+	CardEffect['Upgrade'] = function* () {
 		if ( Game.player().HandCards.length <= 0 ) {
 			alert( '手札にカードがありません。' );
-			Resolve_GetCardEffect();  /* GetCardEffectを終了 */
+			// Resolve_GetCardEffect();  /* GetCardEffectを終了 */
 			return;
 		}
 
@@ -48,12 +48,12 @@ $( function() {
 			card.cost_debt   == TrashedCardCost.debt
 		) );
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
-			EndActionCardEffect( Resolve_GetCardEffect );
+			EndActionCardEffect();
 			return;
 		}
 
 		yield;  // (2)
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	$('.HandCards').on( 'click', '.card.Upgrade_Trash', function() {
@@ -74,7 +74,7 @@ $( function() {
 		updates['TrashPile'] = Game.TrashPile;
 
 		FBref_Game.update( updates )
-		.then( GenFuncs.Upgrade.next( TrashedCardCost ) );  // (1) 再開
+		.then( () => GenFuncs.Upgrade.next( TrashedCardCost ) );  // (1) 再開
 	} );
 
 	$('.SupplyArea').on( 'click', '.card.Upgrade_GetCard', function() {
@@ -92,7 +92,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
 		updates['Supply'] = Game.Supply;
 		FBref_Game.update( updates )
-		.then( GenFuncs.Upgrade.next() );  // (2) 再開
+		.then( () => GenFuncs.Upgrade.next() );  // (2) 再開
 	} );
 
 
@@ -100,7 +100,7 @@ $( function() {
 
 
 	/* 36. 貴族 */
-	CardEffect['Nobles'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Nobles'] = function*() {
 		StartActionCardEffect( '次のうち一つを選んでください。' )
 		.then( function() {
 			$('.action_buttons')
@@ -110,19 +110,19 @@ $( function() {
 		} );
 		yield;  // (1)
 		$('.action_buttons').html('');  // reset
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	$('.action_buttons').on( 'click', '.Nobles.3Cards', function() {
 		Game.player().DrawCards(3);
 		FBref_Players.child( Game.player().id ).set( Game.player() )
-		.then( GenFuncs.Nobles.next() );  // (1) 再開
+		.then( () => GenFuncs.Nobles.next() );  // (1) 再開
 	} );
 
 
 	$('.action_buttons').on( 'click', '.Nobles.2Actions', function() {
 		FBref_Game.child('TurnInfo/action').set( Game.TurnInfo.action + 2 )
-		.then( GenFuncs.Nobles.next() );  // (1) 再開
+		.then( () => GenFuncs.Nobles.next() );  // (1) 再開
 	} );
 
 
@@ -130,7 +130,7 @@ $( function() {
 
 
 	/* 44. 男爵 */
-	CardEffect['Baron'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Baron'] = function*() {
 		StartActionCardEffect( '屋敷を捨て札にすることができます。そうした場合4コインを得ます。捨て札にしなかった場合は屋敷を獲得します。' )
 		.then( function() {
 			$('.action_buttons').html( MakeHTML_button( 'Baron get_estate', '屋敷を獲得' ) );
@@ -140,7 +140,7 @@ $( function() {
 		} );
 		yield;  // (1)
 		$('.action_buttons').html('');  // reset
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	$('.HandCards').on( 'click', '.Baron_Discard', function() {
@@ -150,7 +150,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
 		updates['TurnInfo/coin'] = Game.TurnInfo.coin + 4;
 		FBref_Game.update( updates )
-		.then( GenFuncs.Baron.next() );  // (1) 再開
+		.then( () => GenFuncs.Baron.next() );  // (1) 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.Baron.get_estate', function() {
@@ -159,7 +159,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/Deck`] = Game.player().Deck;
 		updates['Supply'] = Game.Supply;
 		FBref_Game.update( updates )
-		.then( GenFuncs.Baron.next() );  // (1) 再開
+		.then( () => GenFuncs.Baron.next() );  // (1) 再開
 	} );
 
 
@@ -167,14 +167,14 @@ $( function() {
 
 
 	/* 50. 中庭 */
-	CardEffect['Courtyard'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Courtyard'] = function*() {
 		StartActionCardEffect( '山札に戻すカードを選択してください。' )
 		.then( function() {
 			/* 手札のカードのクリック動作を山札に戻すカードの選択に変更 */
 			$('.HandCards').children('.card').addClass('Courtyard_PutBackToDeck pointer');
 		} );
 		yield;  // (1)
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	$('.HandCards').on( 'click', '.Courtyard_PutBackToDeck', function() {
@@ -184,7 +184,7 @@ $( function() {
 			Deck      : Game.player().Deck,
 			HandCards : Game.player().HandCards,
 		} )
-		.then( GenFuncs.Courtyard.next() );  // (1) 再開
+		.then( () => GenFuncs.Courtyard.next() );  // (1) 再開
 	} );
 
 
@@ -192,7 +192,7 @@ $( function() {
 
 
 	/* 38. 交易場 */
-	CardEffect['Trading Post'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Trading Post'] = function*() {
 		StartActionCardEffect( '廃棄するカードを2枚選択してください。そうした場合銀貨を獲得します。' )
 		.then( function() {
 			/* 手札のカードのクリック動作を山札に戻すカードの選択に変更 */
@@ -214,7 +214,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 		updates['Supply'] = Game.Supply;
 		FBref_Game.update( updates )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+		.then( EndActionCardEffect );
 	};
 
 	$('.HandCards').on( 'click', '.TradingPost_Trash', function() {
@@ -224,7 +224,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 		updates['TrashPile'] = Game.TrashPile;
 		FBref_Game.update( updates )
-		.then( GenFuncs['Trading Post'].next() );  // (1) 再開
+		.then( () => GenFuncs['Trading Post'].next() );  // (1) 再開
 	} );
 
 
@@ -232,7 +232,7 @@ $( function() {
 
 
 	/* 43. 執事 */
-	CardEffect['Steward'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Steward'] = function*() {
 		StartActionCardEffect( '次のうち一つを選んでください。' )
 		.then( function() {
 			$('.action_buttons')
@@ -250,12 +250,12 @@ $( function() {
 			case '2Cards' :
 				Game.player().DrawCards(2);
 				FBref_Players.child( Game.player().id ).set( Game.player() )
-				.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+				.then( EndActionCardEffect );
 				return;
 
 			case '2Coins' :
 				FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin + 2 )
-				.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+				.then( EndActionCardEffect );
 				return;
 
 			case 'trash2' :
@@ -273,11 +273,11 @@ $( function() {
 				updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 				updates['TrashPile'] = Game.TrashPile;
 				FBref_Game.update( updates )
-				.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+				.then( EndActionCardEffect );
 				return;
 
 			default :
-				EndActionCardEffect( Resolve_GetCardEffect );
+				EndActionCardEffect();
 				return;
 		}
 	};
@@ -304,7 +304,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 		updates['TrashPile'] = Game.TrashPile;
 		FBref_Game.update( updates )
-		.then( GenFuncs.Steward.next() );  // (1) 再開
+		.then( () => GenFuncs.Steward.next() );  // (1) 再開
 	} );
 
 
@@ -312,7 +312,7 @@ $( function() {
 
 
 	/* 56. 貧民街 */
-	CardEffect['Shanty Town'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Shanty Town'] = function*() {
 		StartActionCardEffect( '手札にアクションカードがない場合2枚カードを引きます。' )
 
 		let action_cards
@@ -321,10 +321,10 @@ $( function() {
 		if ( action_cards.length <= 0 ) {
 			Game.player().DrawCards(2);
 			FBref_Players.child( Game.player().id ).set( Game.player() )
-			.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+			.then( EndActionCardEffect );
 			return;
 		}
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 
@@ -332,7 +332,7 @@ $( function() {
 
 
 	/* 47. 手先 */
-	CardEffect['Pawn'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Pawn'] = function*() {
 		StartActionCardEffect( '次のうち異なる二つを選んでください。' )
 		.then( function() {
 			$('.action_buttons')
@@ -370,7 +370,7 @@ $( function() {
 		f(first);  f(second);
 
 		FBref_Game.update( updates )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );  // 再開
+		.then( EndActionCardEffect );  // 再開
 	};
 
 	$('.action_buttons').on( 'click', '.Pawn', function() {
@@ -386,7 +386,7 @@ $( function() {
 
 
 	/* 46. 偵察員 */
-	CardEffect['Scout'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Scout'] = function*() {
 		StartActionCardEffect( '山札の上から4枚のカードを公開し、勝利点カードが含まれていればそれらを全て手札に加えます。\
 			残りは好きな順番で山札に戻してください。' )
 
@@ -411,7 +411,7 @@ $( function() {
 			$('.Open').children('.card').addClass('Scout_PutBackToDeck pointer');
 			yield;  // (2)
 		}
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	$('.action_buttons').on( 'click', '.Scout_VictoryCards', function() { 
@@ -425,7 +425,7 @@ $( function() {
 			Open : Game.player().Open,
 			Deck : Game.player().Deck,
 		} )
-		.then( GenFuncs.Scout.next() );  // (2) 再開
+		.then( () => GenFuncs.Scout.next() );  // (2) 再開
 	} );
 
 
@@ -433,7 +433,7 @@ $( function() {
 
 
 	/* 48. 鉄工所 */
-	CardEffect['Ironworks'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Ironworks'] = function*() {
 		StartActionCardEffect( 'コストが4コイン以下のカードを獲得してください。<br>\
 			そのカードが<br>\
 			 - アクションカードならば +1 Action<br>\
@@ -467,7 +467,7 @@ $( function() {
 		}
 
 		FBref_Game.update( updates )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+		.then( EndActionCardEffect );
 	};
 
 	$('.SupplyArea').on( 'click', '.card.Ironworks_GetCard', function() {
@@ -486,7 +486,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
 		updates['Supply'] = Game.Supply;
 		FBref_Game.update( updates )
-		.then( GenFuncs.Ironworks.next( clicked_card_no ) );  // (1) 再開
+		.then( () => GenFuncs.Ironworks.next( clicked_card_no ) );  // (1) 再開
 	} );
 
 
@@ -494,7 +494,7 @@ $( function() {
 
 
 	/* 57. 貢物 */
-	CardEffect['Tribute'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Tribute'] = function*() {
 		StartActionCardEffect( '左隣りのプレイヤーの山札の上から2枚を公開します。\
 			それらのうち異なる名前のカード1枚につき、それが<br>\
 			- アクションカードならば +2 Actions<br>\
@@ -535,7 +535,7 @@ $( function() {
 		updates[`Players/${Game.NextPlayerID()}/DiscardPile`] = Game.NextPlayer().DiscardPile;
 
 		FBref_Game.update( updates )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+		.then( EndActionCardEffect );
 	};
 
 	/* 確認 */
@@ -546,7 +546,7 @@ $( function() {
 
 
 	/* 39. 鉱山の村 */
-	CardEffect['Mining Village'] = function*( Resolve_GetCardEffect, playing_card_ID ) {
+	CardEffect['Mining Village'] = function*( playing_card_ID ) {
 		StartActionCardEffect( 'このカードを即座に廃棄することができます。そうした場合、2コインを得ます。' )
 		.then( function() {
 			$('.action_buttons')
@@ -565,10 +565,10 @@ $( function() {
 			updates['TrashPile'] = Game.TrashPile;
 			updates['TurnInfo/coin'] = Game.TurnInfo.coin + 2;
 			FBref_Game.update( updates )
-			.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+			.then( EndActionCardEffect );
 			return;
 		}
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	$('.action_buttons').on( 'click', '.MiningVillage', function() {
@@ -581,7 +581,7 @@ $( function() {
 
 
 	/* 41. 拷問人 */
-	CardEffect['Torturer'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Torturer'] = function*() {
 		StartActionCardEffect( '他のプレイヤーは次のうち1つを選ぶ ： <br>\
 			- 手札からカードを2枚捨て札にする<br>\
 			- 呪いを獲得し手札に加える<br>\
@@ -606,7 +606,7 @@ $( function() {
 		/* 終了処理 */
 		FBref_SignalEnd.off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown(true) );  // 公開したリアクションカードを戻す
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 	AttackEffect['Torturer'] = function*() {  /* アタックされる側 */
@@ -663,7 +663,7 @@ $( function() {
 			HandCards   : Game.Me().HandCards,
 			DiscardPile : Game.Me().DiscardPile,
 		} )
-		.then( GenFuncs.AttackEffect_Torturer.next() );  // (b) 再開
+		.then( () => GenFuncs.AttackEffect_Torturer.next() );  // (b) 再開
 	} );
 
 	/* 確認 */
@@ -676,12 +676,12 @@ $( function() {
 
 
 	/* 42. 詐欺師 */
-	CardEffect['Swindler'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Swindler'] = function*() {
 		StartActionCardEffect( '' )
 		.then( function() {
 
 		} );
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 
@@ -689,7 +689,7 @@ $( function() {
 
 
 	/* 45. 寵臣 */
-	CardEffect['Minion'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Minion'] = function*() {
 		StartActionCardEffect( '次のうち一つを選んでください。' )
 		.then( function() {
 			$('.action_buttons')
@@ -703,7 +703,7 @@ $( function() {
 
 		if ( clicked_btn == '2Coins' ) {
 			FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin + 2 )
-			.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+			.then( EndActionCardEffect );
 			return;
 		}
 		if ( clicked_btn == 'Discard' ) {
@@ -732,7 +732,7 @@ $( function() {
 			/* 終了処理 */
 			FBref_SignalEnd.off();  /* 監視終了 */
 			Game.Players.forEach( (player) => player.ResetFaceDown(true) );  // 公開したリアクションカードを戻す
-			EndActionCardEffect( Resolve_GetCardEffect );
+			EndActionCardEffect();
 			return;
 		}
 	};
@@ -767,12 +767,12 @@ $( function() {
 
 
 	/* 53. 破壊工作員 */
-	CardEffect['Saboteur'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Saboteur'] = function*() {
 		StartActionCardEffect( '' )
 		.then( function() {
 
 		} );
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 
@@ -780,10 +780,10 @@ $( function() {
 
 
 	/* 49. 銅細工師 */
-	CardEffect['Coppersmith'] = function( Resolve_GetCardEffect ) {
+	CardEffect['Coppersmith'] = function() {
 		StartActionCardEffect( 'このターン銅貨は+1コインを生みます。' )
 		.then( () => FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin + 1 ) )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+		.then( EndActionCardEffect );
 	};
 
 
@@ -791,12 +791,12 @@ $( function() {
 
 
 	/* 54. 橋 */
-	CardEffect['Bridge'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Bridge'] = function*() {
 		StartActionCardEffect( '' )
 		.then( function() {
 
 		} );
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 
@@ -804,12 +804,12 @@ $( function() {
 
 
 	/* 51. 願いの井戸 */
-	CardEffect['Wishing Well'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Wishing Well'] = function*() {
 		StartActionCardEffect( '' )
 		.then( function() {
 
 		} );
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 
@@ -817,7 +817,7 @@ $( function() {
 
 
 	/* 55. 秘密の部屋 */
-	CardEffect['Secret Chamber'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Secret Chamber'] = function*() {
 		StartActionCardEffect( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけコインを得ます。' )
 		.then( function() {
 			$('.action_buttons').append( MakeHTML_button( 'SecretChamber Done', '完了' ) );
@@ -837,7 +837,7 @@ $( function() {
 		$('.action_buttons .SecretChamber.Done').remove();  /* 完了ボタン消す */
 
 		FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin + discarded_num )
-		.then( EndActionCardEffect( Resolve_GetCardEffect ) );
+		.then( EndActionCardEffect );
 	};
 
 	$('.HandCards').on( 'click', '.card.SecretChamber_Discard', function() {
@@ -849,11 +849,13 @@ $( function() {
 			HandCards   : Game.player().HandCards,
 			DiscardPile : Game.player().DiscardPile,
 		} )
-		.then( GenFuncs['Secret Chamber'].next(false) );  // (1) 再開
+		.then( () => GenFuncs.GetCardEffect.next(false) );  // (1) 再開
+		// .then( GenFuncs['Secret Chamber'].next(false) );  // (1) 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.SecretChamber.Done', function() {
-		GenFuncs['Secret Chamber'].next(true);  // (1) 再開
+		GenFuncs.GetCardEffect.next(true);  // (1) 再開
+		// GenFuncs['Secret Chamber'].next(true);  // (1) 再開
 	} );
 
 
@@ -883,7 +885,7 @@ $( function() {
 			HandCards : Game.Me().HandCards,
 			Deck      : Game.Me().Deck,
 		} )
-		.then( GenFuncs['Secret Chamber'].next() );  // (1)
+		.then( () => GenFuncs['Secret Chamber'].next() );  // (1)
 	} );
 
 
@@ -891,12 +893,12 @@ $( function() {
 
 
 	/* 35. 仮面舞踏会 */
-	CardEffect['Masquerade'] = function*( Resolve_GetCardEffect ) {
+	CardEffect['Masquerade'] = function*() {
 		StartActionCardEffect( '' )
 		.then( function() {
 
 		} );
-		EndActionCardEffect( Resolve_GetCardEffect );
+		EndActionCardEffect();
 	};
 
 
@@ -904,12 +906,12 @@ $( function() {
 
 
 	/*  */
-	// CardEffect[''] = function*( Resolve_GetCardEffect ) {
+	// CardEffect[''] = function*() {
 	// 	StartActionCardEffect( '' )
 	// 	.then( function() {
 
 	// 	} );
-	// 	EndActionCardEffect( Resolve_GetCardEffect );
+	// 	EndActionCardEffect();
 	// };
 
 

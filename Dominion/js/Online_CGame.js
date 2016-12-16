@@ -312,8 +312,9 @@ class CGame {
 			updates['TurnInfo/action'] = Game.TurnInfo.action - 1;
 		}
 
+		GenFuncs['GetCardEffect'] = GetCardEffect( playing_card_no, playing_card_ID );
 		FBref_Game.update( updates )
-		.then( () => GetCardEffect( playing_card_no, playing_card_ID ) );
+		.then( () => MyAsync( GenFuncs['GetCardEffect'] ) );
 	}
 }
 

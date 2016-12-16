@@ -168,7 +168,7 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	SelectedCards.KingdomCards = [ 14,32,15,30, 26,55, 27,29,31,24  ];
+	SelectedCards.KingdomCards = [ 14,32,15,30, 26,55, 27,29,31,13  ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
 	/*
 			42	詐欺師

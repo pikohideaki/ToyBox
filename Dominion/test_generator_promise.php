@@ -35,8 +35,8 @@ include( $Filename_sDc );
 	</header>
 
 	<div class='main'>
+		<button class='btn-blue start'>start</button>
 		<button class='btn-blue next'>next</button>
-		<button class='btn-blue resolve'>resolve</button>
 		<button class='btn-blue end'>end</button>
 		<p class='logs'>
 			
@@ -73,8 +73,8 @@ $( function() {
 		console.log(++n)
 		yield sleep(1);
 		console.log(++n)
-		// yield 'aaa';
-		// console.log('bbb');
+		yield 'wait for button';
+		console.log('button clicked!');
 		yield sleep(1);
 		console.log(++n)
 		yield sleep(1);
@@ -82,13 +82,16 @@ $( function() {
 	}
 
 	let g = genfunc();
+	let h = genfunc();
 
-	function MyAsync(gfn) {
-		let n = gfn.next();
-		if ( n.done ) return;
-		if ( n.value instanceof Promise ) n.value.then( () => MyAsync(gfn) );  // if n is undone
-		else MyAsync(gfn);
+	function MyAsync( genfunc ) {
+		let n = genfunc.next();
+		if ( n.done ) return Promise.resolve();
+		if ( n.value instanceof Promise ) return n.value.then( () => MyAsync( genfunc ) );  // if n is undone
+		// else return MyAsync( genfunc );
 	}
+
+	$('.next').click( () => MyAsync(g) );
 
 	// function MyAsync(g) {
 	// 	Promise.resolve()
@@ -105,7 +108,8 @@ $( function() {
 
 	// $('.next').click( () => g.next() );
 	// $('.next').click( () => console.log( g.next().value ) );
-	$('.next').click( () => MyAsync(g) );
+	$('.start').click( () => MyAsync(g) );
+	// $('.start').click( () => MyAsync(g).then( () => MyAsync(h) ) );
 		// () => Promise.resolve()
 		// .then( () => g.next().value )
 		// .then( () => g.next().value )
