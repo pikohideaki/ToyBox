@@ -36,6 +36,7 @@ include( $Filename_sDc );
 
 	<div class='main'>
 		<button class='btn-blue next'>next</button>
+		<button class='btn-blue resolve'>resolve</button>
 		<button class='btn-blue end'>end</button>
 		<p class='logs'>
 			
@@ -46,6 +47,86 @@ include( $Filename_sDc );
 <script type="text/javascript">
 
 $( function() {
+
+	// function AsyncAwait( genfunc ) {
+	// 	// yield の右に書いた文が nextの評価値になる
+	// 	genfunc.next();  // start
+	// 	// promise が resolve したら next したい
+	// 	let p = Promise.resolve();
+	// 	genfunc.next().value.resolve(); // promise
+	// }
+
+	// let r;
+
+	function sleep(sec) {
+		return new Promise( function( resolve, reject ) {
+			setTimeout( resolve, sec * 1000 );
+		} );
+	}
+
+	function* genfunc() {
+		console.log('started')
+		let n = 0;
+		yield sleep(1);
+		console.log(++n)
+		yield sleep(1);
+		console.log(++n)
+		yield sleep(1);
+		console.log(++n)
+		// yield 'aaa';
+		// console.log('bbb');
+		yield sleep(1);
+		console.log(++n)
+		yield sleep(1);
+		console.log(++n)
+	}
+
+	let g = genfunc();
+
+	function MyAsync(gfn) {
+		let n = gfn.next();
+		if ( n.done ) return;
+		if ( n.value instanceof Promise ) n.value.then( () => MyAsync(gfn) );  // if n is undone
+		else MyAsync(gfn);
+	}
+
+	// function MyAsync(g) {
+	// 	Promise.resolve()
+	// 	.then( () => g.next().value )
+	// 	.then( () => g.next().value )
+	// 	.then( () => g.next().value )
+	// 	.then( () => g.next().value )
+	// 	.then( () => g.next().value )
+	// 	.then( () => g.next().value )
+	// }
+	{ // main
+		// MyAsync(g);
+	}
+
+	// $('.next').click( () => g.next() );
+	// $('.next').click( () => console.log( g.next().value ) );
+	$('.next').click( () => MyAsync(g) );
+		// () => Promise.resolve()
+		// .then( () => g.next().value )
+		// .then( () => g.next().value )
+		// .then( () => g.next().value )
+		// .then( () => g.next().value )
+		// .then( () => g.next().value )
+		// .then( () => g.next().value )
+	// $('.resolve').click(r);
+
+	// function sleep2( sec ) {
+	// 	return new Promise( function( resolve, reject ) {
+	// 		setTimeout( resolve, 1000 * sec );
+	// 	});
+	// }
+
+	// Promise.resolve()
+	// .then( () => sleep2(3) )
+	// .then( () => console.log('after 3sec') )
+	// .then( () => sleep2(2) )
+	// .then( () => console.log('after 5sec') )
+
 
 	// async function asynctest() {
 	// 	console.log('start');

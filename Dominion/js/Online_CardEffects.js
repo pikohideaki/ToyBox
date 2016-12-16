@@ -8,16 +8,18 @@ let GenFuncs       = {};  /* object to access from everywhere */
 // let AsyncFuncs     = {};  /* async functions (object globally access) */
 
 
-function AsyncAwait( genfunc ) {
+function MyAsync( genfunc ) {
 	// yield の右に書いた文が nextの評価値になる
-	genfunc.next();  // start
 	// promise が resolve したら next したい
-	
+	let n = genfunc.next();
+	if ( n.done ) return;
+	if ( n.value instanceof Promise ) n.value.then( () => MyAsync( genfunc ) );  // if n is undone
+	else MyAsync( genfunc );
 }
 
 
 
-let GetCardEffect = function* ( playing_card_no, playing_card_ID ) {
+function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	const playing_Card = Cardlist[ playing_card_no ];
 	FBref_Room.child('chat').push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
 
@@ -47,7 +49,7 @@ let GetCardEffect = function* ( playing_card_no, playing_card_ID ) {
 	updates['TurnInfo'] = Game.TurnInfo;
 	updates[`Players/${Game.player().id}`] = Game.player();
 
-	yield FBref_Game.update( updates )
+	yield FBref_Game.update( updates );
 
 	const playing_card_name = Cardlist[ playing_card_no ].name_eng;
 	switch ( playing_card_name ) {
