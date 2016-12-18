@@ -121,7 +121,8 @@ $( function() {
 
 
 	$('.action_buttons').on( 'click', '.Nobles.2Actions', function() {
-		FBref_Game.child('TurnInfo/action').set( Game.TurnInfo.action + 2 )
+		Game.TurnInfo.action += 2;
+		FBref_Game.child('TurnInfo/action').set( Game.TurnInfo.action )
 		.then( () => GenFuncs.Nobles.next() );  // (1) 再開
 	} );
 
@@ -146,9 +147,10 @@ $( function() {
 	$('.HandCards').on( 'click', '.Baron_Discard', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+		Game.TurnInfo.coin += 4;
 		let updates = {};
 		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
-		updates['TurnInfo/coin'] = Game.TurnInfo.coin + 4;
+		updates['TurnInfo/coin'] = Game.TurnInfo.coin;
 		FBref_Game.update( updates )
 		.then( () => GenFuncs.Baron.next() );  // (1) 再開
 	} );
@@ -254,7 +256,8 @@ $( function() {
 				return;
 
 			case '2Coins' :
-				FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin + 2 )
+				Game.TurnInfo.coin += 2;
+				FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin )
 				.then( EndActionCardEffect );
 				return;
 
@@ -357,13 +360,16 @@ $( function() {
 					updates[`Players/${Game.player().id}`] = Game.player();
 					break;
 				case '1Action' :
-					updates['TurnInfo/action'] = Game.TurnInfo.action + 1;
+					Game.TurnInfo.action++;
+					updates['TurnInfo/action'] = Game.TurnInfo.action;
 					break;
 				case '1Buy' :
-					updates['TurnInfo/buy']    = Game.TurnInfo.buy    + 1;
+					Game.TurnInfo.buy++;
+					updates['TurnInfo/buy']    = Game.TurnInfo.buy;
 					break;
 				case '1Coin' :
-					updates['TurnInfo/coin']   = Game.TurnInfo.coin   + 1;
+					Game.TurnInfo.coin++;
+					updates['TurnInfo/coin']   = Game.TurnInfo.coin;
 					break;
 			}
 		}
@@ -560,10 +566,11 @@ $( function() {
 
 		if ( btn_val == 'trash' ) {
 			Game.TrashCardByID( playing_card_ID );
+			Game.TurnInfo.coin += 2;
 			let updates = {};
 			updates[`Players/${Game.player().id}`] = Game.player();  /* 更新 */
 			updates['TrashPile'] = Game.TrashPile;
-			updates['TurnInfo/coin'] = Game.TurnInfo.coin + 2;
+			updates['TurnInfo/coin'] = Game.TurnInfo.coin;
 			FBref_Game.update( updates )
 			.then( EndActionCardEffect );
 			return;
@@ -702,7 +709,8 @@ $( function() {
 		$('.action_buttons').html('');  // reset
 
 		if ( clicked_btn == '2Coins' ) {
-			FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin + 2 )
+			Game.TurnInfo.coin += 2;
+			FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin )
 			.then( EndActionCardEffect );
 			return;
 		}
@@ -781,8 +789,9 @@ $( function() {
 
 	/* 49. 銅細工師 */
 	CardEffect['Coppersmith'] = function() {
+		Game.TurnInfo.add_copper_coin++;
 		StartActionCardEffect( 'このターン銅貨は+1コインを生みます。' )
-		.then( () => FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin + 1 ) )
+		.then( () => FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin ) )
 		.then( EndActionCardEffect );
 	};
 
@@ -818,26 +827,25 @@ $( function() {
 
 	/* 55. 秘密の部屋 */
 	CardEffect['Secret Chamber'] = function*() {
-		StartActionCardEffect( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけコインを得ます。' )
-		.then( function() {
-			$('.action_buttons').append( MakeHTML_button( 'SecretChamber Done', '完了' ) );
-		} );
+		yield StartActionCardEffect( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけコインを得ます。' )
+
+		$('.action_buttons').append( MakeHTML_button( 'SecretChamber Done', '完了' ) );
 
 		let discarded_num = 0;
-		let end = false;
 
 		while (true) {
 			$('.HandCards').children('.card').addClass('SecretChamber_Discard pointer');
-			end = yield;  // (1)
+			const end = yield new Promise( function(resolve) {
+				Resolve['SecretChamber_Discard'] = resolve;  // (1)
+			} );
 			if (end) break;
 			discarded_num++;
 			FBref_Message.set( `捨て札にした枚数 ： ${discarded_num}枚` );
 		}
 
 		$('.action_buttons .SecretChamber.Done').remove();  /* 完了ボタン消す */
-
-		FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin + discarded_num )
-		.then( EndActionCardEffect );
+		Game.TurnInfo.coin += discarded_num;
+		yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin )
 	};
 
 	$('.HandCards').on( 'click', '.card.SecretChamber_Discard', function() {
@@ -849,13 +857,11 @@ $( function() {
 			HandCards   : Game.player().HandCards,
 			DiscardPile : Game.player().DiscardPile,
 		} )
-		.then( () => GenFuncs.GetCardEffect.next(false) );  // (1) 再開
-		// .then( GenFuncs['Secret Chamber'].next(false) );  // (1) 再開
+		.then( () => Resolve['SecretChamber_Discard'](false) );
 	} );
 
 	$('.action_buttons').on( 'click', '.SecretChamber.Done', function() {
-		GenFuncs.GetCardEffect.next(true);  // (1) 再開
-		// GenFuncs['Secret Chamber'].next(true);  // (1) 再開
+		Resolve['SecretChamber_Discard'](true);
 	} );
 
 

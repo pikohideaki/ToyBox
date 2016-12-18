@@ -37,11 +37,12 @@ FBref_SignalEnd.off();
 	// 通信状態の表示
 	FBref_connected.on('value', function(snap) {
 		if ( snap.val() === true ) {
+			$('.connection-dialog-wrapper').fadeOut();
 			FBref_Players.child( `${myid}/Connection` ).set(true);
 			FBref_Players.child( `${myid}/Connection` ).onDisconnect().set(false)
 			// .then( FBref_Room.child('chat').push( `${Game.Players[myid]name}が再接続中です…。` ) );
 		} else {
-			alert('接続が切れました。再接続を試みます。');
+			$('.connection-dialog-wrapper').fadeIn();
 		}
 	});
 

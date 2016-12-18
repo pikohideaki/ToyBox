@@ -223,8 +223,15 @@ $GameRoomID = $_POST['room-id'];
 			<div class='clear'></div>
 			<div class='dialog_contents'></div>
 			<div class='clear'></div>
-			<div class='dialog_buttons'>
-			</div>
+			<div class='dialog_buttons'></div>
+		</div>
+	</div>
+
+
+	<div class='BlackCover connection-dialog-wrapper'>
+		<div class='dialog'>
+			<div class='dialog_text'>接続が切れました。再接続を試みます。</div>
+			<div class='clear'></div>
 		</div>
 	</div>
 

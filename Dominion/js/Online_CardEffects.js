@@ -4,19 +4,8 @@ let CardEffect     = {};  /* library of card effect functions */
 let AttackEffect   = {};  /* library of attack card effect functions */
 let ReactionEffect = {};  /* library of reaction card effect functions */
 
+let Resolve        = {};  
 let GenFuncs       = {};  /* object to access from everywhere */
-// let AsyncFuncs     = {};  /* async functions (object globally access) */
-
-
-// yield の右に書いた文が nextの評価値になる
-// promise が resolve したら next したい
-// promise が渡されないyield文は普通に待つ（nextはMyAsync(g)を呼ぶことでできる）
-function MyAsync( genfunc ) {
-	let n = genfunc.next();
-	if ( n.done ) return Promise.resolve();
-	if ( n.value instanceof Promise ) return n.value.then( () => MyAsync( genfunc ) );  // if n is undone
-	// else return MyAsync( genfunc );
-}
 
 
 
@@ -61,16 +50,15 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 		/* 中断なし */
 		case 'Council Room' :  // 13. 議事堂
-
 		case 'Conspirator'  :  // 37. 共謀者
 		case 'Coppersmith'  :  // 49. 銅細工師
 		case 'Bridge'       :  // 54. 橋
-
-			yield CardEffect[ playing_card_name ]();
+			CardEffect[ playing_card_name ]();
 			break;
 
 
 		/* 中断あり （generator function使用） */
+		// 1. 基本
 		case 'Chancellor'     :  // 18. 宰相
 		case 'Library'        :  // 21. 書庫
 		case 'Adventurer'     :  // 25. 冒険者
@@ -87,7 +75,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 		case 'Spy'            :  // 28. 密偵
 		case 'Bureaucrat'     :  // 31. 役人
 		case 'Throne Room'    :  // 14. 玉座の間
-
+		// 2. 陰謀
 		case 'Upgrade'        :  // 34. 改良
 		case 'Nobles'         :  // 36. 貴族
 		case 'Baron'          :  // 44. 男爵
@@ -109,10 +97,12 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 		case 'Masquerade'     :  // 35. 仮面舞踏会
 
 			// GenFuncs[ playing_card_name ]
-			// 	= CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );  // generator 作成
+				// = CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );  // generator 作成
 			// GenFuncs[ playing_card_name ].next();  // generator開始
-			// yield;
-			yield* CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );
+			// yield MyAsync( GenFuncs[ playing_card_name ] );
+			yield FBref_Game.child('phase').set('ActionPhase*');
+			yield MyAsync( CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no ) );
+			yield FBref_Game.child('phase').set( 'ActionPhase' );
 			break;
 
 		default :
@@ -188,21 +178,21 @@ function GetAttackCardEffect( card_name ) {
 
 
 
-function StartActionCardEffect( Message ) {
-	return FBref_Room.update( {
-		Message      : Message,
-		'Game/phase' : 'ActionPhase*',
-	} );
-}
+// function StartActionCardEffect( Message ) {
+// 	return FBref_Room.update( {
+// 		Message      : Message,
+// 		'Game/phase' : 'ActionPhase*',
+// 	} );
+// }
 
-function EndActionCardEffect( Resolve_GetCardEffect ) {
-	return new Promise( function( resolve, reject ) {
-		FBref_Game.child('phase').set( 'ActionPhase' )
-		.then( () => GenFuncs['GetCardEffect'].return() )  /* GetCardEffectを終了 */
-		// .then( Resolve_GetCardEffect )  /* GetCardEffectを終了 */
-		.then( resolve );
-	});
-}
+// function EndActionCardEffect( Resolve_GetCardEffect ) {
+// 	return new Promise( function( resolve, reject ) {
+// 		FBref_Game.child('phase').set( 'ActionPhase' )
+// 		.then( () => GenFuncs['GetCardEffect'].return() )  /* GetCardEffectを終了 */
+// 		// .then( Resolve_GetCardEffect )  /* GetCardEffectを終了 */
+// 		.then( resolve );
+// 	});
+// }
 
 
 function EndAttackCardEffect() {

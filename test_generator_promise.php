@@ -36,9 +36,8 @@ include( $Filename_sDc );
 
 	<div class='main'>
 		<button class='btn-blue start'>start</button>
-		<button class='btn-blue start2'>start2</button>
 		<button class='btn-blue next'>next</button>
-		<!-- <button class='btn-blue end'>end</button> -->
+		<button class='btn-blue end'>end</button>
 		<p class='logs'>
 			
 		</p>
@@ -65,94 +64,54 @@ $( function() {
 		} );
 	}
 
-
-	function MyAsync( GenFunc ) {
-
-		function MyAsync_sub( genfunc, args ) {
-			let n = genfunc.next(args);
-			if ( n.done ) {
-				return Promise.resolve();
-			} else if ( n.value instanceof Promise ) {
-				return n.value.then( (args) => MyAsync_sub( genfunc, args ) );
-			} else if ( n.value instanceof (function*(){}).constructor ) {
-				return MyAsync_sub( n.value() ).then( () => MyAsync_sub( genfunc ) );
-			} else {
-				console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
-			}
-		}
-
-
-		let m = GenFunc.next();  // start GenFunc
-		if ( m.done ) {
+	function MyAsync( genfunc ) {
+		let n = genfunc.next();
+		if ( n.done ) {
+			console.log('(done)');
 			return Promise.resolve();
-		} else if ( m.value instanceof Promise ) {
-			return m.value.then( (args) => MyAsync_sub( GenFunc, args ) );
-		} else if ( m.value instanceof (function*(){}).constructor ) {
-			return MyAsync_sub( m.value() ).then( () => MyAsync_sub( GenFunc ) );
-		} else {
-			console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 		}
+		// if n is undone
+		else if ( n.value instanceof Promise ) {
+			console.log('(pro)');
+			return n.value.then( () => MyAsync( genfunc ) );
+		}
+		else if ( n.value instanceof (function*(){}).constructor ) {
+			console.log('(gen)');
+			return MyAsync( n.value() ).then( () => MyAsync( genfunc ) );
+		}
+		else {
+			console.log('(else)');
+		}
+		// else return MyAsync( genfunc );
 	}
 
-	// function MyAsync( genfunc ) {
-	// 	let n = genfunc.next();
-	// 	if ( n.done ) {
-	// 		// console.log('(done)');
-	// 		return Promise.resolve();
-	// 	}
-	// 	// if n is undone
-	// 	else if ( n.value instanceof Promise ) {
-	// 		console.log('(pro)');
-	// 		return n.value.then( () => MyAsync( genfunc ) );
-	// 	}
-	// 	else if ( n.value instanceof (function*(){}).constructor ) {
-	// 		console.log('(gen)');
-	// 		return MyAsync( n.value() ).then( () => MyAsync( genfunc ) );
-	// 	}
-	// 	// else {
-	// 		// console.log('(else)');
-	// 	// }
-	// 	// else return MyAsync( genfunc );
-	// }
-
-	let Resolve;
 
 	function* genfunc() {
 		console.log('genfunc started');
 		yield sleep(1); console.log('a');
 		yield sleep(1); console.log('b');
-		let return_value = yield new Promise( function(resolve) { Resolve = resolve; } );
-		console.log( return_value );
+		yield 'wait for button';
 		console.log('button clicked!');
 		yield sleep(1); console.log('c');
 		console.log( 'genfunc end' );
 	}
 
-	// let g = genfunc();
+	let g = genfunc();
 
 
 	function* genfunc2() {
 		console.log('genfunc2 started');
 		yield sleep(1); console.log('A');
 		yield sleep(1); console.log('B');
-		// yield genfunc;
-		yield MyAsync( genfunc() );
+		yield genfunc;//MyAsync(g)
 		yield sleep(1); console.log('C');
 		console.log( 'genfunc2 end' );
 	}
 
-	// let h = genfunc2();
-
-	// let p = new Promise( function( resolve ) {
-	// 	setTimeout( () => resolve('xx'), 1000 );
-	// });
-
-	// p.then( console.log );
+	let h = genfunc2();
 
 
-
-	$('.next').click( () => Resolve( [998,999] ) );
-	// $('.next').click( () => h.next() );
+	$('.next').click( () => h.next() );
 
 	// function MyAsync(g) {
 	// 	Promise.resolve()
@@ -174,8 +133,7 @@ $( function() {
 
 	// $('.next').click( () => g.next() );
 	// $('.next').click( () => console.log( g.next().value ) );
-	$('.start' ).click( () => MyAsync( genfunc()  ) );
-	$('.start2').click( () => MyAsync( genfunc2() ) );
+	$('.start').click( () => MyAsync(h) );
 	// $('.start').click( () => MyAsync(g).then( () => MyAsync(h) ) );
 		// () => Promise.resolve()
 		// .then( () => g.next().value )

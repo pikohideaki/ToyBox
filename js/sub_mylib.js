@@ -170,3 +170,39 @@ class SizeOfjQueryObj {
 }
 
 
+
+
+// yield の右に書いた文が nextの評価値になる
+// promise が resolve したら next したい
+// promise が渡されないyield文は許可しない
+//  - MyAsyncからMyAsyncを呼びたいときに困る．
+//  - ボタン操作待ちなどはPromise化してresolveをボタン操作から実行するように
+
+function MyAsync( GenFunc ) {
+
+	function MyAsync_sub( genfunc, args ) {
+		let n = genfunc.next(args);
+		if ( n.done ) {
+			return Promise.resolve();
+		} else if ( n.value instanceof Promise ) {
+			return n.value.then( (args) => MyAsync_sub( genfunc, args ) );
+		} else if ( n.value instanceof (function*(){}).constructor ) {
+			return MyAsync_sub( n.value() ).then( () => MyAsync_sub( genfunc ) );
+		} else {
+			console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+		}
+	}
+
+
+	let m = GenFunc.next();  // start GenFunc
+	if ( m.done ) {
+		return Promise.resolve();
+	} else if ( m.value instanceof Promise ) {
+		return m.value.then( (args) => MyAsync_sub( GenFunc, args ) );
+	} else if ( m.value instanceof (function*(){}).constructor ) {
+		return MyAsync_sub( m.value() ).then( () => MyAsync_sub( GenFunc ) );
+	} else {
+		console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+	}
+}
+

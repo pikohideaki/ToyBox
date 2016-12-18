@@ -23,19 +23,16 @@ $( function() {
 
 		if ( Coppers.length <= 0 ) {
 			alert( '手札に銅貨がありません。' );
-			// Resolve_GetCardEffect();  /* GetCardEffectを終了 */
 			return;
 		}
 
-		StartActionCardEffect( '手札の銅貨を1枚廃棄して下さい。' )
-		.then( function() {
-			$('.HandCards').children('.card')
-				.filter( function() { return $(this).attr('data-card_no') == CardName2No['Copper'] } )
-				.addClass('Moneylender_Trash pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
-		} );
+		yield FBref_Message.set( '手札の銅貨を1枚廃棄して下さい。' );
 
-		yield;  // (1)
-		EndActionCardEffect();
+		$('.HandCards').children('.card')
+			.filter( function() { return $(this).attr('data-card_no') == CardName2No['Copper'] } )
+			.addClass('Moneylender_Trash pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
+
+		yield new Promise( function(resolve) { Resolve['Moneylender_Trash'] = resolve; });
 	};
 
 	$('.HandCards').on( 'click', '.card.Moneylender_Trash', function() {
@@ -45,10 +42,11 @@ $( function() {
 
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
+		Game.TurnInfo.coin += 3;
 		updates['TrashPile'] = Game.TrashPile;
-		updates['TurnInfo/coin'] = Game.TurnInfo.coin + 3;
+		updates['TurnInfo/coin'] = Game.TurnInfo.coin;
 		FBref_Game.update( updates )
-		.then( () => GenFuncs.Moneylender.next() );  // (1) 再開
+		.then( () => Resolve['Moneylender_Trash']() );  // 再開
 	} );
 
 
@@ -59,29 +57,33 @@ $( function() {
 	CardEffect['Remodel'] = function* () {
 		if ( Game.player().HandCards.length <= 0 ) {
 			alert( '手札にカードがありません。' );
-			// Resolve_GetCardEffect();  /* GetCardEffectを終了 */
 			return;
 		}
 
-		StartActionCardEffect( '手札のカードを1枚廃棄して下さい。' )
-		.then( () => $('.HandCards').children('.card').addClass('Remodel_Trash pointer') );
-		  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
+		yield FBref_Message.set( '手札のカードを1枚廃棄して下さい。' );
 
-		const TrashedCardCost = yield;  // (1)
+		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
+		$('.HandCards').children('.card').addClass('Remodel_Trash pointer');
 
-		FBref_Room.child('Message')
-			.set( `コストが廃棄したカード+2(=${TrashedCardCost.coin + 2} )コインまでのカードを獲得してください。` );
+		const TrashedCardCost = yield new Promise( function(resolve) {
+			Resolve['Remodel_Trash'] = resolve;
+		});
+
+		yield FBref_Message.set(
+			`コストが廃棄したカード+2(=${TrashedCardCost.coin + 2} )コインまでのカードを獲得してください。` );
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Remodel_GetCard pointer');
+
 		AddAvailableToSupplyCardIf( (card) => (
 			card.cost        <= TrashedCardCost.coin + 2 &&
 			card.cost_potion <= TrashedCardCost.potion &&
 			card.cost_debt   <= TrashedCardCost.debt
 		) );
 
-		yield;  // (2)
-		EndActionCardEffect();
+		yield new Promise( function(resolve) {
+			Resolve['Remodel_GetCard'] = resolve;
+		});
 	};
 
 
@@ -92,21 +94,21 @@ $( function() {
 
 		if ( Treasure.length <= 0 ) {
 			alert( '手札に財宝カードがありません。' );
-			// Resolve_GetCardEffect();  /* GetCardEffectを終了 */
 			return;
 		}
 
-		StartActionCardEffect( '手札の財宝カードを1枚廃棄して下さい。' )
-		.then( function() {
-			$('.HandCards').children('.card')
-				.filter( function() { return IsTreasureCard( Cardlist, $(this).attr('data-card_no') ); } )
-				.addClass('Mine_Trash pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
-		} );
+		yield FBref_Message.set( '手札の財宝カードを1枚廃棄して下さい。' )
 
-		const TrashedCardCost = yield;  // (1)
+		$('.HandCards').children('.card')
+			.filter( function() { return IsTreasureCard( Cardlist, $(this).attr('data-card_no') ); } )
+			.addClass('Mine_Trash pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 
-		FBref_Room.child('Message')
-			.set( `コストが廃棄したカード+3(=${TrashedCardCost.coin + 3} )コインまでの財宝カードを獲得してください。` );
+		const TrashedCardCost = yield new Promise( function(resolve) {
+			Resolve['Mine_Trash'] = resolve;
+		});
+
+		yield FBref_Message.set(
+			`コストが廃棄したカード+3(=${TrashedCardCost.coin + 3} )コインまでの財宝カードを獲得してください。` );
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Mine_GetCard pointer');
@@ -117,14 +119,15 @@ $( function() {
 			IsTreasureCard( Cardlist, card_no )
 		));
 
-		yield;  // (2)
-		EndActionCardEffect();
+		yield new Promise( function(resolve) {
+			Resolve['Mine_GetCard'] = resolve;
+		});
 	};
 
 	$('.HandCards').on( 'click', '.card.Remodel_Trash,.Mine_Trash', function() {
 		let Remodel_or_Mine;
-		if ( $(this).hasClass('Remodel_Trash') ) Remodel_or_Mine = 'Remodel';
-		if ( $(this).hasClass('Mine_Trash') )    Remodel_or_Mine = 'Mine';
+		if ( $(this).hasClass('Remodel_Trash') ) Remodel_or_Mine = 'Remodel_Trash';
+		if ( $(this).hasClass('Mine_Trash') )    Remodel_or_Mine = 'Mine_Trash';
 
 		const clicked_card_no = $(this).attr('data-card_no');
 		const clicked_card_ID = $(this).attr('data-card_ID');
@@ -143,18 +146,18 @@ $( function() {
 		updates['TrashPile'] = Game.TrashPile;
 
 		FBref_Game.update( updates )
-		.then( () => GenFuncs[Remodel_or_Mine].next( TrashedCardCost ) );  // (1) 再開
+		.then( () => Resolve[Remodel_or_Mine]( TrashedCardCost ) );
 	} );
 
 	$('.SupplyArea').on( 'click', '.card.Remodel_GetCard,.Mine_GetCard', function() {
 		let Remodel_or_Mine;
 		let DiscardPile_or_HandCards;
 		if ( $(this).hasClass('Remodel_GetCard') ) {
-			Remodel_or_Mine = 'Remodel';
+			Remodel_or_Mine = 'Remodel_Trash';
 			DiscardPile_or_HandCards = 'DiscardPile';
 		}
 		if ( $(this).hasClass('Mine_GetCard') ) {
-			Remodel_or_Mine = 'Mine';
+			Remodel_or_Mine = 'Mine_Trash';
 			DiscardPile_or_HandCards = 'HandCards';
 		}
 
@@ -172,7 +175,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/${DiscardPile_or_HandCards}`] = Game.player()[DiscardPile_or_HandCards];
 		updates['Supply'] = Game.Supply;
 		FBref_Game.update( updates )
-		.then( () => GenFuncs[Remodel_or_Mine].next() );  // (2) 再開
+		.then( () => Resolve[Remodel_or_Mine]() );
 	} );
 
 
@@ -181,15 +184,16 @@ $( function() {
 
 	/* 18. 宰相 */
 	CardEffect['Chancellor'] = function*() {
-		StartActionCardEffect( '山札を捨て札に置きますか？' )
-		.then( function() {
-			$('.action_buttons')
-				.html('')
-				.append( MakeHTML_button( 'Chancellor Discard', '捨て札におく' ) )
-				.append( MakeHTML_button( 'Chancellor', '何もしない' ) );
-		} );
+		yield FBref_Message.set( '山札を捨て札に置きますか？' );
 
-		discard = yield;  // (1)
+		$('.action_buttons')
+			.html(
+				MakeHTML_button( 'Chancellor Discard', '捨て札におく' ) +
+				MakeHTML_button( 'Chancellor', '何もしない' ) );
+
+		const discard = yield new Promise( function(resolve) {
+			Resolve['Chancellor'] = resolve;
+		});
 
 		$('.action_buttons').html('');  // reset
 
@@ -199,11 +203,10 @@ $( function() {
 			Game.player().Deck = [];
 			FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
-		EndActionCardEffect();
 	};
 
 	$('.action_buttons').on( 'click', '.Chancellor', function() {
-		GenFuncs.Chancellor.next( $(this).hasClass('Discard'));  // (1) 再開
+		Resolve['Chancellor']( $(this).hasClass('Discard') );  //  再開
 	} );
 
 
@@ -212,13 +215,13 @@ $( function() {
 
 	/* 21. 書庫 */
 	CardEffect['Library'] = function*() {
-		StartActionCardEffect( '手札が7枚になるまでカードを引きます。アクションカードを引いたら脇に置くことができます。' );
+		yield FBref_Message.set( '手札が7枚になるまでカードを引きます。アクションカードを引いたら脇に置くことができます。' );
 
 		while ( Game.player().Drawable() && Game.player().HandCards.length < 7 ) {
 			const deck_top_card = Game.player().GetDeckTopCard();
 
 			if ( IsActionCard( Cardlist, deck_top_card.card_no ) ) {
-				FBref_Players.child( `${Game.player().id}/Deck` ).set( Game.player().Deck );
+				yield FBref_Players.child( `${Game.player().id}/Deck` ).set( Game.player().Deck );
 
 				ShowDialog( {
 					message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
@@ -228,24 +231,27 @@ $( function() {
 						MakeHTML_button( 'Library', '手札に加える' ),
 				} );
 
-				let set_aside = yield;  // (1)
+				const set_aside = yield new Promise( function(resolve) {
+					Resolve['Library'] = resolve;
+				});
 
 				HideDialog();
 
 				if ( set_aside ) {
 					Game.player().AddToAside( deck_top_card );
-					FBref_Players.child( Game.player().id ).set( Game.player() );
+					yield FBref_Players.child( Game.player().id ).set( Game.player() );
 					continue;
 				}
 			}
 
 			Game.player().AddToHandCards( deck_top_card );
-			FBref_Players.child( Game.player().id ).set( Game.player() );
+			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
 
 		$('.action_buttons').append( MakeHTML_button( 'Library Done', '確認' ) );
 
-		yield;  // (2) 脇に置いたカードを確認
+		// 脇に置いたカードを確認
+		yield new Promise( function(resolve) { Resolve['Library_Done'] = resolve; });
 
 		$('.action_buttons .Library.Done').remove();  /* 完了ボタン消す */
 
@@ -253,17 +259,16 @@ $( function() {
 		Game.player().Aside.forEach( (card) => Game.player().AddToDiscardPile(card) );
 		Game.player().Aside = [];
 
-		FBref_Players.child( Game.player().id ).set( Game.player() )
-		.then( EndActionCardEffect );
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
 	/* 確認 */
 	$('.dialog_buttons' ).on( 'click', '.Library', function() {
-		GenFuncs.Library.next( $(this).hasClass('SetAside') );  // (1) 再開
+		Resolve['Library']( $(this).hasClass('SetAside') );  // (1) 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.Library.Done', function() {
-		GenFuncs.Library.next();  // (2) 再開
+		Resolve['Library_Done']();  // 再開
 	} );
 
 
@@ -272,7 +277,7 @@ $( function() {
 
 	/* 25. 冒険者 */
 	CardEffect['Adventurer'] = function*() {
-		StartActionCardEffect( '財宝カードが2枚公開されるまでカードを引きます。' );
+		yield FBref_Message.set( '財宝カードが2枚公開されるまでカードを引きます。' );
 
 		let treasure_num = 0;
 		while ( Game.player().Drawable() && treasure_num < 2 ) {
@@ -281,12 +286,13 @@ $( function() {
 				treasure_num++;
 			}
 			Game.player().AddToOpen( deck_top_card, false );
-			FBref_Players.child( Game.player().id ).set( Game.player() );
+			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
 
 		$('.action_buttons').append( MakeHTML_button( 'Adventurer Done', '確認' ) );
 
-		yield;  // (1) 公開したカードを確認
+		// 公開したカードを確認
+		yield new Promise( function(resolve) { Resolve['Adventurer'] = resolve; } );
 
 		$('.action_buttons .Adventurer.Done').remove();  /* 完了ボタン消す */
 
@@ -300,12 +306,11 @@ $( function() {
 			}
 		}
 
-		FBref_Players.child( Game.player().id ).set( Game.player() )
-		.then( EndActionCardEffect );
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
 	$('.action_buttons').on( 'click', '.Adventurer.Done', function() {
-		GenFuncs.Adventurer.next();  // (1) 再開
+		Resolve['Adventurer']();  // 再開
 	} );
 
 
@@ -315,51 +320,46 @@ $( function() {
 	/* 17. 基本 - 工房 */
 	CardEffect['Workshop'] = function* () {
 		/* ゲーム未終了でコスト4以下のカードが1枚も無い状態はあり得ないのでチェック省略 */
-		StartActionCardEffect( 'コスト4以下のカードを獲得して下さい。' )
-		.then( function() {
-			/* サプライのクラス書き換え */
-			$('.SupplyArea').find('.card').addClass('Workshop_GetCard pointer');
-			AddAvailableToSupplyCardIf( (card) => (
-				card.cost        <= 4 &&
-				card.cost_potion <= 0 &&
-				card.cost_debt   <= 0
-			) );
-		} );
+		yield FBref_Message.set( 'コスト4以下のカードを獲得して下さい。' );
 
-		yield;  // (1)
-		EndActionCardEffect();
+		/* サプライのクラス書き換え */
+		$('.SupplyArea').find('.card').addClass('Workshop_GetCard pointer');
+		AddAvailableToSupplyCardIf( (card) => (
+			card.cost        <= 4 &&
+			card.cost_potion <= 0 &&
+			card.cost_debt   <= 0
+		) );
+
+		yield new Promise( function(resolve) { Resolve['Workshop_GetCard'] = resolve; });
 	};
 
 
 	/* 19. 基本 - 祝宴 */
 	CardEffect['Feast'] = function* ( playing_card_ID ) {
 		/* ゲーム未終了でコスト5以下のカードが1枚も無い状態はあり得ないのでチェック省略 */
-		StartActionCardEffect( 'コスト5以下のカードを獲得して下さい。' )
-		.then( function() {
-			Game.TrashCardByID( playing_card_ID );
-			let updates = {};
-			updates[`Players/${Game.player().id}`] = Game.player();  /* 更新 */
-			updates['TrashPile'] = Game.TrashPile;
-			return FBref_Game.update( updates );
-		} )
-		.then( function() {
-			/* サプライのクラス書き換え */
-			$('.SupplyArea').find('.card').addClass('Feast_GetCard pointer');
-			AddAvailableToSupplyCardIf( (card) => (
-				card.cost        <= 5 &&
-				card.cost_potion <= 0 &&
-				card.cost_debt   <= 0
-			) );
-		} );
+		yield FBref_Message.set( 'コスト5以下のカードを獲得して下さい。' );
 
-		yield;  // (1)
-		EndActionCardEffect();
+		Game.TrashCardByID( playing_card_ID );
+		let updates = {};
+		updates[`Players/${Game.player().id}`] = Game.player();  /* 更新 */
+		updates['TrashPile'] = Game.TrashPile;
+		yield FBref_Game.update( updates );
+
+		/* サプライのクラス書き換え */
+		$('.SupplyArea').find('.card').addClass('Feast_GetCard pointer');
+		AddAvailableToSupplyCardIf( (card) => (
+			card.cost        <= 5 &&
+			card.cost_potion <= 0 &&
+			card.cost_debt   <= 0
+		) );
+
+		yield new Promise( function(resolve) { Resolve['Feast_GetCard'] = resolve; });
 	};
 
 	$('.SupplyArea').on( 'click', '.card.Workshop_GetCard,.Feast_GetCard', function() {
 		let Workshop_or_Feast;
-		if ( $(this).hasClass('Workshop_GetCard') ) Workshop_or_Feast = 'Workshop';
-		if ( $(this).hasClass('Feast_GetCard') )    Workshop_or_Feast = 'Feast';
+		if ( $(this).hasClass('Workshop_GetCard') ) Workshop_or_Feast = 'Workshop_GetCard';
+		if ( $(this).hasClass('Feast_GetCard') )    Workshop_or_Feast = 'Feast_GetCard';
 
 		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
 		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
@@ -375,7 +375,7 @@ $( function() {
 		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
 		updates['Supply'] = Game.Supply;
 		FBref_Game.update( updates )
-		.then( () => GenFuncs[Workshop_or_Feast].next() );  // (1) 再開
+		.then( () => Resolve[Workshop_or_Feast]() );  // 再開
 	} );
 
 
@@ -384,15 +384,15 @@ $( function() {
 
 	/* 22. 地下貯蔵庫 */
 	CardEffect['Cellar'] = function* () {
-		StartActionCardEffect( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけカードを引きます。' )
-		.then( () => $('.action_buttons').append( MakeHTML_button( 'Cellar Done', '完了' ) ) );
+		yield FBref_Message.set( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけカードを引きます。' )
+		
+		$('.action_buttons').append( MakeHTML_button( 'Cellar Done', '完了' ) );
 
 		let discarded_num = 0;
-		let end = false;
 
 		while (true) {
 			$('.HandCards').children('.card').addClass('Cellar_Discard pointer');
-			end = yield;  // (1)
+			const end = yield new Promise( function(resolve) { Resolve['Cellar_Discard'] = resolve; });
 			if (end) break;
 			discarded_num++;
 			FBref_Message.set( `捨て札にした枚数 ： ${discarded_num}枚` );
@@ -401,8 +401,7 @@ $( function() {
 		$('.action_buttons .Cellar.Done').remove();  /* 完了ボタン消す */
 		Game.player().DrawCards( discarded_num );
 
-		FBref_Players.child( Game.player().id ).set( Game.player() )
-		.then( EndActionCardEffect );
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
 	$('.HandCards').on( 'click', '.card.Cellar_Discard', function() {
@@ -414,11 +413,11 @@ $( function() {
 			HandCards   : Game.player().HandCards,
 			DiscardPile : Game.player().DiscardPile,
 		} )
-		.then( () => GenFuncs.Cellar.next(false) );  // (1) 再開
+		.then( () => Resolve['Cellar_Discard'](false) );  // 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.Cellar.Done', function() {
-		GenFuncs.Cellar.next(true);  // (1) 再開
+		Resolve['Cellar_Discard'](true);  // 再開
 	} );
 
 
@@ -878,8 +877,6 @@ $( function() {
 
 	/* 14. 玉座の間 */
 	CardEffect['Throne Room'] = function* () {
-		StartActionCardEffect('');
-
 		let action_cards = $('.HandCards').children('.card')
 			.filter( function() { return IsActionCard( Cardlist, $(this).attr('data-card_no') ) } );
 
@@ -888,14 +885,12 @@ $( function() {
 
 			action_cards.addClass('Throne_Room_UseTwice pointer');
 
-			const [clicked_card_no, clicked_card_ID] = yield;  // (1) アクションカード選択待機
+			const [clicked_card_no, clicked_card_ID] = yield new Promise( function(resolve) {
+				Resolve['Throne_Room_UseTwice'] = resolve;
+			});  // (1) アクションカード選択待機
 
-			Promise.resolve()
-			.then( () => MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) ) )  /* 1回目 */
-			.then( () => MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) ) )  /* 2回目 */
-			.then( EndActionCardEffect );
-		} else {
-			EndActionCardEffect();
+			yield MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) );  /* 1回目 */
+			yield MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) );  /* 2回目 */
 		}
 	};
 
@@ -911,8 +906,7 @@ $( function() {
 			HandCards : Game.player().HandCards,
 			PlayArea  : Game.player().PlayArea,
 		} )
-		.then( () => GenFuncs.GetCardEffect.next( [clicked_card_no, clicked_card_ID] ) );  // (1) 再開
-		// .then( GenFuncs['Throne Room'].next( [clicked_card_no, clicked_card_ID] ) );  // (1) 再開
+		.then( () => Resolve['Throne_Room_UseTwice']( [clicked_card_no, clicked_card_ID] ) );  // (1) 再開
 	} );
 
 } );
