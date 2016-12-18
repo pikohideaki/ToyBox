@@ -66,6 +66,7 @@ $( function() {
 	}
 
 
+
 	function MyAsync( GenFunc ) {
 
 		function MyAsync_sub( genfunc, args ) {
