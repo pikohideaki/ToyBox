@@ -3,7 +3,10 @@
 
 
 function SendSignal( player_id, signal ) {
-	FBref_Room.child( `Signals/${player_id}` ).set( signal );
+	if ( signal.Message != undefined ) {
+		FBref_MessageTo.child(id).set( signal.Message );
+	}
+	return FBref_Room.child( `Signals/${player_id}` ).set( signal );
 }
 
 
@@ -29,21 +32,20 @@ function* CatchSignal( signals_to_me ) {
 					MakeHTML_button( 'reaction'       , '公開しない' ),
 			} );
 
-			reveal = yield;
+			reveal = yield new Promise( function(resolve) { Resolve['reveal_reaction'] = resolve; });
 			HideDialog();
 
 			if ( reveal ) {
 				FBref_Room.child('chat').push( `${Me.name}が「${card_name_jp}」を公開しました。` );
 				rc[i].face = true;
-				FBref_Players.child(`${myid}/HandCards`).set( Me.HandCards )
-				.then( () => GetReactionCardEffect( card_name_eng ) );
-				yield;
+				yield FBref_Players.child(`${myid}/HandCards`).set( Me.HandCards );
+				yield MyAsync( GetReactionCardEffect( card_name_eng ) );
 			}
 		}
 	}
 
 	if ( signals_to_me.Attack ) {  /* アタックのとき */
-		GetAttackCardEffect( signals_to_me.card_name );
+		yield MyAsync( GetAttackCardEffect( signals_to_me.card_name ) );
 	}
 }
 
@@ -54,13 +56,14 @@ function* CatchSignal( signals_to_me ) {
 $( function() {
 	Initialize.then( function() {
 		FBref_SignalToMe.on( 'value', function( FBsnapshot ) {
-			GenFuncs['CatchSignal'] = CatchSignal( FBsnapshot.val() );  /* generator 作成 */
-			GenFuncs['CatchSignal'].next();  /* generator開始 */
+			// GenFuncs['CatchSignal'] = CatchSignal( FBsnapshot.val() );  /* generator 作成 */
+			// GenFuncs['CatchSignal'].next();  /* generator開始 */
+			MyAsync( CatchSignal( FBsnapshot.val() ) );
 		});
 	});
 
 
 	$('.dialog_buttons').on( 'click', '.reaction', function() {
-		GenFuncs['CatchSignal'].next( $(this).hasClass('reveal') );
+		Resolve['reveal_reaction']( $(this).hasClass('reveal') );
 	});
 });

@@ -239,14 +239,11 @@ class CPlayer {
 	}
 
 
-	ResetFaceDown( FBsync = true ) {
+	ResetFaceDown() {
 		this.GetDeckAll().forEach( function( card ) {
 			card.face = false;
 			card.down = false;
 		});
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}` ).update( this );
-		}
 	}
 
 

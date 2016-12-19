@@ -302,19 +302,47 @@ class CGame {
 			alert( 'アクションが足りません' );   return;
 		}
 
-		let updates = {};
+		MyAsync( ( function*() {
+			switch ( Game.phase ) {
+				case 'ActionPhase' :
+					Game.phase = 'ActionPhase*';
+					break;
+				case 'BuyPhase' :
+					Game.phase = 'BuyPhase*';
+					console.log('BuyPhase*');
+					break;
+				default :
+					console.log( 'ERROR: GetCardEffect should be called in ActionPhase or BuyPhase' );
+					break;
+			}
 
-		Game.player().AddToPlayArea( Game.GetCardByID( playing_card_ID ) );  /* カード移動 */
-		updates[`Players/${Game.whose_turn_id}/PlayArea`]  = Game.player().PlayArea;
-		updates[`Players/${Game.whose_turn_id}/HandCards`] = Game.player().HandCards;
+			Game.player().AddToPlayArea( Game.GetCardByID( playing_card_ID ) );  /* カード移動 */
 
-		if ( IsActionCard( Cardlist, playing_card_no ) ) {
-			updates['TurnInfo/action'] = Game.TurnInfo.action - 1;
-		}
+			// updates[`Players/${Game.whose_turn_id}/PlayArea`]  = Game.player().PlayArea;
+			// updates[`Players/${Game.whose_turn_id}/HandCards`] = Game.player().HandCards;
 
-		GenFuncs['GetCardEffect'] = GetCardEffect( playing_card_no, playing_card_ID );
-		FBref_Game.update( updates )
-		.then( () => MyAsync( GenFuncs['GetCardEffect'] ) );
+			// アクションを1消費
+			if ( IsActionCard( Cardlist, playing_card_no ) ) Game.TurnInfo.action--;
+				// updates['TurnInfo/action'] = Game.TurnInfo.action;
+			// }
+
+			// yield FBref_Game.update( updates );  // updateを1回節約（GetCardEffectで更新）
+			yield MyAsync( GetCardEffect( playing_card_no, playing_card_ID ) );
+
+			// 終了
+			switch ( Game.phase ) {
+				case 'ActionPhase*' :
+					yield FBref_Game.child('phase').set( 'ActionPhase' );
+					break;
+				case 'BuyPhase*' :
+					console.log('BuyPhase');
+					yield FBref_Game.child('phase').set( 'BuyPhase' );
+					break;
+				default :
+					console.log( 'ERROR: GetCardEffect should finish in ActionPhase* or BuyPhase*' );
+					break;
+			}
+		} )() );
 	}
 }
 

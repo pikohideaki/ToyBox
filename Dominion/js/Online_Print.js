@@ -328,6 +328,7 @@ function PrintPhase() {
 			$('.MoveToNextPlayer').hide();
 		} break;
 
+		case 'BuyPhase*' :
 		case 'BuyPhase' : {
 			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
 			$('.phase').html('購入フェーズ');

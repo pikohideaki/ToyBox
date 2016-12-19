@@ -168,7 +168,8 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	SelectedCards.KingdomCards = [ 14,32,15,30, 26,55, 27,29,31,13  ];
+	SelectedCards.KingdomCards = [ 14,32,15,30, 13,9,16,11,18,21  ];
+	// SelectedCards.KingdomCards = [ 14,32,15,30, 26,55, 27,29,31,13  ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
 	/*
 			42	詐欺師
@@ -211,6 +212,7 @@ $('#make-room-btn').click( function() {
 			11	金貸し
 			18	宰相
 			21	書庫
+
 			25	冒険者
 			17	工房
 			19	祝宴

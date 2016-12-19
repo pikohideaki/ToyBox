@@ -14,16 +14,16 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	FBref_Room.child('chat').push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
 
 	// アタックカードならまずリアクションカードの解決
-	// if ( IsAttackCard( Cardlist, playing_card_no ) ) {
-	// 	FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
-	// 	for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-	// 		SendSignal( id, { listen_reaction : true } );
+	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
+		yield FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
+		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			SendSignal( id, { listen_reaction : true } );
 
-	// 		Show_OKbtn_OtherPlayer( id );
-	// 		yield;
-	// 		Hide_OKbtn_OtherPlayer( id );
-	// 	}
-	// }
+			Show_OKbtn_OtherPlayer( id );
+			yield;
+			Hide_OKbtn_OtherPlayer( id );
+		}
+	}
 
 	// このターンにプレイしたアクションカードの枚数 （for 共謀者）
 	if ( IsActionCard( Cardlist, playing_card_no ) ) {
@@ -36,9 +36,9 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	Game.player().DrawCards( playing_Card.draw_card );
 
 	let updates = {};
+	updates['phase'] = Game.phase;  // Game.UseCard の update を代行
 	updates['TurnInfo'] = Game.TurnInfo;
 	updates[`Players/${Game.player().id}`] = Game.player();
-
 	yield FBref_Game.update( updates );
 
 	const playing_card_name = Cardlist[ playing_card_no ].name_eng;
@@ -49,7 +49,6 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 			break;
 
 		/* 中断なし */
-		case 'Council Room' :  // 13. 議事堂
 		case 'Conspirator'  :  // 37. 共謀者
 		case 'Coppersmith'  :  // 49. 銅細工師
 		case 'Bridge'       :  // 54. 橋
@@ -59,6 +58,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 		/* 中断あり （generator function使用） */
 		// 1. 基本
+		case 'Council Room'   :  // 13. 議事堂
 		case 'Chancellor'     :  // 18. 宰相
 		case 'Library'        :  // 21. 書庫
 		case 'Adventurer'     :  // 25. 冒険者
@@ -96,13 +96,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 		case 'Secret Chamber' :  // 55. 秘密の部屋
 		case 'Masquerade'     :  // 35. 仮面舞踏会
 
-			// GenFuncs[ playing_card_name ]
-				// = CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no );  // generator 作成
-			// GenFuncs[ playing_card_name ].next();  // generator開始
-			// yield MyAsync( GenFuncs[ playing_card_name ] );
-			yield FBref_Game.child('phase').set('ActionPhase*');
 			yield MyAsync( CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no ) );
-			yield FBref_Game.child('phase').set( 'ActionPhase' );
 			break;
 
 		default :
@@ -115,9 +109,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 
 
-function GetReactionCardEffect( card_name_eng ) {
- return new Promise( function( resolve, reject ) {
-
+function* GetReactionCardEffect( card_name_eng ) {
 	switch ( card_name_eng ) {
 		case 'Moat' :  /* 26. 堀 */
 			EndAttackCardEffect();
@@ -125,15 +117,12 @@ function GetReactionCardEffect( card_name_eng ) {
 			return;
 
 		case 'Secret Chamber' : /* 55. 秘密の部屋 */
-			GenFuncs[ card_name_eng ]
-			  = ReactionEffect[ card_name_eng ]( resolve );  /* generator 作成 */
-			GenFuncs[ card_name_eng ].next();  /* generator開始 */
+			yield MyAsync( ReactionEffect[ card_name_eng ]() );
 			return;
 
 		default :
 			return;
 	}
- });
 }
 
 
@@ -141,13 +130,13 @@ function GetReactionCardEffect( card_name_eng ) {
 
 
 
-function GetAttackCardEffect( card_name ) {
+function* GetAttackCardEffect( card_name ) {
 	switch ( card_name ) {
 		case 'Witch'      :  /* 27. 魔女 */
 		case 'Swindler'   :  /* 42. 詐欺師 */
 		case 'Minion'     :  /* 45. 寵臣 */
-			AttackEffect[ card_name ]();
-			break;
+			// AttackEffect[ card_name ]();
+			// break;
 
 		case 'Militia'    :  /* 29. 民兵 */
 		case 'Bureaucrat' :  /* 31. 役人 */
@@ -157,42 +146,20 @@ function GetAttackCardEffect( card_name ) {
 		case 'Torturer'   :  /* 41. 拷問人 */
 		case 'Saboteur'   :  /* 53. 破壊工作員 */
 
-			GenFuncs[ `AttackEffect_${ card_name }` ] = AttackEffect[ card_name ]();  /* generator 作成 */
-			GenFuncs[ `AttackEffect_${ card_name }` ].next();  /* generator開始 */
+			// GenFuncs[ `AttackEffect_${ card_name }` ] = AttackEffect[ card_name ]();  /* generator 作成 */
+			// GenFuncs[ `AttackEffect_${ card_name }` ].next();  /* generator開始 */
+			yield MyAsync( AttackEffect[ card_name ]() );
 			break;
 
 		default :
 			break;
 	}
+	yield EndAttackCardEffect();  // Endシグナルを送る
 }
 
 
 
 
-
-
-
-
-
-
-
-
-
-// function StartActionCardEffect( Message ) {
-// 	return FBref_Room.update( {
-// 		Message      : Message,
-// 		'Game/phase' : 'ActionPhase*',
-// 	} );
-// }
-
-// function EndActionCardEffect( Resolve_GetCardEffect ) {
-// 	return new Promise( function( resolve, reject ) {
-// 		FBref_Game.child('phase').set( 'ActionPhase' )
-// 		.then( () => GenFuncs['GetCardEffect'].return() )  /* GetCardEffectを終了 */
-// 		// .then( Resolve_GetCardEffect )  /* GetCardEffectを終了 */
-// 		.then( resolve );
-// 	});
-// }
 
 
 function EndAttackCardEffect() {
@@ -231,10 +198,10 @@ function Hide_OKbtn_OtherPlayer( player_id, classes ) {
 
 /* 他のプレイヤーが終了時に送るEndシグナルを監視 */
 function Monitor_FBref_SignalEnd_on( card_name ) {
-	FBref_SignalEnd.set(false)  /* reset */
+	return FBref_SignalEnd.set(false)  /* reset */
 	.then( function() {
 		FBref_SignalEnd.on( 'value', function(snap) {
-			if ( snap.val() ) GenFuncs[card_name].next();
+			if ( snap.val() ) Resolve[ card_name ]();
 		} )
 	} );
 }
