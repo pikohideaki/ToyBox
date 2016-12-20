@@ -189,7 +189,8 @@ function MyAsync( GenFunc ) {
 		} else if ( n.value instanceof (function*(){}).constructor ) {
 			return MyAsync_sub( n.value() ).then( () => MyAsync_sub( genfunc ) );
 		} else {
-			console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+			throw new Error('Promise or Generator constructor should be passed to MyAsync');
+			// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 		}
 	}
 
@@ -202,7 +203,8 @@ function MyAsync( GenFunc ) {
 	} else if ( m.value instanceof (function*(){}).constructor ) {
 		return MyAsync_sub( m.value() ).then( () => MyAsync_sub( GenFunc ) );
 	} else {
-		console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+		throw new Error('Promise or Generator constructor should be passed to MyAsync');
+		// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 	}
 }
 

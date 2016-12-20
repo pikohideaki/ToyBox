@@ -1,6 +1,44 @@
 
 $( function() {
 
+
+
+//	CardEffect['Copper']         = function* () {}  /*  1. 銅貨 */
+	CardEffect['Silver']         = function* () {}  /*  2. 銀貨 */
+	CardEffect['Gold']           = function* () {}  /*  3. 金貨 */
+	CardEffect['Estate']         = function* () {}  /*  4. 屋敷 */
+	CardEffect['Duchy']          = function* () {}  /*  5. 公領 */
+	CardEffect['Province']       = function* () {}  /*  6. 属州 */
+	CardEffect['Curse']          = function* () {}  /*  7. 呪い */
+	CardEffect['Market']         = function* () {}  /*  8. 市場 */
+//	CardEffect['Remodel']        = function* () {}  /*  9. 改築 */
+	CardEffect['Smithy']         = function* () {}  /* 10. 鍛冶屋 */
+//	CardEffect['Moneylender']    = function* () {}  /* 11. 金貸し */
+	CardEffect['Woodcutter']     = function* () {}  /* 12. 木こり */
+//	CardEffect['Council Room']   = function* () {}  /* 13. 議事堂 */
+//	CardEffect['Throne Room']    = function* () {}  /* 14. 玉座の間 */
+	CardEffect['Laboratory']     = function* () {}  /* 15. 研究所 */
+//	CardEffect['Mine']           = function* () {}  /* 16. 鉱山 */
+//	CardEffect['Workshop']       = function* () {}  /* 17. 工房 */
+//	CardEffect['Chancellor']     = function* () {}  /* 18. 宰相 */
+//	CardEffect['Feast']          = function* () {}  /* 19. 祝宴 */
+	CardEffect['Festival']       = function* () {}  /* 20. 祝祭 */
+//	CardEffect['Library']        = function* () {}  /* 21. 書庫 */
+//	CardEffect['Cellar']         = function* () {}  /* 22. 地下貯蔵庫 */
+//	CardEffect['Gardens']        = function* () {}  /* 23. 庭園 */
+//	CardEffect['Thief']          = function* () {}  /* 24. 泥棒 */
+//	CardEffect['Adventurer']     = function* () {}  /* 25. 冒険者 */
+	CardEffect['Moat']           = function* () {}  /* 26. 堀 */
+//	CardEffect['Witch']          = function* () {}  /* 27. 魔女 */
+//	CardEffect['Spy']            = function* () {}  /* 28. 密偵 */
+//	CardEffect['Militia']        = function* () {}  /* 29. 民兵 */
+	CardEffect['Village']        = function* () {}  /* 30. 村 */
+//	CardEffect['Bureaucrat']     = function* () {}  /* 31. 役人 */
+//	CardEffect['Chapel']         = function* () {}  /* 32. 礼拝堂 */
+
+
+
+
 	/* 13. 議事堂 */
 	CardEffect['Council Room'] = function* () {
 		let updates = {};
@@ -445,7 +483,7 @@ $( function() {
 	CardEffect['Witch'] = function* () {
 		yield FBref_Message.set( '呪いを獲得して下さい。' );
 
-		Monitor_FBref_SignalEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
+		yield Monitor_FBref_SignalEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			yield SendSignal( id, {
@@ -453,7 +491,6 @@ $( function() {
 				card_name : 'Witch',
 				Message   : '呪いを獲得します。',
 			} );
-
 			yield new Promise( function(resolve) { Resolve['Witch'] = resolve; } );
 			yield FBref_SignalEnd.set(false);  /* reset */
 
@@ -477,7 +514,7 @@ $( function() {
 		yield FBref_Game.update( updates );
 	};
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.ok.Witch', () => Resolve['Witch_ok']() );  /* 確認 */
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Witch', () => Resolve['Witch_ok']() );  /* 確認 */
 
 
 
@@ -531,7 +568,7 @@ $( function() {
 		.then( () => Resolve['Militia_Discard']() );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.ok.Militia', () => Resolve['Militia_ok']() );  /* 確認 */
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Militia', () => Resolve['Militia_ok']() );  /* 確認 */
 
 
 
@@ -576,7 +613,7 @@ $( function() {
 		yield FBref_Players.set( Game.Players );
 	};
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.ok.Bureaucrat', () => Resolve['Bureaucrat_ok']() );  /* 確認 */
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Bureaucrat', () => Resolve['Bureaucrat_ok']() );  /* 確認 */
 
 	AttackEffect['Bureaucrat'] = function*() {  /* アタックされる側 */
 		const $victory_cards = $('.MyHandCards').children('.card')
@@ -697,7 +734,7 @@ $( function() {
 	};
 
 	/* 廃棄 */
-	$('.OtherPlayers-wrapper' ).on( 'click', '.sOpen .Thief_Trash', function() {
+	$('.OtherPlayers-wrapper').on( 'click', '.sOpen .Thief_Trash', function() {
 		const player_id = $(this).parents('.OtherPlayer').attr('data-player_id');
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		Game.TrashCardByID( clicked_card_ID );
@@ -709,7 +746,7 @@ $( function() {
 		.then( () => Resolve['Thief_Trash']( clicked_card_ID ) );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.ok.Thief', () => Resolve['Thief_ok']() );  /* 確認 */
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Thief', () => Resolve['Thief_ok']() );  /* 確認 */
 
 	/* 廃棄したカードの獲得 */
 	$('.dialog_contents').on( 'click', '.Thief_GainTrashedCard', function() {
@@ -823,7 +860,7 @@ $( function() {
 		yield FBref_Players.child( myid ).set( Game.Me() );  // Endシグナルを送る
 	};
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.Spy.Discard,.PutBackToDeck', function() {
+	$('.OtherPlayers-wrapper').on( 'click', '.Spy.Discard,.PutBackToDeck', function() {
 		let Discard_or_PutBackToDeck;
 		if ( $(this).hasClass('Discard') )       Discard_or_PutBackToDeck = 'Discard';
 		if ( $(this).hasClass('PutBackToDeck') ) Discard_or_PutBackToDeck = 'PutBackToDeck';
@@ -844,7 +881,7 @@ $( function() {
 		.then( () => Resolve['Spy_Discard_or_PutBackToDeck']() );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.ok.Spy', () => Resolve['Spy_ok']() );  /* 確認 */
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Spy', () => Resolve['Spy_ok']() );  /* 確認 */
 
 
 

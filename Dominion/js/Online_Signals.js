@@ -3,23 +3,23 @@
 
 
 function SendSignal( player_id, signal ) {
+	let updates = {};
 	if ( signal.Message != undefined ) {
-		FBref_MessageTo.child(id).set( signal.Message );
+		updates[`MessageTo/${player_id}`] = signal.Message;
 	}
-	return FBref_Room.child( `Signals/${player_id}` ).set( signal );
+	updates[`Signals/${player_id}`] = signal;
+	return FBref_Room.update( updates );
 }
 
 
 function* CatchSignal( signals_to_me ) {
-	let Me = Game.Me();
-
 	if ( signals_to_me == null ) return;
 
-	/* received a signal from attacker */
+	let Me = Game.Me();
 
 	if ( signals_to_me.listen_reaction ) {
 		// リアクションカードの効果
-		rc = Me.GetReactionCards();
+		const rc = Me.GetReactionCards();
 		for ( let i = 0; i < rc.length; ++i ) {  /* リアクションカードが無いならスキップに */
 			let card_name_eng = Cardlist[ rc[i].card_no ].name_eng;
 			let card_name_jp  = Cardlist[ rc[i].card_no ].name_jp;
@@ -32,7 +32,7 @@ function* CatchSignal( signals_to_me ) {
 					MakeHTML_button( 'reaction'       , '公開しない' ),
 			} );
 
-			reveal = yield new Promise( function(resolve) { Resolve['reveal_reaction'] = resolve; });
+			const reveal = yield new Promise( function(resolve) { Resolve['reveal_reaction'] = resolve; });
 			HideDialog();
 
 			if ( reveal ) {
@@ -44,6 +44,7 @@ function* CatchSignal( signals_to_me ) {
 		}
 	}
 
+	/* received a signal from attacker */
 	if ( signals_to_me.Attack ) {  /* アタックのとき */
 		yield MyAsync( GetAttackCardEffect( signals_to_me.card_name ) );
 	}
@@ -56,8 +57,6 @@ function* CatchSignal( signals_to_me ) {
 $( function() {
 	Initialize.then( function() {
 		FBref_SignalToMe.on( 'value', function( FBsnapshot ) {
-			// GenFuncs['CatchSignal'] = CatchSignal( FBsnapshot.val() );  /* generator 作成 */
-			// GenFuncs['CatchSignal'].next();  /* generator開始 */
 			MyAsync( CatchSignal( FBsnapshot.val() ) );
 		});
 	});

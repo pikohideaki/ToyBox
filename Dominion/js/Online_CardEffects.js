@@ -5,7 +5,12 @@ let AttackEffect   = {};  /* library of attack card effect functions */
 let ReactionEffect = {};  /* library of reaction card effect functions */
 
 let Resolve        = {};  
-let GenFuncs       = {};  /* object to access from everywhere */
+let GenFuncs       = {};
+
+
+$( function() {
+	$('.OtherPlayers-wrapper').on( 'click', '.OtherPlayer_Buttons .ok', () => Resolve['reveal_reaction_ok']() );
+});
 
 
 
@@ -15,13 +20,17 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 	// アタックカードならまずリアクションカードの解決
 	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
+		// 「アタックカードを場に出す」まではやる（update回数を節約した関係でカードがまだ場に出ていない）
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+
 		yield FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			SendSignal( id, { listen_reaction : true } );
 
 			Show_OKbtn_OtherPlayer( id );
-			yield;
+			yield new Promise( function(resolve) { Resolve['reveal_reaction_ok'] = resolve; });
 			Hide_OKbtn_OtherPlayer( id );
+			yield FBref_Signal.child( id ).remove();
 		}
 	}
 
@@ -48,58 +57,8 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 			yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin );
 			break;
 
-		/* 中断なし */
-		case 'Conspirator'  :  // 37. 共謀者
-		case 'Coppersmith'  :  // 49. 銅細工師
-		case 'Bridge'       :  // 54. 橋
-			CardEffect[ playing_card_name ]();
-			break;
-
-
-		/* 中断あり （generator function使用） */
-		// 1. 基本
-		case 'Council Room'   :  // 13. 議事堂
-		case 'Chancellor'     :  // 18. 宰相
-		case 'Library'        :  // 21. 書庫
-		case 'Adventurer'     :  // 25. 冒険者
-		case 'Remodel'        :  //  9. 改築
-		case 'Moneylender'    :  // 11. 金貸し
-		case 'Mine'           :  // 16. 鉱山
-		case 'Workshop'       :  // 17. 工房
-		case 'Feast'          :  // 19. 祝宴
-		case 'Cellar'         :  // 22. 地下貯蔵庫
-		case 'Chapel'         :  // 32. 礼拝堂
-		case 'Witch'          :  // 27. 魔女
-		case 'Militia'        :  // 29. 民兵
-		case 'Thief'          :  // 24. 泥棒
-		case 'Spy'            :  // 28. 密偵
-		case 'Bureaucrat'     :  // 31. 役人
-		case 'Throne Room'    :  // 14. 玉座の間
-		// 2. 陰謀
-		case 'Upgrade'        :  // 34. 改良
-		case 'Nobles'         :  // 36. 貴族
-		case 'Baron'          :  // 44. 男爵
-		case 'Courtyard'      :  // 50. 中庭
-		case 'Steward'        :  // 43. 執事
-		case 'Shanty Town'    :  // 56. 貧民街
-		case 'Trading Post'   :  // 38. 交易場
-		case 'Pawn'           :  // 47. 手先
-		case 'Scout'          :  // 46. 偵察員
-		case 'Ironworks'      :  // 48. 鉄工所
-		case 'Tribute'        :  // 57. 貢物
-		case 'Mining Village' :  // 39. 鉱山の村
-		case 'Torturer'       :  // 41. 拷問人
-		case 'Swindler'       :  // 42. 詐欺師
-		case 'Minion'         :  // 45. 寵臣
-		case 'Saboteur'       :  // 53. 破壊工作員
-		case 'Wishing Well'   :  // 51. 願いの井戸
-		case 'Secret Chamber' :  // 55. 秘密の部屋
-		case 'Masquerade'     :  // 35. 仮面舞踏会
-
-			yield MyAsync( CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no ) );
-			break;
-
 		default :
+			yield MyAsync( CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no ) );
 			break;
 	}
 }
@@ -131,29 +90,7 @@ function* GetReactionCardEffect( card_name_eng ) {
 
 
 function* GetAttackCardEffect( card_name ) {
-	switch ( card_name ) {
-		case 'Witch'      :  /* 27. 魔女 */
-		case 'Swindler'   :  /* 42. 詐欺師 */
-		case 'Minion'     :  /* 45. 寵臣 */
-			// AttackEffect[ card_name ]();
-			// break;
-
-		case 'Militia'    :  /* 29. 民兵 */
-		case 'Bureaucrat' :  /* 31. 役人 */
-		case 'Thief'      :  /* 24. 泥棒 */
-		case 'Spy'        :  /* 28. 密偵 */
-
-		case 'Torturer'   :  /* 41. 拷問人 */
-		case 'Saboteur'   :  /* 53. 破壊工作員 */
-
-			// GenFuncs[ `AttackEffect_${ card_name }` ] = AttackEffect[ card_name ]();  /* generator 作成 */
-			// GenFuncs[ `AttackEffect_${ card_name }` ].next();  /* generator開始 */
-			yield MyAsync( AttackEffect[ card_name ]() );
-			break;
-
-		default :
-			break;
-	}
+	yield MyAsync( AttackEffect[ card_name ]() );
 	yield EndAttackCardEffect();  // Endシグナルを送る
 }
 

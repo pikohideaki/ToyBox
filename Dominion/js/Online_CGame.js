@@ -309,10 +309,10 @@ class CGame {
 					break;
 				case 'BuyPhase' :
 					Game.phase = 'BuyPhase*';
-					console.log('BuyPhase*');
+					// console.log('BuyPhase*');
 					break;
 				default :
-					console.log( 'ERROR: GetCardEffect should be called in ActionPhase or BuyPhase' );
+					throw new Error('GetCardEffect should be called in ActionPhase or BuyPhase' );
 					break;
 			}
 
@@ -323,8 +323,7 @@ class CGame {
 
 			// アクションを1消費
 			if ( IsActionCard( Cardlist, playing_card_no ) ) Game.TurnInfo.action--;
-				// updates['TurnInfo/action'] = Game.TurnInfo.action;
-			// }
+			// updates['TurnInfo/action'] = Game.TurnInfo.action;
 
 			// yield FBref_Game.update( updates );  // updateを1回節約（GetCardEffectで更新）
 			yield MyAsync( GetCardEffect( playing_card_no, playing_card_ID ) );
@@ -335,11 +334,11 @@ class CGame {
 					yield FBref_Game.child('phase').set( 'ActionPhase' );
 					break;
 				case 'BuyPhase*' :
-					console.log('BuyPhase');
+					// console.log('BuyPhase');
 					yield FBref_Game.child('phase').set( 'BuyPhase' );
 					break;
 				default :
-					console.log( 'ERROR: GetCardEffect should finish in ActionPhase* or BuyPhase*' );
+					throw new Error('GetCardEffect should finish in ActionPhase* or BuyPhase*' );
 					break;
 			}
 		} )() );

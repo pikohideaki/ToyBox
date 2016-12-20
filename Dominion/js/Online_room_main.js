@@ -168,7 +168,7 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	SelectedCards.KingdomCards = [ 14,32,15,30, 13,9,16,11,18,21  ];
+	SelectedCards.KingdomCards = [ 14,32,15,30, 29,31,24,28,26,27  ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30, 26,55, 27,29,31,13  ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
 	/*
@@ -200,30 +200,30 @@ $('#make-room-btn').click( function() {
 			45	寵臣
 			41	拷問人
 
-			8	市場
-			10	鍛冶屋
-			12	木こり
-			15	研究所
-			20	祝祭
-			30	村
-			13	議事堂
-			9	改築
-			16	鉱山
-			11	金貸し
-			18	宰相
-			21	書庫
+		ok	8	市場
+		ok	10	鍛冶屋
+		ok	12	木こり
+		ok	15	研究所
+		ok	20	祝祭
+		ok	30	村
+		ok	13	議事堂
+		ok	9	改築
+		ok	16	鉱山
+		ok	11	金貸し
+		ok	18	宰相
+		ok	21	書庫
 
-			25	冒険者
-			17	工房
-			19	祝宴
-			32	礼拝堂
-			22	地下貯蔵庫
-			27	魔女
+		ok	25	冒険者
+		ok	17	工房
+		ok	19	祝宴
+		ok	32	礼拝堂
+		ok	22	地下貯蔵庫
+		ok	27	魔女
 			29	民兵
 			31	役人
 			24	泥棒
 			28	密偵
-			14	玉座の間
+		ok	14	玉座の間
 			26	堀
 			23	庭園
 	*/

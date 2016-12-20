@@ -1,9 +1,34 @@
 $( function() {
 
 
+	CardEffect['Great Hall']     = function* () {}  /* 33. 大広間 */
+	// CardEffect['Upgrade']        = function* () {}  /* 34. 改良 */
+	// CardEffect['Masquerade']     = function* () {}  /* 35. 仮面舞踏会 */
+	// CardEffect['Nobles']         = function* () {}  /* 36. 貴族 */
+	// CardEffect['Conspirator']    = function* () {}  /* 37. 共謀者 */
+	// CardEffect['Trading Post']   = function* () {}  /* 38. 交易場 */
+	// CardEffect['Mining Village'] = function* () {}  /* 39. 鉱山の村 */
+	// CardEffect['Duke']           = function* () {}  /* 40. 公爵 */
+	// CardEffect['Torturer']       = function* () {}  /* 41. 拷問人 */
+	// CardEffect['Swindler']       = function* () {}  /* 42. 詐欺師 */
+	// CardEffect['Steward']        = function* () {}  /* 43. 執事 */
+	// CardEffect['Baron']          = function* () {}  /* 44. 男爵 */
+	// CardEffect['Minion']         = function* () {}  /* 45. 寵臣 */
+	// CardEffect['Scout']          = function* () {}  /* 46. 偵察員 */
+	// CardEffect['Pawn']           = function* () {}  /* 47. 手先 */
+	// CardEffect['Ironworks']      = function* () {}  /* 48. 鉄工所 */
+	// CardEffect['Coppersmith']    = function* () {}  /* 49. 銅細工師 */
+	// CardEffect['Courtyard']      = function* () {}  /* 50. 中庭 */
+	// CardEffect['Wishing Well']   = function* () {}  /* 51. 願いの井戸 */
+	CardEffect['Harem']          = function* () {}  /* 52. ハーレム */
+	// CardEffect['Saboteur']       = function* () {}  /* 53. 破壊工作員 */
+	// CardEffect['Bridge']         = function* () {}  /* 54. 橋 */
+	// CardEffect['Secret Chamber'] = function* () {}  /* 55. 秘密の部屋 */
+	// CardEffect['Shanty Town']    = function* () {}  /* 56. 貧民街 */
+	// CardEffect['Tribute']        = function* () {}  /* 57. 貢物 */
 
 	/* 37. 共謀者 */
-	CardEffect['Conspirator'] = function() {
+	CardEffect['Conspirator'] = function* () {
 		if ( Game.TurnInfo.played_actioncards_num < 3 ) {
 			EndActionCardEffect();
 			return
@@ -788,7 +813,7 @@ $( function() {
 
 
 	/* 49. 銅細工師 */
-	CardEffect['Coppersmith'] = function() {
+	CardEffect['Coppersmith'] = function*() {
 		Game.TurnInfo.add_copper_coin++;
 		StartActionCardEffect( 'このターン銅貨は+1コインを生みます。' )
 		.then( () => FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin ) )

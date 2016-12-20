@@ -305,6 +305,7 @@ $GameRoomID = $_POST['room-id'];
 	let FBref_Message     = FBref_Room.child( 'Message' );
 	let FBref_MessageTo   = FBref_Room.child( 'MessageTo' );
 	let FBref_MessageToMe = FBref_Room.child( `MessageTo/${myid}` );
+	let FBref_Signal      = FBref_Room.child( 'Signals' );
 	let FBref_SignalToMe  = FBref_Room.child( `Signals/${myid}` );
 	let FBref_SignalEnd   = FBref_Room.child( 'Signals/End' );
 	let FBref_connected = FBdatabase.ref(".info/connected");
