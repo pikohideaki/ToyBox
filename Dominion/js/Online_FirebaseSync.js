@@ -32,7 +32,6 @@ Initialize = FBref_Room.once('value').then( function( FBsnapshot ) {
 
 
 Initialize.then( function() {  /* 初期設定終わったら */
-FBref_SignalEnd.off();
 
 	// 通信状態の表示
 	FBref_connected.on('value', function(snap) {
@@ -48,12 +47,6 @@ FBref_SignalEnd.off();
 
 	// $('.text_disconnect').click( () => FBdatabase.goOffline() );
 	// $('.text_connect'   ).click( () => FBdatabase.goOnline()  );
-
-	// $(document).on( {
-	// 	mouseenter: function(){ console.log( $(this).attr('data-card_no') ) },
-	// 	mouseleave: function(){ }
-	// }, '.card.face' );
-
 
 	/* 誰のターンか */
 	FBref_Game.child(`whose_turn_id`).on('value', function( FBsnapshot ) {

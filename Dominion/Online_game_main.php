@@ -298,17 +298,19 @@ $GameRoomID = $_POST['room-id'];
 	};
 	firebase.initializeApp(config);
 
-	let FBdatabase        = firebase.database();
-	let FBref_Room        = FBdatabase.ref( `/Rooms/${GameRoomID}` );
-	let FBref_Game        = FBref_Room.child( 'Game' );
-	let FBref_Players     = FBref_Room.child( 'Game/Players' );
-	let FBref_Message     = FBref_Room.child( 'Message' );
-	let FBref_MessageTo   = FBref_Room.child( 'MessageTo' );
-	let FBref_MessageToMe = FBref_Room.child( `MessageTo/${myid}` );
-	let FBref_Signal      = FBref_Room.child( 'Signals' );
-	let FBref_SignalToMe  = FBref_Room.child( `Signals/${myid}` );
-	let FBref_SignalEnd   = FBref_Room.child( 'Signals/End' );
-	let FBref_connected = FBdatabase.ref(".info/connected");
+	let FBref_connected            = FBdatabase.ref(".info/connected");
+	let FBdatabase                 = firebase.database();
+	let FBref_Room                 = FBdatabase.ref( `/Rooms/${GameRoomID}` );
+	let FBref_Game                 = FBref_Room.child( 'Game' );
+	let FBref_Players              = FBref_Room.child( 'Game/Players' );
+	let FBref_Message              = FBref_Room.child( 'Message' );
+	let FBref_MessageTo            = FBref_Room.child( 'MessageTo' );
+	let FBref_MessageToMe          = FBref_Room.child( `MessageTo/${myid}` );
+	let FBref_Signal               = FBref_Room.child( 'Signals' );
+	let FBref_SignalToMe           = FBref_Room.child( `Signals/${myid}` );
+	let FBref_SignalAttackEnd      = FBref_Room.child( 'Signals/AttackEnd' );
+	let FBref_SignalReactionEnd    = FBref_Room.child( 'Signals/ReactionEnd' );
+	let FBref_SignalRevealReaction = FBref_Room.child( 'Signals/RevealReaction' );
 </script>
 
 <!-- function & class -->

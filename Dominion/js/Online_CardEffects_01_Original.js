@@ -66,7 +66,7 @@ $( function() {
 			.filter( function() { return $(this).attr('data-card_no') == CardName2No['Copper'] } )
 			.addClass('Moneylender_Trash pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 
-		yield new Promise( function(resolve) { Resolve['Moneylender_Trash'] = resolve; });
+		yield new Promise( resolve => Resolve['Moneylender_Trash'] = resolve );
 	};
 
 	$('.HandCards').on( 'click', '.card.Moneylender_Trash', function() {
@@ -96,9 +96,8 @@ $( function() {
 		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 		$('.HandCards').children('.card').addClass('Remodel_Trash pointer');
 
-		const TrashedCardCost = yield new Promise( function(resolve) {
-			Resolve['Remodel_Trash'] = resolve;
-		});
+		const TrashedCardCost
+			= yield new Promise( resolve => Resolve['Remodel_Trash'] = resolve );
 
 		yield FBref_Message.set(
 			`コストが廃棄したカード+2(=${TrashedCardCost.coin + 2} )コインまでのカードを獲得してください。` );
@@ -112,7 +111,7 @@ $( function() {
 			card.cost_debt   <= TrashedCardCost.debt
 		) );
 
-		yield new Promise( function(resolve) { Resolve['Remodel_GetCard'] = resolve; });
+		yield new Promise( resolve => Resolve['Remodel_GetCard'] = resolve );
 	};
 
 
@@ -129,9 +128,8 @@ $( function() {
 			.filter( function() { return IsTreasureCard( Cardlist, $(this).attr('data-card_no') ); } )
 			.addClass('Mine_Trash pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 
-		const TrashedCardCost = yield new Promise( function(resolve) {
-			Resolve['Mine_Trash'] = resolve;
-		});
+		const TrashedCardCost
+			= yield new Promise( resolve => Resolve['Mine_Trash'] = resolve );
 
 		yield FBref_Message.set(
 			`コストが廃棄したカード+3(=${TrashedCardCost.coin + 3} )コインまでの財宝カードを獲得してください。` );
@@ -145,7 +143,7 @@ $( function() {
 			IsTreasureCard( Cardlist, card_no )
 		));
 
-		yield new Promise( function(resolve) { Resolve['Mine_GetCard'] = resolve; });
+		yield new Promise( resolve => Resolve['Mine_GetCard'] = resolve );
 	};
 
 	$('.HandCards').on( 'click', '.card.Remodel_Trash,.Mine_Trash', function() {
@@ -213,9 +211,8 @@ $( function() {
 				MakeHTML_button( 'Chancellor Discard', '捨て札におく' ) +
 				MakeHTML_button( 'Chancellor', '何もしない' ) );
 
-		const discard = yield new Promise( function(resolve) {
-			Resolve['Chancellor'] = resolve;
-		});
+		const discard
+			= yield new Promise( resolve => Resolve['Chancellor'] = resolve );
 
 		$('.action_buttons').html('');  // reset
 
@@ -253,9 +250,8 @@ $( function() {
 						MakeHTML_button( 'Library', '手札に加える' ),
 				} );
 
-				const set_aside = yield new Promise( function(resolve) {
-					Resolve['Library'] = resolve;
-				});
+				const set_aside
+					= yield new Promise( resolve => Resolve['Library'] = resolve );
 
 				HideDialog();
 
@@ -273,7 +269,7 @@ $( function() {
 		$('.action_buttons').append( MakeHTML_button( 'Library Done', '確認' ) );
 
 		// 脇に置いたカードを確認
-		yield new Promise( function(resolve) { Resolve['Library_Done'] = resolve; });
+		yield new Promise( resolve => Resolve['Library_Done'] = resolve );
 
 		$('.action_buttons .Library.Done').remove();  /* 完了ボタン消す */
 
@@ -312,7 +308,7 @@ $( function() {
 		$('.action_buttons').append( MakeHTML_button( 'Adventurer Done', '確認' ) );
 
 		// 公開したカードを確認
-		yield new Promise( function(resolve) { Resolve['Adventurer'] = resolve; } );
+		yield new Promise( resolve => Resolve['Adventurer'] = resolve );
 
 		$('.action_buttons .Adventurer.Done').remove();  /* 完了ボタン消す */
 
@@ -348,7 +344,7 @@ $( function() {
 			card.cost_debt   <= 0
 		) );
 
-		yield new Promise( function(resolve) { Resolve['Workshop_GetCard'] = resolve; });
+		yield new Promise( resolve => Resolve['Workshop_GetCard'] = resolve );
 	};
 
 
@@ -371,7 +367,7 @@ $( function() {
 			card.cost_debt   <= 0
 		) );
 
-		yield new Promise( function(resolve) { Resolve['Feast_GetCard'] = resolve; });
+		yield new Promise( resolve => Resolve['Feast_GetCard'] = resolve );
 	};
 
 	$('.SupplyArea').on( 'click', '.card.Workshop_GetCard,.Feast_GetCard', function() {
@@ -410,7 +406,7 @@ $( function() {
 
 		while (true) {
 			$('.HandCards').children('.card').addClass('Cellar_Discard pointer');
-			const end = yield new Promise( function(resolve) { Resolve['Cellar_Discard'] = resolve; });
+			const end = yield new Promise( resolve => Resolve['Cellar_Discard'] = resolve );
 			if (end) break;
 			discarded_num++;
 			yield FBref_Message.set( `捨て札にした枚数 ： ${discarded_num}枚` );
@@ -452,7 +448,7 @@ $( function() {
 
 		while ( trashed_num < 4 ) {
 			$('.HandCards').children('.card').addClass('Chapel_Trash pointer');
-			const end = yield new Promise( function(resolve) { Resolve['Chapel_Trash'] = resolve; });
+			const end = yield new Promise( resolve => Resolve['Chapel_Trash'] = resolve );
 			if ( end ) break;
 			trashed_num++;
 			yield FBref_Message.set( `あと ${(4 - trashed_num)} 枚廃棄できます。` );
@@ -483,7 +479,7 @@ $( function() {
 	CardEffect['Witch'] = function* () {
 		yield FBref_Message.set( '呪いを獲得して下さい。' );
 
-		yield Monitor_FBref_SignalEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
+		yield Monitor_FBref_SignalAttackEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			yield SendSignal( id, {
@@ -491,16 +487,16 @@ $( function() {
 				card_name : 'Witch',
 				Message   : '呪いを獲得します。',
 			} );
-			yield new Promise( function(resolve) { Resolve['Witch'] = resolve; } );
-			yield FBref_SignalEnd.set(false);  /* reset */
+			yield new Promise( resolve => Resolve['Witch'] = resolve );  /* 他のプレイヤー待機 */
+			yield FBref_SignalAttackEnd.set(false);  /* reset */
 
 			Show_OKbtn_OtherPlayer( id, 'Witch' );
-			yield new Promise( function(resolve) { Resolve['Witch_ok'] = resolve; } );
+			yield new Promise( resolve => Resolve['Witch_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Witch' );
 			yield FBref_MessageTo.child(id).set('');  // reset
 		}
 		/* 終了処理 */
-		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
+		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		yield FBref_Players.set( Game.Players );
 	};
@@ -524,8 +520,7 @@ $( function() {
 	CardEffect['Militia'] = function* () {
 		yield FBref_Message.set( '手札が3枚になるまで捨てて下さい。' );
 
-		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		Monitor_FBref_SignalEnd_on( 'Militia' );  // End受信 -> Resolve['Militia']()
+		yield Monitor_FBref_SignalAttackEnd_on( 'Militia' );  // End受信 -> Resolve['Militia']()
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			yield SendSignal( id, {
@@ -533,18 +528,16 @@ $( function() {
 				card_name : 'Militia',
 				Message   : '手札が3枚になるまで捨てて下さい。',
 			} );
-
-			yield new Promise( function(resolve) { Resolve['Militia'] = resolve; } );
-			yield FBref_SignalEnd.set(false);  /* reset */
+			yield new Promise( resolve => Resolve['Militia'] = resolve );  /* 他のプレイヤー待機 */
+			yield FBref_SignalAttackEnd.set(false);  /* reset */
 
 			Show_OKbtn_OtherPlayer( id, 'Militia' );
-			yield new Promise( function(resolve) { Resolve['Militia_ok'] = resolve; } );
+			yield new Promise( resolve => Resolve['Militia_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Militia' );
 			yield FBref_MessageTo.child(id).set('');  // reset
 		}
-
 		/* 終了処理 */
-		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
+		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		yield FBref_Players.set( Game.Players );
 	};
@@ -552,7 +545,7 @@ $( function() {
 	AttackEffect['Militia'] = function*() {  /* アタックされる側 */
 		while ( $('.MyHandCards').children('.card').length > 3 ) {
 			$('.MyHandCards').children('.card').addClass('Militia_Discard pointer');
-			yield new Promise( function(resolve) { Resolve['Militia_Discard'] = resolve; } );
+			yield new Promise( resolve => Resolve['Militia_Discard'] = resolve );
 		}
 	};
 
@@ -589,7 +582,7 @@ $( function() {
 		yield FBref_Game.update( updates );
 
 		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		Monitor_FBref_SignalEnd_on( 'Bureaucrat' );  // End受信 -> Resolve['Bureaucrat']()
+		yield Monitor_FBref_SignalAttackEnd_on( 'Bureaucrat' );  // End受信 -> Resolve['Bureaucrat']()
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			yield SendSignal( id, {
@@ -597,23 +590,19 @@ $( function() {
 				card_name : 'Bureaucrat',
 				Message   : '手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。そうでない場合は手札を公開してください。',
 			} );
-
-			yield new Promise( function(resolve) { Resolve['Bureaucrat'] = resolve; } );
-			yield FBref_SignalEnd.set(false);  /* reset */
+			yield new Promise( resolve => Resolve['Bureaucrat'] = resolve );  /* 他のプレイヤー待機 */
+			yield FBref_SignalAttackEnd.set(false);  /* reset */
 
 			Show_OKbtn_OtherPlayer( id, 'Bureaucrat' );
-			yield new Promise( function(resolve) { Resolve['Bureaucrat_ok'] = resolve; } );
+			yield new Promise( resolve => Resolve['Bureaucrat_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Bureaucrat' );
 			yield FBref_MessageTo.child(id).set('');  // reset
 		}
-
 		/* 終了処理 */
-		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
+		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		yield FBref_Players.set( Game.Players );
 	};
-
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Bureaucrat', () => Resolve['Bureaucrat_ok']() );  /* 確認 */
 
 	AttackEffect['Bureaucrat'] = function*() {  /* アタックされる側 */
 		const $victory_cards = $('.MyHandCards').children('.card')
@@ -626,8 +615,10 @@ $( function() {
 
 		$victory_cards.addClass('Bureaucrat_PutBack pointer');
 
-		yield new Promise( function(resolve) { Resolve['Bureaucrat_PutBack'] = resolve; });
+		yield new Promise( resolve => Resolve['Bureaucrat_PutBack'] = resolve );
 	};
+
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Bureaucrat', () => Resolve['Bureaucrat_ok']() );  /* 確認 */
 
 	$('.MyHandCards').on( 'click', '.card.Bureaucrat_PutBack', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
@@ -652,8 +643,7 @@ $( function() {
 		yield FBref_Message.set( '他のプレイヤーの山札の上から2枚を公開し，その中に財宝カードがあればそのうち1枚を選んで廃棄します。\
 			これによって廃棄されたカードのうち好きな枚数を獲得できます。' );
 
-		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		Monitor_FBref_SignalEnd_on( 'Thief' );  // End受信 -> Resolve['Thief']()
+		yield Monitor_FBref_SignalAttackEnd_on( 'Thief' );  // End受信 -> Resolve['Thief']()
 
 		let trashed_card_IDs = [];
 
@@ -663,9 +653,8 @@ $( function() {
 				card_name : 'Thief',
 				Message   : '山札の上から2枚を公開してください。財宝カードが公開された場合そのうち1枚が廃棄されます。廃棄されたカード以外は捨て札にしてください。',
 			} );
-
-			yield new Promise( function(resolve) { Resolve['Thief'] = resolve; } );
-			yield FBref_SignalEnd.set(false);  /* reset */
+			yield new Promise( resolve => Resolve['Thief'] = resolve );  /* 他のプレイヤー待機 */
+			yield FBref_SignalAttackEnd.set(false);  /* reset */
 
 			let trasure_cards = 
 				$(`.OtherPlayer[data-player_id=${id}] .sOpen`)
@@ -674,14 +663,13 @@ $( function() {
 
 			if ( trasure_cards.length > 0 ) {
 				trasure_cards.addClass('Thief_Trash pointer');
-				let trashed_card_ID = yield new Promise( function(resolve) {
-					Resolve['Thief_Trash'] = resolve;
-				});
+				const trashed_card_ID
+					= yield new Promise( resolve => Resolve['Thief_Trash'] = resolve );
 				if ( trashed_card_ID != undefined ) trashed_card_IDs.push( trashed_card_ID );
 			}
 
 			Show_OKbtn_OtherPlayer( id, 'Thief' );
-			yield new Promise( function(resolve) { Resolve['Thief_ok'] = resolve; } );
+			yield new Promise( resolve => Resolve['Thief_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Thief' );
 			yield FBref_MessageTo.child(id).set('');  // reset
 
@@ -695,8 +683,7 @@ $( function() {
 			} );
 		}
 
-		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
-
+		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 		if ( trashed_card_IDs.length > 0 ) {
 			/* 廃棄したカードの獲得画面 */
@@ -712,12 +699,11 @@ $( function() {
 			} );
 			$('.dialog_contents').find('.card').addClass('Thief_GainTrashedCard pointer');
 
-			yield new Promise( function(resolve) { Resolve['Thief_GainTrashedCard'] = resolve; } );
+			yield new Promise( resolve => Resolve['Thief_GainTrashedCard'] = resolve );
 			HideDialog();
 		}
 
 		/* 終了処理 */
-		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		yield FBref_Players.set( Game.Players );
 	};
@@ -750,6 +736,8 @@ $( function() {
 
 	/* 廃棄したカードの獲得 */
 	$('.dialog_contents').on( 'click', '.Thief_GainTrashedCard', function() {
+		$('.dialog_contents').find('.card').removeClass('Thief_GainTrashedCard pointer');
+
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 		$(this).remove();  /* クリックしたカードを削除 */
@@ -757,7 +745,8 @@ $( function() {
 		let updates = {};
 		updates['TrashPile'] = Game.TrashPile;
 		updates[`Players/${myid}/DiscardPile`] = Game.player().DiscardPile;
-		FBref_Game.update( updates );
+		FBref_Game.update( updates )
+		.then( () => $('.dialog_contents').find('.card').addClass('Thief_GainTrashedCard pointer') );
 	} );
 
 	$('.dialog_buttons').on( 'click', '.ok', function() {
@@ -777,7 +766,7 @@ $( function() {
 			/* 山札から1枚めくり公開 */
 			Game.player().AddToOpen( Game.player().GetDeckTopCard() );
 
-			FBref_Players.child( Game.player().id ).update( {
+			yield FBref_Players.child( Game.player().id ).update( {
 				Open        : Game.player().Open,
 				Deck        : Game.player().Deck,
 				DiscardPile : Game.player().DiscardPile,
@@ -788,14 +777,11 @@ $( function() {
 				.append( MakeHTML_button( 'Spy Discard', '捨て札にする' ) )
 				.append( MakeHTML_button( 'Spy PutBackToDeck', 'そのまま戻す' ) );
 
-			yield new Promise( function(resolve) {
-				Resolve['Spy_Discard_or_PutBackToDeck_player'] = resolve;
-			});
+			yield new Promise( resolve => Resolve['Spy_Discard_or_PutBackToDeck_player'] = resolve );
 			$('.action_buttons').html('');
 		}
 
-		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		Monitor_FBref_SignalEnd_on( 'Spy' );  // End受信 -> Resolve['Spy']()
+		yield Monitor_FBref_SignalAttackEnd_on( 'Spy' );  // End受信 -> Resolve['Spy']()
 
 		let trashed_card_IDs = [];
 
@@ -805,9 +791,8 @@ $( function() {
 				card_name : 'Spy',
 				Message   : '山札の上から1枚を公開してください。公開されたカードは捨て札になるか山札に戻されます。',
 			} );
-
-			yield new Promise( function(resolve) { Resolve['Spy'] = resolve; } );
-			yield FBref_SignalEnd.set(false);  /* reset */
+			yield new Promise( resolve => Resolve['Spy'] = resolve );
+			yield FBref_SignalAttackEnd.set(false);  /* reset */
 
 			if ( Game.Players[id].Open.length > 0 ) {  // 1枚以上公開できたとき（drawができないときは0に）
 				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons`)
@@ -815,21 +800,18 @@ $( function() {
 					.append( "<div class='clear'></div>" )
 					.append( MakeHTML_button( 'Spy PutBackToDeck', 'そのまま戻す' ) );
 
-				yield new Promise( function(resolve) {
-					Resolve['Spy_Discard_or_PutBackToDeck'] = resolve;
-				});
+				yield new Promise( resolve => Resolve['Spy_Discard_or_PutBackToDeck'] = resolve );
 				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Spy`).remove();
 			}
 
-
 			Show_OKbtn_OtherPlayer( id, 'Spy' );
-			yield new Promise( function(resolve) { Resolve['Spy_ok'] = resolve; } );
+			yield new Promise( resolve => Resolve['Spy_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Spy' );
 			yield FBref_MessageTo.child(id).set('');  // reset
 		}
 
 		/* 終了処理 */
-		Monitor_FBref_SignalEnd_off();  /* 監視終了 */
+		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		yield FBref_Players.set( Game.Players );
 	};
@@ -851,7 +833,6 @@ $( function() {
 		FBref_Players.child( Game.player().id ).set( Game.player() )
 		.then( () => Resolve['Spy_Discard_or_PutBackToDeck_player']() );  // 再開
 	} );
-
 
 	/* 他のプレイヤー */
 	AttackEffect['Spy'] = function*() {  /* アタックされる側 */
@@ -898,15 +879,13 @@ $( function() {
 			$action_cards.addClass('Throne_Room_UseTwice pointer');
 
 			// アクションカード選択待機
-			const [clicked_card_no, clicked_card_ID] = yield new Promise( function(resolve) {
-				Resolve['Throne_Room_UseTwice'] = resolve;
-			});
+			const [clicked_card_no, clicked_card_ID]
+				= yield new Promise( resolve => Resolve['Throne_Room_UseTwice'] = resolve );
 
 			yield MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) );  /* 1回目 */
 			yield MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) );  /* 2回目 */
 		}
 	};
-
 
 	$('.HandCards').on( 'click', '.card.Throne_Room_UseTwice', function() {
 		const clicked_card_no = $(this).attr('data-card_no');
@@ -921,5 +900,15 @@ $( function() {
 		} )
 		.then( () => Resolve['Throne_Room_UseTwice']( [clicked_card_no, clicked_card_ID] ) );  // 再開
 	} );
+
+
+
+
+
+	ReactionEffect['Moat'] = function*() {
+
+	};
+
+
 
 } );

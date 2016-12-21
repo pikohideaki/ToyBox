@@ -620,14 +620,14 @@ $( function() {
 			' );
 
 		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		FBref_SignalEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Torturer.next(); } );  // (1) 再開
+		FBref_SignalAttackEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Torturer.next(); } );  // (1) 再開
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			SendSignal( id, { Attack : true, card_name : 'Torturer', } );
 			FBref_MessageTo.child(id).set('手札からカードを2枚捨て札にするか呪いを獲得して手札に加えるか選んでください。');  // reset
 
 			yield;  // (1)
-			FBref_SignalEnd.set(false);  /* reset */
+			FBref_SignalAttackEnd.set(false);  /* reset */
 
 			Show_OKbtn_OtherPlayer( id, 'Torturer' );
 			yield;  // (2)
@@ -636,7 +636,7 @@ $( function() {
 		}
 
 		/* 終了処理 */
-		FBref_SignalEnd.off();  /* 監視終了 */
+		FBref_SignalAttackEnd.off();  /* 監視終了 */
 		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		EndActionCardEffect();
 	};
@@ -747,14 +747,14 @@ $( function() {
 			FBref_Players.child( Game.player().id ).set( Game.player() );
 
 			/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-			FBref_SignalEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Minion.next(); } );  // (1) 再開
+			FBref_SignalAttackEnd.on( 'value', function(snap) { if ( snap.val() ) GenFuncs.Minion.next(); } );  // (1) 再開
 
 			for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 				SendSignal( id, { Attack : true, card_name : 'Minion', } );
 				FBref_MessageTo.child(id).set('手札が5枚以上ある人は手札を捨て札にして+4カード');  // reset
 
 				yield;  // (1)
-				FBref_SignalEnd.set(false);  /* reset */
+				FBref_SignalAttackEnd.set(false);  /* reset */
 
 				Show_OKbtn_OtherPlayer( id, 'Minion' );
 				yield;  // (2)
@@ -763,7 +763,7 @@ $( function() {
 			}
 
 			/* 終了処理 */
-			FBref_SignalEnd.off();  /* 監視終了 */
+			FBref_SignalAttackEnd.off();  /* 監視終了 */
 			Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 			EndActionCardEffect();
 			return;

@@ -9,7 +9,8 @@ let GenFuncs       = {};
 
 
 $( function() {
-	$('.OtherPlayers-wrapper').on( 'click', '.OtherPlayer_Buttons .ok', () => Resolve['reveal_reaction_ok']() );
+	$('.OtherPlayers-wrapper').on( 'click', '.OtherPlayer_Buttons .ok', () => Resolve['confirm_revealed_reaction']() );
+
 });
 
 
@@ -25,12 +26,28 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 		yield FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			SendSignal( id, { listen_reaction : true } );
+			yield SendSignal( id, { listen_reaction : true } );
 
-			Show_OKbtn_OtherPlayer( id );
-			yield new Promise( function(resolve) { Resolve['reveal_reaction_ok'] = resolve; });
-			Hide_OKbtn_OtherPlayer( id );
-			yield FBref_Signal.child( id ).remove();
+			yield Monitor_FBref_SignalReactionEnd_on();
+
+			yield FBref_SignalRevealReaction.set(false)  /* reset */
+
+			FBref_SignalRevealReaction.on( 'value', function(snap) {
+				if ( snap.val() == 'waiting_for_confirmation' ) {
+					MyAsync( ( function*() {
+						Show_OKbtn_OtherPlayer( id );
+						yield new Promise( resolve => Resolve['confirm_revealed_reaction'] = resolve );
+						Hide_OKbtn_OtherPlayer( id );
+						yield FBref_SignalRevealReaction.set('confirmed');
+					})() );
+				}
+			} )
+
+
+			yield new Promise( resolve => Resolve['ReactionEnd'] = resolve );
+
+			Monitor_FBref_SignalReactionEnd_off();
+			Monitor_FBref_SignalRevealReaction_off();
 		}
 	}
 
@@ -68,20 +85,9 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 
 
-function* GetReactionCardEffect( card_name_eng ) {
-	switch ( card_name_eng ) {
-		case 'Moat' :  /* 26. 堀 */
-			EndAttackCardEffect();
-			GenFuncs['CatchSignal'].return();  // アタック効果を飛ばして終了
-			return;
-
-		case 'Secret Chamber' : /* 55. 秘密の部屋 */
-			yield MyAsync( ReactionEffect[ card_name_eng ]() );
-			return;
-
-		default :
-			return;
-	}
+function* GetReactionCardEffect( card_no, card_ID ) {
+	yield MyAsync( ReactionEffect[ Cardlist[ card_no ].name_eng ]() );
+	yield FBref_MessageToMe.set('');
 }
 
 
@@ -102,10 +108,12 @@ function* GetAttackCardEffect( card_name ) {
 function EndAttackCardEffect() {
 	return Promise.all( [
 		FBref_SignalToMe.remove(),
-		FBref_MessageTo.child(myid).set(''),
-		FBref_SignalEnd.set(true)
+		FBref_MessageToMe.set(''),
+		FBref_SignalAttackEnd.set(true)
 	] );
 }
+
+
 
 
 
@@ -134,16 +142,46 @@ function Hide_OKbtn_OtherPlayer( player_id, classes ) {
 
 
 /* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-function Monitor_FBref_SignalEnd_on( card_name ) {
-	return FBref_SignalEnd.set(false)  /* reset */
+function Monitor_FBref_SignalAttackEnd_on( card_name ) {
+	return FBref_SignalAttackEnd.set(false)  /* reset */
 	.then( function() {
-		FBref_SignalEnd.on( 'value', function(snap) {
+		FBref_SignalAttackEnd.on( 'value', function(snap) {
 			if ( snap.val() ) Resolve[ card_name ]();
 		} )
 	} );
 }
 
-function Monitor_FBref_SignalEnd_off() {
-	FBref_SignalEnd.off();
+function Monitor_FBref_SignalAttackEnd_off() {
+	FBref_SignalAttackEnd.off();
 }
 
+
+
+function Monitor_FBref_SignalRevealReaction_on() {
+	return FBref_SignalRevealReaction.set(false)  /* reset */
+	.then( function() {
+		FBref_SignalRevealReaction.on( 'value', function(snap) {
+			if ( snap.val() ) Resolve['RevealedReaction']();
+		} )
+	} );
+}
+
+function Monitor_FBref_SignalRevealReaction_off() {
+	FBref_SignalRevealReaction.off();
+}
+
+
+
+
+function Monitor_FBref_SignalReactionEnd_on() {
+	return FBref_SignalReactionEnd.set(false)  /* reset */
+	.then( function() {
+		FBref_SignalReactionEnd.on( 'value', function(snap) {
+			if ( snap.val() ) Resolve['ReactionEnd']();
+		} )
+	} );
+}
+
+function Monitor_FBref_SignalReactionEnd_off() {
+	FBref_SignalReactionEnd.off();
+}

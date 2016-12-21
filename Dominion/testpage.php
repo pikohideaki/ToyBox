@@ -35,11 +35,28 @@ include( $Filename_sDc );
 
 
 <body>
-	<header>
+<!-- 	<header>
 		<?= PrintHome(); ?>
 	</header>
-
+ -->
 	<div class='main'>
+
+		<button class='btn-blue buttonA       ' >ボタンA</button>
+		<button class='btn-blue buttonB       ' >ボタンB</button>
+		<button class='btn-blue buttonC       ' >ボタンC</button>
+		<button class='btn-blue buttonD Others' >ボタンD</button>
+		<button class='btn-blue buttonE Others' >ボタンE</button>
+		<button class='btn-blue buttonF Others' >ボタンF</button>
+		<button class='btn-blue buttonG Others' >ボタンG</button>
+		<button class='btn-blue buttonH Others' >ボタンH</button>
+		<button class='btn-blue buttonI Others' >ボタンI</button>
+		<button class='btn-blue buttonJ Others' >ボタンJ</button>
+		<button class='btn-blue buttonK Others' >ボタンK</button>
+		<button class='btn-blue buttonL Others' >ボタンL</button>
+		<button class='btn-blue buttonM Others' >ボタンM</button>
+		<button class='btn-blue buttonN Others' >ボタンN</button>
+		<button class='btn-blue buttonO Others' >ボタンO</button>
+
 		<!-- <p>generator test</p> -->
 		<!-- <button class='btn-blue generator_test next' >++</button> -->
 		<!-- <button class='btn-blue generator_test end'>end</button> -->
@@ -52,6 +69,58 @@ include( $Filename_sDc );
 <script type="text/javascript">
 
 $( function() {
+
+{
+	$('.buttonB').hide();
+	$('.buttonC').hide();
+
+
+	// $('.buttonA').click( function() {
+	// 	console.log('おはよう');
+	// 	$('.Others').hide();
+	// 	$('.buttonA').hide();
+	// 	$('.buttonB').show();
+	// });
+
+	// $('.buttonB').click( function() {
+	// 	console.log('こんにちは');
+	// 	$('.buttonB').hide();
+	// 	$('.buttonC').show();
+	// });
+
+	// $('.buttonC').click( function() {
+	// 	console.log('おやすみ');
+	// 	$('.Others').show();
+	// 	$('.buttonC').hide();
+	// 	$('.buttonA').show();
+	// });
+
+
+function* genfunc() {
+	console.log('おはよう');
+	$('.buttonA').hide();
+	$('.Others').hide();
+	$('.buttonB').show();
+
+	yield;  // ボタンBのクリック待ち
+	console.log('こんにちは');
+	$('.buttonB').hide();
+	$('.buttonC').show();
+
+	yield;  // ボタンCのクリック待ち
+	console.log('おやすみ');
+	$('.buttonC').hide();
+	$('.Others').show();
+	$('.buttonA').show();  // 最初の状態に戻る
+}
+
+let g;
+$('.buttonA').click( function() { g = genfunc();  g.next(); });  // 開始 
+$('.buttonB').click( function() { g.next(); });  // 次へ
+$('.buttonC').click( function() { g.next(); });  // 次へ
+
+}
+
 
 	// function* gfn(){
 	// 	let end = false;
@@ -191,19 +260,19 @@ $( function() {
 
 
 {
-	$main = $('.main');
-	function EditDom() {
-		console.log('dom append start');
-		for ( let i = 0; i < 100000; ++i ) {
-			$main.append(`<p>${i}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>`)
-		}
-		console.log('dom append done');
-	}
+	// $main = $('.main');
+	// function EditDom() {
+	// 	console.log('dom append start');
+	// 	for ( let i = 0; i < 100000; ++i ) {
+	// 		$main.append(`<p>${i}aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>`)
+	// 	}
+	// 	console.log('dom append done');
+	// }
 
-	console.log('start');
-	EditDom();
-	console.log('end');
-	$main.append('<p>last element</p>');
+	// console.log('start');
+	// EditDom();
+	// console.log('end');
+	// $main.append('<p>last element</p>');
 }
 // setTimeout( function() {
 // 	setTimeout( function() {
