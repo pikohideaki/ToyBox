@@ -298,8 +298,8 @@ $GameRoomID = $_POST['room-id'];
 	};
 	firebase.initializeApp(config);
 
-	let FBref_connected            = FBdatabase.ref(".info/connected");
 	let FBdatabase                 = firebase.database();
+	let FBref_connected            = FBdatabase.ref(".info/connected");
 	let FBref_Room                 = FBdatabase.ref( `/Rooms/${GameRoomID}` );
 	let FBref_Game                 = FBref_Room.child( 'Game' );
 	let FBref_Players              = FBref_Room.child( 'Game/Players' );
