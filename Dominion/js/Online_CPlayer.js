@@ -3,31 +3,31 @@
 class CPlayer {
 	constructor( PlayerObj ) {
 		if ( PlayerObj == undefined ) {
-			this.id          = 0;
-			this.name        = "";
-			this.Deck        = [];
-			this.DiscardPile = [];
-			this.HandCards   = [];
-			this.PlayArea    = [];
-			this.Aside       = [];
-			this.Open        = []; /* 一時的に公開 */
-			this.VPtoken     = 0;
-			this.VPtotal     = 0;
-			this.TurnCount   = 1;
-			this.Connection  = true;
+			this.id            = 0;
+			this.name          = "";
+			this.Deck          = [];
+			this.DiscardPile   = [];
+			this.HandCards     = [];
+			this.PlayArea      = [];
+			this.Aside         = [];
+			this.Open          = []; /* 一時的に公開 */
+			this.VPtoken       = 0;
+			this.VPtotal       = 0;
+			this.TurnCount     = 1;
+			this.Connection    = true;
 		} else {
-			this.id          =   PlayerObj.id;
-			this.name        =   PlayerObj.name;
-			this.Deck        = ( PlayerObj.Deck        || [] );
-			this.DiscardPile = ( PlayerObj.DiscardPile || [] );
-			this.HandCards   = ( PlayerObj.HandCards   || [] );
-			this.PlayArea    = ( PlayerObj.PlayArea    || [] );
-			this.Aside       = ( PlayerObj.Aside       || [] );
-			this.Open        = ( PlayerObj.Open        || [] );
-			this.VPtoken     = ( Number( PlayerObj.VPtoken ) || 0 );
-			this.VPtotal     = ( Number( PlayerObj.VPtotal ) || 0 );
-			this.TurnCount   = PlayerObj.TurnCount;
-			this.Connection  = PlayerObj.Connection;
+			this.id            =   PlayerObj.id;
+			this.name          =   PlayerObj.name;
+			this.Deck          = ( PlayerObj.Deck        || [] );
+			this.DiscardPile   = ( PlayerObj.DiscardPile || [] );
+			this.HandCards     = ( PlayerObj.HandCards   || [] );
+			this.PlayArea      = ( PlayerObj.PlayArea    || [] );
+			this.Aside         = ( PlayerObj.Aside       || [] );
+			this.Open          = ( PlayerObj.Open        || [] );
+			this.VPtoken       = ( Number( PlayerObj.VPtoken ) || 0 );
+			this.VPtotal       = ( Number( PlayerObj.VPtotal ) || 0 );
+			this.TurnCount     = PlayerObj.TurnCount;
+			this.Connection    = PlayerObj.Connection;
 		}
 	}
 

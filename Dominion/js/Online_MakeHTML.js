@@ -27,16 +27,13 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist ) {
 }
 
 function MakeHTML_Card( card ) {
-	const Card = Cardlist[ card.card_no ];
-	const cost_coin = Cardlist[ card.card_no ].cost;
-	card.class_str = ( card.class_str || '' );
 	return `
 		<button
-			class='card face ${card.class_str}'
+			class='card face ${( card.class_str || '' )}'
 			data-card_no='${card.card_no}'
 			data-card_ID='${card.card_ID}'
-			data-card_name_jp='${Card.name_jp}'>
-			<span class='card-cost-coin'>${cost_coin}</span>
+			data-card_name_jp='${Cardlist[ card.card_no ].name_jp}'>
+			<span class='card-cost-coin'>${Cardlist[ card.card_no ].cost}</span>
 		</button>
 		`;
 			// <i class="fa fa-search-plus zoom_card" aria-hidden="true"></i>
@@ -63,9 +60,6 @@ function MakeHTML_OtherPlayerDiv( player_id ) {
 				<div class='clear'></div>
 
 				<div class='sCardArea sOpen'>        </div>
-				<div class='OtherPlayer_Buttons'>
-					<button class='btn-blue ok'>OK</button>
-				</div>
 				<div class='clear'></div>
 
 				<div class='sCardArea sPlayArea'>    </div>
@@ -75,6 +69,9 @@ function MakeHTML_OtherPlayerDiv( player_id ) {
 				<div class='sCardArea sDeck'>        </div>
 				<div class='sCardArea sHandCards'>   </div>
 				<div class='sCardArea sDiscardPile'> </div>
+				<div class='OtherPlayer_Buttons'>
+					<button class='btn-blue ok'>OK</button>
+				</div>
 				<div class='clear'></div>
 			</div>
 			`;

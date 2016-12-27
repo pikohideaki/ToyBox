@@ -114,15 +114,6 @@ $( function() {
 	$('.contents-list-item').click( function() {
 		const id = $(this).attr('id');
 		window.location.href = `/Dominion/${id}.php`;
-		// switch (id) {
-		// 	case 'GameResult_main'  : window.location.href = '/Dominion/GameResult_main.php';  break;
-		// 	case 'Online_room_main' : window.location.href = '/Dominion/Online_room_main.php'; break;
-		// 	case 'Players'          : window.location.href = '/Dominion/Players.php';          break;
-		// 	case 'Rulebooks'        : window.location.href = '/Dominion/Rulebooks.php';        break;
-		// 	case 'Cardlist'         : window.location.href = '/Dominion/Cardlist.php';         break;
-		// 	case 'Randomizer'       : window.location.href = '/Dominion/Randomizer.php';       break;
-		// 	default: break;
-		// }
 	} );
 
 } );

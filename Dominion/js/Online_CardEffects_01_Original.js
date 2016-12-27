@@ -479,26 +479,22 @@ $( function() {
 	CardEffect['Witch'] = function* () {
 		yield FBref_Message.set( '呪いを獲得して下さい。' );
 
-		yield Monitor_FBref_SignalAttackEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
-
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			yield Monitor_FBref_SignalAttackEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
 			yield SendSignal( id, {
 				Attack    : true,
 				card_name : 'Witch',
 				Message   : '呪いを獲得します。',
 			} );
 			yield new Promise( resolve => Resolve['Witch'] = resolve );  /* 他のプレイヤー待機 */
-			yield FBref_SignalAttackEnd.set(false);  /* reset */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 			Show_OKbtn_OtherPlayer( id, 'Witch' );
 			yield new Promise( resolve => Resolve['Witch_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Witch' );
-			yield FBref_MessageTo.child(id).set('');  // reset
+			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
-		/* 終了処理 */
-		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
-		yield FBref_Players.set( Game.Players );
 	};
 
 	AttackEffect['Witch'] = function* () {  /* アタックされる側 */
@@ -520,26 +516,22 @@ $( function() {
 	CardEffect['Militia'] = function* () {
 		yield FBref_Message.set( '手札が3枚になるまで捨てて下さい。' );
 
-		yield Monitor_FBref_SignalAttackEnd_on( 'Militia' );  // End受信 -> Resolve['Militia']()
-
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			yield Monitor_FBref_SignalAttackEnd_on( 'Militia' );  // End受信 -> Resolve['Militia']()
 			yield SendSignal( id, {
 				Attack    : true,
 				card_name : 'Militia',
 				Message   : '手札が3枚になるまで捨てて下さい。',
 			} );
 			yield new Promise( resolve => Resolve['Militia'] = resolve );  /* 他のプレイヤー待機 */
-			yield FBref_SignalAttackEnd.set(false);  /* reset */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 			Show_OKbtn_OtherPlayer( id, 'Militia' );
 			yield new Promise( resolve => Resolve['Militia_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Militia' );
-			yield FBref_MessageTo.child(id).set('');  // reset
+			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
-		/* 終了処理 */
-		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
-		yield FBref_Players.set( Game.Players );
 	};
 
 	AttackEffect['Militia'] = function*() {  /* アタックされる側 */
@@ -582,25 +574,26 @@ $( function() {
 		yield FBref_Game.update( updates );
 
 		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-		yield Monitor_FBref_SignalAttackEnd_on( 'Bureaucrat' );  // End受信 -> Resolve['Bureaucrat']()
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+
+			yield Monitor_FBref_SignalAttackEnd_on( 'Bureaucrat' );  // End受信 -> Resolve['Bureaucrat']()
 			yield SendSignal( id, {
 				Attack    : true,
 				card_name : 'Bureaucrat',
 				Message   : '手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。そうでない場合は手札を公開してください。',
 			} );
 			yield new Promise( resolve => Resolve['Bureaucrat'] = resolve );  /* 他のプレイヤー待機 */
-			yield FBref_SignalAttackEnd.set(false);  /* reset */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 			Show_OKbtn_OtherPlayer( id, 'Bureaucrat' );
 			yield new Promise( resolve => Resolve['Bureaucrat_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Bureaucrat' );
-			yield FBref_MessageTo.child(id).set('');  // reset
+			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
-		/* 終了処理 */
-		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
+		// 公開したカードを裏向きに戻す
+		Game.Players.forEach( player => player.ResetFaceDown() );
 		yield FBref_Players.set( Game.Players );
 	};
 
@@ -610,6 +603,7 @@ $( function() {
 
 		if ( $victory_cards.length == 0 ) {
 			Game.Me().OpenHandCards();  /* 手札を公開 */
+			yield FBref_MessageToMe.set('手札を公開します。');
 			return;
 		}
 
@@ -643,18 +637,18 @@ $( function() {
 		yield FBref_Message.set( '他のプレイヤーの山札の上から2枚を公開し，その中に財宝カードがあればそのうち1枚を選んで廃棄します。\
 			これによって廃棄されたカードのうち好きな枚数を獲得できます。' );
 
-		yield Monitor_FBref_SignalAttackEnd_on( 'Thief' );  // End受信 -> Resolve['Thief']()
-
 		let trashed_card_IDs = [];
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			yield Monitor_FBref_SignalAttackEnd_on( 'Thief' );  // End受信 -> Resolve['Thief']()
 			yield SendSignal( id, {
 				Attack    : true,
 				card_name : 'Thief',
 				Message   : '山札の上から2枚を公開してください。財宝カードが公開された場合そのうち1枚が廃棄されます。廃棄されたカード以外は捨て札にしてください。',
 			} );
 			yield new Promise( resolve => Resolve['Thief'] = resolve );  /* 他のプレイヤー待機 */
-			yield FBref_SignalAttackEnd.set(false);  /* reset */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 			let trasure_cards = 
 				$(`.OtherPlayer[data-player_id=${id}] .sOpen`)
@@ -671,7 +665,7 @@ $( function() {
 			Show_OKbtn_OtherPlayer( id, 'Thief' );
 			yield new Promise( resolve => Resolve['Thief_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Thief' );
-			yield FBref_MessageTo.child(id).set('');  // reset
+			yield FBref_MessageTo.child(id).set('');  /* reset */
 
 			/* 公開したカードの残りを捨て札に */
 			let player = Game.Players[id];
@@ -683,7 +677,6 @@ $( function() {
 			} );
 		}
 
-		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 		if ( trashed_card_IDs.length > 0 ) {
 			/* 廃棄したカードの獲得画面 */
@@ -702,10 +695,6 @@ $( function() {
 			yield new Promise( resolve => Resolve['Thief_GainTrashedCard'] = resolve );
 			HideDialog();
 		}
-
-		/* 終了処理 */
-		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
-		yield FBref_Players.set( Game.Players );
 	};
 
 	AttackEffect['Thief'] = function*() {  /* アタックされる側 */
@@ -781,18 +770,20 @@ $( function() {
 			$('.action_buttons').html('');
 		}
 
-		yield Monitor_FBref_SignalAttackEnd_on( 'Spy' );  // End受信 -> Resolve['Spy']()
 
 		let trashed_card_IDs = [];
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			yield Monitor_FBref_SignalAttackEnd_on( 'Spy' );  // End受信 -> Resolve['Spy']()
 			yield SendSignal( id, {
 				Attack    : true,
 				card_name : 'Spy',
 				Message   : '山札の上から1枚を公開してください。公開されたカードは捨て札になるか山札に戻されます。',
 			} );
 			yield new Promise( resolve => Resolve['Spy'] = resolve );
-			yield FBref_SignalAttackEnd.set(false);  /* reset */
+			// yield FBref_SignalAttackEnd.set(false);  /* reset */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
 			if ( Game.Players[id].Open.length > 0 ) {  // 1枚以上公開できたとき（drawができないときは0に）
 				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons`)
@@ -807,12 +798,10 @@ $( function() {
 			Show_OKbtn_OtherPlayer( id, 'Spy' );
 			yield new Promise( resolve => Resolve['Spy_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Spy' );
-			yield FBref_MessageTo.child(id).set('');  // reset
+			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
-
-		/* 終了処理 */
-		Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
+		// 公開したカードを裏向きに戻す
+		Game.Players.forEach( player => player.ResetFaceDown() );
 		yield FBref_Players.set( Game.Players );
 	};
 
@@ -882,8 +871,8 @@ $( function() {
 			const [clicked_card_no, clicked_card_ID]
 				= yield new Promise( resolve => Resolve['Throne_Room_UseTwice'] = resolve );
 
-			yield MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) );  /* 1回目 */
-			yield MyAsync( GetCardEffect( clicked_card_no, clicked_card_ID ) );  /* 2回目 */
+			yield MyAsync( GetCardEffect, clicked_card_no, clicked_card_ID );  /* 1回目 */
+			yield MyAsync( GetCardEffect, clicked_card_no, clicked_card_ID );  /* 2回目 */
 		}
 	};
 
@@ -906,7 +895,7 @@ $( function() {
 
 
 	ReactionEffect['Moat'] = function*() {
-
+		yield FBref_Game.child(`TurnInfo/Revealed_Moat/${myid}`).set(true);
 	};
 
 

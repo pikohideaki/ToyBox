@@ -178,33 +178,27 @@ class SizeOfjQueryObj {
 //  - MyAsyncからMyAsyncを呼びたいときに困る．
 //  - ボタン操作待ちなどはPromise化してresolveをボタン操作から実行するように
 
-function MyAsync( GenFunc ) {
+function MyAsync( GenFunc, ...Args ) {
 
-	function MyAsync_sub( genfunc, args ) {
-		let n = genfunc.next(args);
+	function MyAsync_sub( g, value ) {
+		let n = g.next(value);
 		if ( n.done ) {
-			return Promise.resolve();
+			return Promise.resolve(value);
 		} else if ( n.value instanceof Promise ) {
-			return n.value.then( (args) => MyAsync_sub( genfunc, args ) );
-		} else if ( n.value instanceof (function*(){}).constructor ) {
-			return MyAsync_sub( n.value() ).then( () => MyAsync_sub( genfunc ) );
+			return n.value.then( (value) => MyAsync_sub( g, value ) );
 		} else {
 			throw new Error('Promise or Generator constructor should be passed to MyAsync');
-			// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 		}
 	}
 
-
-	let m = GenFunc.next();  // start GenFunc
+	let gfn = GenFunc( ...Args );
+	let m = gfn.next();  // start gfn
 	if ( m.done ) {
 		return Promise.resolve();
 	} else if ( m.value instanceof Promise ) {
-		return m.value.then( (args) => MyAsync_sub( GenFunc, args ) );
-	} else if ( m.value instanceof (function*(){}).constructor ) {
-		return MyAsync_sub( m.value() ).then( () => MyAsync_sub( GenFunc ) );
+		return m.value.then( (value) => MyAsync_sub( gfn, value ) );
 	} else {
 		throw new Error('Promise or Generator constructor should be passed to MyAsync');
-		// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 	}
 }
 

@@ -43,7 +43,7 @@ $gr = new GameResult();  // ゲーム結果(1ゲーム分)
 $gr->id         = time();
 $gr->date       = date("Y-m-d");
 $gr->place      = 'Online';
-$gr->player_num = $_COOKIE['player_num'];
+$gr->player_num = intval( $_COOKIE['player_num'] );
 $gr->memo       = '';
 
 setcookie( 'place', 'Online', strtotime( '+30days' ) );

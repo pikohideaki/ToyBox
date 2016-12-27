@@ -169,7 +169,7 @@ $('#make-room-btn').click( function() {
 
 	/* test */
 	// SelectedCards.KingdomCards = [ 8,9,10,11,12, 16,14,15,29,21  ];
-	SelectedCards.KingdomCards = [ 14,32,15,30, 29,31,24,28,26,27  ];
+	// SelectedCards.KingdomCards = [ 14,32,15,30, 29,31,24,28,26,27  ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30, 26,55, 27,29,31,13  ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
 	/*

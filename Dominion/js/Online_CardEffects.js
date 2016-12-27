@@ -9,7 +9,9 @@ let GenFuncs       = {};
 
 
 $( function() {
-	$('.OtherPlayers-wrapper').on( 'click', '.OtherPlayer_Buttons .ok', () => Resolve['confirm_revealed_reaction']() );
+	$('.OtherPlayers-wrapper').on( 'click', '.OtherPlayer_Buttons .ok.waiting_for_confirmation',
+		() => Resolve['confirm_revealed_reaction']()
+	);
 
 });
 
@@ -21,11 +23,11 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 	// アタックカードならまずリアクションカードの解決
 	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
-		// 「アタックカードを場に出す」まではやる（update回数を節約した関係でカードがまだ場に出ていない）
-		yield FBref_Players.child( Game.player().id ).set( Game.player() );
-
-		yield FBref_Message.set( 'リアクションカードがあれば公開することができます。' );
+		yield FBref_Message.set( 'リアクションカードを公開するプレイヤーがいないか待っています。' );
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			/* 堀を公開するかどうかはアクションカード1枚ごとに決めてよい */
+			yield FBref_Game.child(`TurnInfo/Revealed_Moat/${id}`).set(false);  /* reset */
+
 			yield SendSignal( id, { listen_reaction : true } );
 
 			yield Monitor_FBref_SignalReactionEnd_on();
@@ -34,12 +36,12 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 			FBref_SignalRevealReaction.on( 'value', function(snap) {
 				if ( snap.val() == 'waiting_for_confirmation' ) {
-					MyAsync( ( function*() {
-						Show_OKbtn_OtherPlayer( id );
+					MyAsync( function*() {
+						Show_OKbtn_OtherPlayer( id, 'waiting_for_confirmation' );
 						yield new Promise( resolve => Resolve['confirm_revealed_reaction'] = resolve );
-						Hide_OKbtn_OtherPlayer( id );
+						Hide_OKbtn_OtherPlayer( id, 'waiting_for_confirmation' );
 						yield FBref_SignalRevealReaction.set('confirmed');
-					})() );
+					} );
 				}
 			} )
 
@@ -62,7 +64,6 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	Game.player().DrawCards( playing_Card.draw_card );
 
 	let updates = {};
-	updates['phase'] = Game.phase;  // Game.UseCard の update を代行
 	updates['TurnInfo'] = Game.TurnInfo;
 	updates[`Players/${Game.player().id}`] = Game.player();
 	yield FBref_Game.update( updates );
@@ -75,7 +76,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 			break;
 
 		default :
-			yield MyAsync( CardEffect[ playing_card_name ]( playing_card_ID, playing_card_no ) );
+			yield MyAsync( CardEffect[ playing_card_name ], playing_card_ID, playing_card_no );
 			break;
 	}
 }
@@ -85,35 +86,27 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 
 
-function* GetReactionCardEffect( card_no, card_ID ) {
-	yield MyAsync( ReactionEffect[ Cardlist[ card_no ].name_eng ]() );
-	yield FBref_MessageToMe.set('');
-}
+// function* GetReactionCardEffect( card_no, card_ID ) {
+// 	yield MyAsync( ReactionEffect[ Cardlist[ card_no ].name_eng ] );
+// 	yield FBref_MessageToMe.set('');
+// }
 
 
 
+// function* GetAttackCardEffect( card_name ) {
+// 	yield MyAsync( AttackEffect[ card_name ] );
+// 	yield Promise.all( [
+// 		FBref_SignalToMe.remove(),
+// 		FBref_MessageToMe.set(''),
+// 		FBref_SignalAttackEnd.set(true)  // Endシグナルを送る
+// 	] );
+// }
 
 
 
-function* GetAttackCardEffect( card_name ) {
-	yield MyAsync( AttackEffect[ card_name ]() );
-	yield EndAttackCardEffect();  // Endシグナルを送る
-}
-
-
-
-
-
-
-function EndAttackCardEffect() {
-	return Promise.all( [
-		FBref_SignalToMe.remove(),
-		FBref_MessageToMe.set(''),
-		FBref_SignalAttackEnd.set(true)
-	] );
-}
-
-
+// function EndAttackCardEffect() {
+// 	;
+// }
 
 
 
@@ -125,6 +118,7 @@ function AddAvailableToSupplyCardIf( conditions ) {
 		if ( conditions( card, card_no, card_ID ) ) $(this).addClass('available');
 	} );
 }
+
 
 
 function Show_OKbtn_OtherPlayer( player_id, classes ) {
@@ -169,7 +163,6 @@ function Monitor_FBref_SignalRevealReaction_on() {
 function Monitor_FBref_SignalRevealReaction_off() {
 	FBref_SignalRevealReaction.off();
 }
-
 
 
 

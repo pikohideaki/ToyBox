@@ -215,7 +215,8 @@ function PrintDiscardPile_sub( player_id, $DiscardPile ) {
 function PrintPlayArea( player_id ) {
 	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'PlayArea', 'face', false );
 	if ( player_id == myid ) PrintMyCardArea( 'PlayArea', 'face', true );
-	PrintCardAreaSmall( player_id, 'PlayArea', 'face', true );
+	PrintCardAreaSmall( player_id, 'PlayArea', 'face', player_id != Game.whose_turn_id );
+	// 手番プレイヤーの小画面のプレイエリアは表示（1枚出したときに画面が動くのが嫌）
 }
 
 function PrintAside( player_id ) {

@@ -13,6 +13,7 @@ class CGame {
 			this.TrashPile     = ( FBobj_Game.TrashPile || [] );
 			this.whose_turn_id = FBobj_Game.whose_turn_id;
 			this.TurnInfo      = FBobj_Game.TurnInfo;
+			this.TurnInfo.Revealed_Moat = Array(RoomInfo.PlayerNum).fill(false);
 			this.phase         = FBobj_Game.phase;
 			this.Supply        = new CSupply( FBobj_Game.Supply );
 			this.Players       = [];
@@ -62,6 +63,7 @@ class CGame {
 			played_actioncards_num : 0,  // 共謀者
 			add_copper_coin : 0,  // 銅細工師
 			cost_minus : 0,  // 橋
+			Revealed_Moat : [],  /* 堀を公開したか */
 		};
 		this.phase = 'ActionPhase';
 	}
@@ -302,14 +304,13 @@ class CGame {
 			alert( 'アクションが足りません' );   return;
 		}
 
-		MyAsync( ( function*() {
+		MyAsync( function*() {
 			switch ( Game.phase ) {
 				case 'ActionPhase' :
 					Game.phase = 'ActionPhase*';
 					break;
 				case 'BuyPhase' :
 					Game.phase = 'BuyPhase*';
-					// console.log('BuyPhase*');
 					break;
 				default :
 					throw new Error('GetCardEffect should be called in ActionPhase or BuyPhase' );
@@ -318,15 +319,17 @@ class CGame {
 
 			Game.player().AddToPlayArea( Game.GetCardByID( playing_card_ID ) );  /* カード移動 */
 
-			// updates[`Players/${Game.whose_turn_id}/PlayArea`]  = Game.player().PlayArea;
-			// updates[`Players/${Game.whose_turn_id}/HandCards`] = Game.player().HandCards;
-
 			// アクションを1消費
 			if ( IsActionCard( Cardlist, playing_card_no ) ) Game.TurnInfo.action--;
-			// updates['TurnInfo/action'] = Game.TurnInfo.action;
 
-			// yield FBref_Game.update( updates );  // updateを1回節約（GetCardEffectで更新）
-			yield MyAsync( GetCardEffect( playing_card_no, playing_card_ID ) );
+			let updates = {};
+			updates['phase'] = Game.phase;
+			updates[`Players/${Game.whose_turn_id}/PlayArea`]  = Game.player().PlayArea;
+			updates[`Players/${Game.whose_turn_id}/HandCards`] = Game.player().HandCards;
+			updates['TurnInfo/action'] = Game.TurnInfo.action;
+			yield FBref_Game.update( updates );
+
+			yield MyAsync( GetCardEffect, playing_card_no, playing_card_ID );
 
 			// 終了
 			switch ( Game.phase ) {
@@ -334,14 +337,13 @@ class CGame {
 					yield FBref_Game.child('phase').set( 'ActionPhase' );
 					break;
 				case 'BuyPhase*' :
-					// console.log('BuyPhase');
 					yield FBref_Game.child('phase').set( 'BuyPhase' );
 					break;
 				default :
 					throw new Error('GetCardEffect should finish in ActionPhase* or BuyPhase*' );
 					break;
 			}
-		} )() );
+		} );
 	}
 }
 

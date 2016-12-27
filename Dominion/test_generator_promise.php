@@ -67,33 +67,64 @@ $( function() {
 
 
 
-	function MyAsync( GenFunc ) {
+	function MyAsync( GenFunc, ...Args ) {
 
-		function MyAsync_sub( genfunc, args ) {
-			let n = genfunc.next(args);
+		function MyAsync_sub( g, args ) {
+			let n = g.next(args);
 			if ( n.done ) {
-				return Promise.resolve();
+				return Promise.resolve(args);
 			} else if ( n.value instanceof Promise ) {
-				return n.value.then( (args) => MyAsync_sub( genfunc, args ) );
-			} else if ( n.value instanceof (function*(){}).constructor ) {
-				return MyAsync_sub( n.value() ).then( () => MyAsync_sub( genfunc ) );
+				return n.value.then( (args) => MyAsync_sub( g, args ) );
+			// } else if ( n.value instanceof (function*(){}).constructor ) {
+			// 	return MyAsync_sub( n.value() ).then( () => MyAsync_sub( g ) );
 			} else {
-				console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+				throw new Error('Promise or Generator constructor should be passed to MyAsync');
+				// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 			}
 		}
 
-
-		let m = GenFunc.next();  // start GenFunc
+		let gfn = GenFunc( ...Args );
+		let m = gfn.next();  // start gfn
 		if ( m.done ) {
 			return Promise.resolve();
 		} else if ( m.value instanceof Promise ) {
-			return m.value.then( (args) => MyAsync_sub( GenFunc, args ) );
-		} else if ( m.value instanceof (function*(){}).constructor ) {
-			return MyAsync_sub( m.value() ).then( () => MyAsync_sub( GenFunc ) );
+			// args は then に渡される Promise の解決値
+			return m.value.then( (args) => MyAsync_sub( gfn, args ) );
+		// } else if ( m.value instanceof (function*(){}).constructor ) {
+		// 	return MyAsync_sub( m.value ).then( () => MyAsync_sub( gfn ) );
 		} else {
-			console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+			throw new Error('Promise or Generator constructor should be passed to MyAsync');
+			// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 		}
 	}
+
+	// function MyAsync( GenFunc, ...Args ) {
+	// 	console.log( Args );
+	// 	function MyAsync_sub( g, args ) {
+	// 		let n = g.next(args);
+	// 		if ( n.done ) {
+	// 			return Promise.resolve();
+	// 		} else if ( n.value instanceof Promise ) {
+	// 			return n.value.then( (args) => MyAsync_sub( g, args ) );
+	// 		} else if ( n.value instanceof (function*(){}).constructor ) {
+	// 			return MyAsync_sub( n.value() ).then( () => MyAsync_sub( g ) );
+	// 		} else {
+	// 			console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+	// 		}
+	// 	}
+
+	// 	let g = GenFunc( ...Args );
+	// 	let m = g.next();  // start GenFunc
+	// 	if ( m.done ) {
+	// 		return Promise.resolve();
+	// 	} else if ( m.value instanceof Promise ) {
+	// 		return m.value.then( (args) => MyAsync_sub( g, args ) );
+	// 	} else if ( m.value instanceof (function*(){}).constructor ) {
+	// 		return MyAsync_sub( m.value() ).then( () => MyAsync_sub( g ) );
+	// 	} else {
+	// 		console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
+	// 	}
+	// }
 
 	// function MyAsync( genfunc ) {
 	// 	let n = genfunc.next();
@@ -118,12 +149,13 @@ $( function() {
 
 	let Resolve;
 
-	function* genfunc() {
-		console.log('genfunc started');
+	function* genfunc( message1, message2 ) {
+		console.log( `genfunc started ${message1} ${message2}` );
 		yield sleep(1); console.log('a');
 		yield sleep(1); console.log('b');
-		let return_value = yield new Promise( function(resolve) { Resolve = resolve; } );
-		console.log( return_value );
+		let [return_value1, return_value2]
+			= yield new Promise( function(resolve) { Resolve = resolve; } );
+		console.log( return_value1, return_value2 );
 		console.log('button clicked!');
 		yield sleep(1); console.log('c');
 		console.log( 'genfunc end' );
@@ -137,7 +169,7 @@ $( function() {
 		yield sleep(1); console.log('A');
 		yield sleep(1); console.log('B');
 		// yield genfunc;
-		yield MyAsync( genfunc() );
+		yield MyAsync( genfunc, 'pinapple', 'pen' );
 		yield sleep(1); console.log('C');
 		console.log( 'genfunc2 end' );
 	}
@@ -149,7 +181,6 @@ $( function() {
 	// });
 
 	// p.then( console.log );
-
 
 
 	$('.next').click( () => Resolve( [998,999] ) );
@@ -175,8 +206,8 @@ $( function() {
 
 	// $('.next').click( () => g.next() );
 	// $('.next').click( () => console.log( g.next().value ) );
-	$('.start' ).click( () => MyAsync( genfunc()  ) );
-	$('.start2').click( () => MyAsync( genfunc2() ) );
+	$('.start' ).click( () => MyAsync( genfunc , 'apple', 'pen' ) );
+	$('.start2').click( () => MyAsync( genfunc2 ) );
 	// $('.start').click( () => MyAsync(g).then( () => MyAsync(h) ) );
 		// () => Promise.resolve()
 		// .then( () => g.next().value )

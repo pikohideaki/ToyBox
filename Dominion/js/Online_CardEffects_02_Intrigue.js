@@ -637,7 +637,7 @@ $( function() {
 
 		/* 終了処理 */
 		FBref_SignalAttackEnd.off();  /* 監視終了 */
-		Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
+		Game.Players.forEach( player => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 		EndActionCardEffect();
 	};
 
@@ -764,7 +764,7 @@ $( function() {
 
 			/* 終了処理 */
 			FBref_SignalAttackEnd.off();  /* 監視終了 */
-			Game.Players.forEach( (player) => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
+			Game.Players.forEach( player => player.ResetFaceDown() );  // 公開したリアクションカードを戻す
 			EndActionCardEffect();
 			return;
 		}
