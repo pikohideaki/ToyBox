@@ -43,12 +43,12 @@ function* CatchSignal( signals_to_me ) {
 
 
 function* Reaction() {
-	FBref_MessageToMe.set('リアクションカードがあれば公開することができます。（手札を選択）');
-
 	$('.MyArea .buttons').append( MakeHTML_button('end_reaction', 'リアクション終了') );
 	$end_reaction_btn = $('.MyArea .buttons .end_reaction');
 
 	while (true) {
+		yield FBref_MessageToMe.set('リアクションカードがあれば公開することができます。（手札を選択）');
+
 		$reaction_cards = $('.MyHandCards .card')
 			.filter( function() { return IsReactionCard( Cardlist, $(this).attr('data-card_no') ); } );
 
@@ -96,6 +96,7 @@ function* Reaction() {
 		]);
 
 		// リアクション効果
+		// yield FBref_MessageToMe.set('リアクションカードの効果を解決してください。');
 		yield MyAsync( ReactionEffect[ Cardlist[ clicked_card.card_no ].name_eng ] );
 	}
 

@@ -89,7 +89,10 @@ $( function() {
 
 	/* 9. 基本 - 改築 */
 	CardEffect['Remodel'] = function* () {
-		if ( Game.player().HandCards.length <= 0 ) { alert( '手札にカードがありません。' );  return; }
+		if ( Game.player().HandCards.length <= 0 ) {
+			alert( '手札にカードがありません。' );
+			return;
+		}
 
 		yield FBref_Message.set( '手札のカードを1枚廃棄して下さい。' );
 
@@ -110,6 +113,7 @@ $( function() {
 			card.cost_potion <= TrashedCardCost.potion &&
 			card.cost_debt   <= TrashedCardCost.debt
 		) );
+		if ( $('.SupplyArea').find('.available').length <= 0 ) return;
 
 		yield new Promise( resolve => Resolve['Remodel_GetCard'] = resolve );
 	};
@@ -187,7 +191,10 @@ $( function() {
 		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
 		const clicked_card_ID = clicked_card.card_ID;
 
-		if ( !$(this).hasClass('available') ) { alert('コストが大きいので獲得できません。' );  return; }
+		if ( !$(this).hasClass('available') ) {
+			alert('コストが大きいので獲得できません。' );
+			return;
+		}
 
 		Game.player()[`AddTo${DiscardPile_or_HandCards}`]( Game.GetCardByID( clicked_card_ID ) );
 
