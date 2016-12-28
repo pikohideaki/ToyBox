@@ -108,11 +108,16 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Remodel_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( (card) => (
-			card.cost        <= TrashedCardCost.coin + 2 &&
-			card.cost_potion <= TrashedCardCost.potion &&
-			card.cost_debt   <= TrashedCardCost.debt
-		) );
+		AddAvailableToSupplyCardIf(
+			card => CostOp( '<=',
+				new CCost(card),
+				new CCost([TrashedCardCost.coin + 2, TrashedCardCost.potion, TrashedCardCost.debt]) ) );
+
+		// AddAvailableToSupplyCardIf( card => (
+		// 	card.cost        <= TrashedCardCost.coin + 2 &&
+		// 	card.cost_potion <= TrashedCardCost.potion &&
+		// 	card.cost_debt   <= TrashedCardCost.debt
+		// ) );
 		if ( $('.SupplyArea').find('.available').length <= 0 ) return;
 
 		yield new Promise( resolve => Resolve['Remodel_GetCard'] = resolve );
@@ -306,7 +311,7 @@ $( function() {
 
 		let treasure_num = 0;
 		while ( Game.player().Drawable() && treasure_num < 2 ) {
-			let deck_top_card = Game.player().GetDeckTopCard();
+			const deck_top_card = Game.player().GetDeckTopCard();
 			if ( IsTreasureCard( Cardlist, deck_top_card.card_no ) )  treasure_num++;
 			Game.player().AddToOpen( deck_top_card );
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
@@ -345,7 +350,7 @@ $( function() {
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Workshop_GetCard pointer');
-		AddAvailableToSupplyCardIf( (card) => (
+		AddAvailableToSupplyCardIf( card => (
 			card.cost        <= 4 &&
 			card.cost_potion <= 0 &&
 			card.cost_debt   <= 0
@@ -368,11 +373,15 @@ $( function() {
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Feast_GetCard pointer');
-		AddAvailableToSupplyCardIf( (card) => (
-			card.cost        <= 5 &&
-			card.cost_potion <= 0 &&
-			card.cost_debt   <= 0
-		) );
+
+		AddAvailableToSupplyCardIf(
+			card => CostOp( '<=', new CCost(card), new CCost([5,0,0]) ) );
+
+		// AddAvailableToSupplyCardIf( card => (
+		// 	card.cost        <= 5 &&
+		// 	card.cost_potion <= 0 &&
+		// 	card.cost_debt   <= 0
+		// ) );
 
 		yield new Promise( resolve => Resolve['Feast_GetCard'] = resolve );
 	};
@@ -676,7 +685,7 @@ $( function() {
 
 			/* 公開したカードの残りを捨て札に */
 			let player = Game.Players[id];
-			player.Open.forEach( (card) => player.AddToDiscardPile( card ) );
+			player.Open.forEach( card => player.AddToDiscardPile( card ) );
 			player.Open = [];
 			yield FBref_Players.child(id).update( {
 				DiscardPile : player.DiscardPile,

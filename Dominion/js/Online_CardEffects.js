@@ -113,7 +113,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 function AddAvailableToSupplyCardIf( conditions ) {
 	$('.SupplyArea').find('.card').each( function() {
 		const card_no = $(this).attr('data-card_no');
-		const card_ID = $(this).attr('data-card_ID');
+		const card_ID = $(this).attr('data-top_card_ID');
 		const card = Cardlist[ card_no ];
 		if ( conditions( card, card_no, card_ID ) ) $(this).addClass('available');
 	} );

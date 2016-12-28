@@ -169,25 +169,17 @@ $('#make-room-btn').click( function() {
 
 	/* test */
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
-	SelectedCards.KingdomCards = [ 14,32,15,30,  49,45,41,55,42,53 ];
+	SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,35,56,54,51 ];
 	/*
-		ok	49	銅細工師
-		ok	45	寵臣
-		ok	55	秘密の部屋
-		ok	41	拷問人
-
-			42	詐欺師
-			53	破壊工作員
-
 			35	仮面舞踏会
 			56	貧民街
 			54	橋
 			51	願いの井戸
 
 		done
-			52	ハーレム
-			33	大広間
-			40	公爵
+		ok	52	ハーレム
+		ok	33	大広間
+		ok	40	公爵
 		ok	37	共謀者
 		ok	34	改良
 		ok	36	貴族
@@ -200,6 +192,12 @@ $('#make-room-btn').click( function() {
 		ok	48	鉄工所
 		ok	57	貢物
 		ok	39	鉱山の村
+		ok	49	銅細工師
+		ok	45	寵臣
+		ok	55	秘密の部屋
+		ok	41	拷問人
+		ok	42	詐欺師
+		ok	53	破壊工作員
 
 
 		ok	8	市場

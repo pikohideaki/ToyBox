@@ -1,5 +1,4 @@
 
-
 function MakeHTML_button( class_str, button_value ) {
 	return `<button class='btn-blue ${class_str}'>${button_value}</button>`;
 }
@@ -12,9 +11,11 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist ) {
 	const card_name_jp  = Cardlist[ SupplyPile.card_no ].name_jp;
 	const cost_coin     = Cardlist[ SupplyPile.card_no ].cost;
 	const card_no       = SupplyPile.card_no;
+	const top_card_ID   = SupplyPile.LookTopCard().card_ID;
 	return `
 			<div class='supply-card-wrapper' data-card_no=${card_no}>
 				<button class="card face"
+					data-top_card_ID='${top_card_ID}' 
 					data-card_no='${card_no}' 
 					data-card-name-eng='${card_name_eng}'
 					data-card_name_jp='${card_name_jp}'>
@@ -25,6 +26,31 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist ) {
 			`;
 					// <i class="fa fa-search-plus zoom_card" aria-hidden="true"></i>
 }
+
+
+
+function MakeHTML_Supply() {
+	return `
+			<div class='Common-Area'>
+				<div class='SupplyArea-wrapper'>
+					<!-- 基本カード -->
+					<div class='SupplyArea line1'> <!-- jsでここを書き換え --> </div>
+					<div class='clear'></div>
+					<!-- 王国カード -->
+					<div class='SupplyArea_line23'>
+						<div class='SupplyArea line2'> <!-- jsでここを書き換え --> </div>
+						<div class='clear'></div>
+						<div class='SupplyArea line3'> <!-- jsでここを書き換え --> </div>
+						<div class='clear'></div>
+					</div>
+					<div class='clear'></div>
+				</div>
+				<div class='clear'></div>
+			</div>
+			`;
+}
+
+
 
 function MakeHTML_Card( card ) {
 	return `

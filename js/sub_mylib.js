@@ -180,12 +180,12 @@ class SizeOfjQueryObj {
 
 function MyAsync( GenFunc, ...Args ) {
 
-	function MyAsync_sub( g, value ) {
-		let n = g.next(value);
+	function MyAsync_sub( g, passed_value ) {
+		let n = g.next(passed_value);
 		if ( n.done ) {
-			return Promise.resolve(value);
+			return Promise.resolve(passed_value);
 		} else if ( n.value instanceof Promise ) {
-			return n.value.then( (value) => MyAsync_sub( g, value ) );
+			return n.value.then( (val) => MyAsync_sub( g, val ) );
 		} else {
 			throw new Error('Promise or Generator constructor should be passed to MyAsync');
 		}
@@ -196,7 +196,7 @@ function MyAsync( GenFunc, ...Args ) {
 	if ( m.done ) {
 		return Promise.resolve();
 	} else if ( m.value instanceof Promise ) {
-		return m.value.then( (value) => MyAsync_sub( gfn, value ) );
+		return m.value.then( (val) => MyAsync_sub( gfn, val ) );
 	} else {
 		throw new Error('Promise or Generator constructor should be passed to MyAsync');
 	}

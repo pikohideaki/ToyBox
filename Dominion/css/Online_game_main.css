@@ -332,6 +332,7 @@
 .MyArea-wrapper {
 	z-index: 500;
 	background-color: rgba(0, 0, 0, 0.4);
+	padding : 20px;
 }
 .connection-dialog-wrapper {
 	z-index: 100000;

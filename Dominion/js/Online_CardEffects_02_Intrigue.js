@@ -387,22 +387,20 @@ $( function() {
 
 		Game.player().OpenDeckTop( 4, true ); // sync
 
-		$('.action_buttons').html( MakeHTML_button( 'Scout_VictoryCards', '勝利点カードを手札に加える' ) );
-
 		let victory_cards
 			= Game.player().Open.filter( card => IsVictoryCard( Cardlist, card.card_no ) );
 
 		if ( victory_cards.length > 0 ) {
+			$('.action_buttons').html( MakeHTML_button( 'Scout_VictoryCards', '勝利点カードを手札に加える' ) );
 			yield new Promise( resolve => Resolve['Scout_VictoryCards'] = resolve );
+			$('.action_buttons').html('');
+			victory_cards.forEach( card => Game.player().AddToHandCards( Game.GetCardByID(card.card_ID) ) );
+
+			yield FBref_Players.child( Game.player().id ).update( {
+				Open      : Game.player().Open,
+				HandCards : Game.player().HandCards,
+			});
 		}
-
-		$('.action_buttons').html('');
-		victory_cards.forEach( card => Game.player().AddToHandCards( Game.GetCardByID(card.card_ID) ) );
-
-		yield FBref_Players.child( Game.player().id ).update( {
-			Open      : Game.player().Open,
-			HandCards : Game.player().HandCards,
-		});
 
 		while ( Game.player().Open.length > 0 ) {
 			/* 公開カードのクリック動作を山札に戻すカードの選択に変更 */
@@ -569,7 +567,6 @@ $( function() {
 
 
 
-
 	/* 41. 拷問人 */
 	CardEffect['Torturer'] = function*() {
 		yield FBref_Message.set( '他のプレイヤーは次のうち1つを選ぶ ： <br>\
@@ -664,15 +661,6 @@ $( function() {
 
 
 
-	/* 42. 詐欺師 */
-	CardEffect['Swindler'] = function*() {
-		yield FBref_Message.set( '' );
-	};
-
-
-
-
-
 	/* 45. 寵臣 */
 	CardEffect['Minion'] = function*() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
@@ -748,8 +736,115 @@ $( function() {
 
 	/* 53. 破壊工作員 */
 	CardEffect['Saboteur'] = function*() {
-		yield FBref_Message.set( '' );
+		yield FBref_Message.set( '他のプレイヤーは自分の山札からコストが3コイン以上のカードが出るまで\
+			公開し，そのカードを廃棄する。\
+			廃棄したカードよりも2コイン以上コストが低いカードを1枚獲得してもよい。\
+			公開した残りのカードは捨て札にする。' );
+
+		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			yield Monitor_FBref_SignalAttackEnd_on( 'Saboteur' );  // End受信 -> Resolve['Saboteur']()
+			yield SendSignal( id, {
+				Attack    : true,
+				card_name : 'Saboteur',
+				Message   : '山札からコストが3コイン以上のカードが出るまで公開し，そのカードを廃棄します。\
+						廃棄したカードよりも2コイン以上コストが小さいカードをサプライから1枚獲得することができます。\
+						公開した残りのカードは捨て札にします。',
+			} );
+			yield new Promise( resolve => Resolve['Saboteur'] = resolve );  /* 他のプレイヤー待機 */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+
+			Show_OKbtn_OtherPlayer( id, 'Saboteur' );
+			yield new Promise( resolve => Resolve['Saboteur_ok'] = resolve );
+			Hide_OKbtn_OtherPlayer( id, 'Saboteur' );
+			yield FBref_MessageTo.child(id).set('');  /* reset */
+		}
+
 	};
+
+	AttackEffect['Saboteur'] = function* () {  /* アタックされる側 */
+		let LastRevealedCard;
+		let TrashedCardCost = -100;
+
+		while ( Game.Me().Drawable() ) {
+			const RevealedCard = Game.Me().GetDeckTopCard();
+			const Card = Cardlist[ RevealedCard.card_no ];
+
+			Game.Me().AddToOpen( RevealedCard );
+			yield FBref_Players.child(myid).set( Game.Me() );
+
+			if ( Card.cost >= 3 ) {
+				LastRevealedCard = RevealedCard;
+				TrashedCardCost = Card.cost;
+				break;
+			}
+		}
+
+		// 公開したカードの確認
+		$('.MyArea .buttons')
+			.append( MakeHTML_button( 'Saboteur_revealed_ok', 'OK' ) )
+		yield new Promise( resolve => Resolve['Saboteur_revealed_ok'] = resolve );
+		$('.MyArea .buttons .Saboteur_revealed_ok').remove();
+
+		// コスト3以上のカードが公開されたなら廃棄して-2コスト以下のカードを獲得してもよい
+		if ( TrashedCardCost >= 3 ) {
+			Game.TrashCardByID( LastRevealedCard.card_ID );
+			let updates = {};
+			updates[`Players/${myid}`] = Game.Me();
+			updates['TrashPile'] = Game.TrashPile;
+			yield FBref_Game.update( updates );
+
+			/* 灰色画面上にサプライテーブルを表示 */
+			$('.MyArea-wrapper').prepend( MakeHTML_Supply() );
+			PrintSupply();
+			/* サプライのクラス書き換え */
+			$('.SupplyArea').find('.card').addClass('Saboteur_GetCard pointer');
+			AddAvailableToSupplyCardIf( (card) => (
+				card.cost        <= TrashedCardCost - 2 &&
+				card.cost_potion <= 0 &&
+				card.cost_debt   <= 0
+			) );
+
+			if ( $('.SupplyArea').find('.available').length > 0 ) {
+				yield FBref_MessageToMe.set( `コスト${TrashedCardCost - 2}以下のカードを獲得できます。` );
+				$('.MyArea .buttons')
+					.append( MakeHTML_button( 'Saboteur_DontGetCard', '獲得しない' ) )
+				yield new Promise( resolve => Resolve['Saboteur_GetCard'] = resolve );
+				$('.MyArea .buttons .Saboteur_DontGetCard').remove();
+			}
+
+			$('.MyArea-wrapper .Common-Area').remove();
+		}
+
+		// 公開した残りのカードを捨て札にする
+		Game.Me().Open
+			.forEach( card => Game.Me().AddToDiscardPile( Game.GetCardByID( card.card_ID ) ) );
+		yield FBref_Players.child(myid).set( Game.Me() );
+	};
+
+	$('.MyArea .buttons').on( 'click', '.Saboteur_revealed_ok', () => Resolve['Saboteur_revealed_ok']() );
+
+	$('.MyArea .buttons').on( 'click', '.Saboteur_DontGetCard', () => Resolve['Saboteur_GetCard']() );
+
+	$('.MyArea-wrapper').on( 'click', '.SupplyArea .card.Saboteur_GetCard', function() {
+		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
+		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+		const clicked_card_ID = clicked_card.card_ID;
+
+		if ( !$(this).hasClass('available') ) {
+			alert('コストが大きいので獲得できません。' );  return;
+		}
+
+		Game.Me().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+
+		let updates = {};
+		updates[`Players/${Game.Me().id}/DiscardPile`] = Game.Me().DiscardPile;
+		updates['Supply'] = Game.Supply;
+		FBref_Game.update( updates )
+		.then( () => Resolve['Saboteur_GetCard']() );  // 再開
+	} );
+
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Saboteur', () => Resolve['Saboteur_ok']() );  /* 確認 */
 
 
 
@@ -760,25 +855,12 @@ $( function() {
 		Game.TurnInfo.add_copper_coin++;
 		yield FBref_Message.set( 'このターン銅貨は+1コインを生みます。' );
 		yield FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin );
+		$('.action_buttons').append( MakeHTML_button( 'Coppersmith_ok', 'OK' ) );
+		yield new Promise( resolve => Resolve['Coppersmith_ok'] = resolve );
+		$('.action_buttons .Coppersmith_ok').remove();
 	};
 
-
-
-
-
-	/* 54. 橋 */
-	CardEffect['Bridge'] = function*() {
-		yield FBref_Message.set( '' );
-	};
-
-
-
-
-
-	/* 51. 願いの井戸 */
-	CardEffect['Wishing Well'] = function*() {
-		yield FBref_Message.set( '' );
-	};
+	$('.action_buttons').on( 'click', '.Coppersmith_ok', () => Resolve['Coppersmith_ok']() );
 
 
 
@@ -853,11 +935,69 @@ $( function() {
 
 
 
+	/* 42. 詐欺師 */
+	CardEffect['Swindler'] = function*() {
+		yield FBref_Message.set( '他のプレイヤーは全員、自分の山札の一番上のカードを廃棄し、\
+			廃棄したカードと同じコストのあなたが選んだカードを獲得します。' );
+
+		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			yield FBref_MessageTo.child(id).set('山札の一番上のカードを廃棄し、廃棄したカードと同じコストのカードを獲得します。');
+
+			let pl = Game.Players[id];
+
+			// 山札の一番上のカードを公開
+			const DeckTopCard = pl.GetDeckTopCard();
+			pl.AddToOpen( DeckTopCard );
+			yield FBref_Players.child(id).set( pl );
+
+			// 同じコストのカードを1枚獲得
+			/* サプライのクラス書き換え */
+			$('.SupplyArea').find('.card').addClass('Swindler_GetCard pointer');
+			AddAvailableToSupplyCardIf(
+				card => CostOp( '==',
+					new CCost(card),
+					new CCost( Cardlist[ DeckTopCard.card_no ] ) )
+			);
+			const clicked_card_ID
+				= yield new Promise( resolve => Resolve['Swindler_GetCard'] = resolve );
+
+			Game.TrashCardByID( DeckTopCard.card_ID );  // 廃棄
+			pl.AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+
+			let updates = {};
+			updates['TrashPile'] = Game.TrashPile;
+			updates[`Players/${id}`] = Game.Players[id];
+			yield FBref_Game.update( updates );
+
+			Show_OKbtn_OtherPlayer( id, 'Swindler' );
+			yield new Promise( resolve => Resolve['Swindler_ok'] = resolve );
+			Hide_OKbtn_OtherPlayer( id, 'Swindler' );
+			yield FBref_MessageTo.child(id).set('');  /* reset */
+		}
+	};
+
+	$('.SupplyArea').on( 'click', '.card.Swindler_GetCard', function() {
+		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
+		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+		const clicked_card_ID = clicked_card.card_ID;
+
+		if ( !$(this).hasClass('available') ) {
+			alert('コストが異なるので獲得できません。' );  return;
+		}
+		Resolve['Swindler_GetCard']( clicked_card_ID );
+	} );
+
+	$('.OtherPlayers-wrapper').on( 'click', '.ok.Swindler', () => Resolve['Swindler_ok']() );  /* 確認 */
+
+
+
+
+
 	/* 35. 仮面舞踏会 */
 	CardEffect['Masquerade'] = function*() {
 		yield FBref_Message.set( '' );
 	};
-
 
 
 
@@ -876,6 +1016,28 @@ $( function() {
 			return;
 		}
 	};
+
+
+
+
+	/* 54. 橋 */
+	CardEffect['Bridge'] = function*() {
+		yield FBref_Message.set( '' );
+	};
+
+
+
+
+
+	/* 51. 願いの井戸 */
+	CardEffect['Wishing Well'] = function*() {
+		yield FBref_Message.set( '' );
+	};
+
+
+
+
+
 
 	/*  */
 	// CardEffect[''] = function*() {
