@@ -91,15 +91,15 @@ function CostOp( comp_by, CardA_Cost, CardB_Cost ) {
 
 		case '+'  :
 			return new CCost( [
-				CardA_Cost.coin   + CardB_Cost.coin
-				CardA_Cost.potion + CardB_Cost.potion
+				CardA_Cost.coin   + CardB_Cost.coin,
+				CardA_Cost.potion + CardB_Cost.potion,
 				CardA_Cost.debt   + CardB_Cost.debt
 			]);
 
 		case '-'  :
 			return new CCost( [
-				CardA_Cost.coin   - CardB_Cost.coin
-				CardA_Cost.potion - CardB_Cost.potion
+				CardA_Cost.coin   - CardB_Cost.coin,
+				CardA_Cost.potion - CardB_Cost.potion,
 				CardA_Cost.debt   - CardB_Cost.debt
 			]);
 

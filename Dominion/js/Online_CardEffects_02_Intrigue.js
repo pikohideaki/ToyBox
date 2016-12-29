@@ -994,28 +994,108 @@ $( function() {
 
 
 
-	/* 35. 仮面舞踏会 */
-	CardEffect['Masquerade'] = function*() {
-		yield FBref_Message.set( '' );
-	};
-
-
-
-
-
 	/* 56. 貧民街 */
 	CardEffect['Shanty Town'] = function*() {
-		yield FBref_Message.set( '手札にアクションカードがない場合2枚カードを引きます。' );
+		yield FBref_Message.set( '手札を公開します。手札にアクションカードがない場合2枚カードを引きます。' );
+
+		// 手札を公開
+		Game.player().HandCards.forEach( card => Game.player().AddToOpen( card ) );
+		Game.player().HandCards = [];
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+
+		$('.action_buttons').append( MakeHTML_button('ShantyTown_OpenHandCards', 'OK' ) );
+
+		yield new Promise( resolve => Resolve['ShantyTown_OpenHandCards'] = resolve );
+		$('.action_buttons .ShantyTown_OpenHandCards').remove();
+
+		// 手札を戻す
+		Game.player().Open.forEach( card => Game.player().AddToHandCards( card ) );
+		Game.player().Open = [];
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+
 
 		let action_cards
 			= Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
 
 		if ( action_cards.length <= 0 ) {
+			FBref_Room.child('chat').push( 'アクションカードがなかったので2枚カードを引きます。' ),
 			Game.player().DrawCards(2);
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
-			return;
 		}
 	};
+
+	$('.action_buttons').on( 'click', '.ShantyTown_OpenHandCards', function() {
+		Resolve['ShantyTown_OpenHandCards']();
+	} );
+
+
+
+
+
+	/* 51. 願いの井戸 */
+	CardEffect['Wishing Well'] = function*() {
+		yield FBref_Message.set( 'カード名を1つ指定してください（サプライをクリックしてください）。\
+			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。' );
+
+		$('.action_buttons').append( MakeHTML_button( 'nonexistent_card_name', '存在しないカード名') );
+		$('.SupplyArea').find('.card').addClass('name_a_card pointer');
+
+		const named_card_no = yield new Promise( resolve => Resolve['name_a_card'] = resolve );
+
+		$('.action_buttons .nonexistent_card_name').remove();
+		$('.SupplyArea').find('.card').removeClass('name_a_card pointer');
+
+		const card_name_jp = ( named_card_no == 999999 ? '存在しないカード名' : `「${Cardlist[ named_card_no ].name_jp}」` );
+		yield Promise.all( [
+			FBref_Room.child('chat').push( `${Game.player().name}が${card_name_jp}を指定しました。` ),
+			FBref_Message.set( `${card_name_jp}を指定しました。` )
+		]);
+
+		// 山札の一番上のカードを公開
+		const DeckTopCard = Game.player().GetDeckTopCard();
+		Game.player().AddToOpen( DeckTopCard );
+		yield Promise.all( [
+			FBref_Players.child( Game.player().id ).set( Game.player() ),
+			FBref_Room.child('chat').push( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` ),
+			FBref_Message.set( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` )
+		]);
+
+		// 確認 （本当は全員の確認を待つようにするべき）
+		$('.action_buttons').append( MakeHTML_button( 'WishingWell_ok', 'OK') );
+		yield new Promise( resolve => Resolve['WishingWell_ok'] = resolve );
+		$('.action_buttons .WishingWell_ok').remove();
+
+		// 指定したカード名と一致したなら手札に加える。そうでなければ山札に戻す。
+		if ( named_card_no == DeckTopCard.card_no ) {
+			Game.player().AddToHandCards( Game.GetCardByID( DeckTopCard.card_ID ) );
+		} else {
+			Game.player().PutBackToDeck( Game.GetCardByID( DeckTopCard.card_ID ) );
+		}
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+	};
+
+	$('.action_buttons').on( 'click', '.nonexistent_card_name', function() {
+		Resolve['name_a_card']( 999999 );
+	} );
+
+	$('.SupplyArea').on( 'click', '.card.name_a_card', function() {
+		Resolve['name_a_card']( $(this).attr('data-card_no') );
+	} );
+
+	$('.action_buttons').on( 'click', '.WishingWell_ok', () => Resolve['WishingWell_ok']() );
+
+
+
+
+
+	/* 35. 仮面舞踏会 */
+	CardEffect['Masquerade'] = function*() {
+		yield FBref_Message.set( '各プレイヤーは自分の手札のカードを1枚選び、次のプレイヤーに同時に渡す。\
+			その後、あなたは自分の手札のカードを1枚廃棄してもよい。' );
+		
+
+	};
+
 
 
 
@@ -1024,25 +1104,6 @@ $( function() {
 	CardEffect['Bridge'] = function*() {
 		yield FBref_Message.set( '' );
 	};
-
-
-
-
-
-	/* 51. 願いの井戸 */
-	CardEffect['Wishing Well'] = function*() {
-		yield FBref_Message.set( '' );
-	};
-
-
-
-
-
-
-	/*  */
-	// CardEffect[''] = function*() {
-		// yield FBref_Message.set( '' );
-	// };
 
 
 });

@@ -33,13 +33,20 @@ $( function() {
 	$('.card_view').click( function() {
 		$('.CardView-wrapper').fadeToggle();
 		$card = $('.CardView_zoom .card_biggest');
-		$card.width( $card.height() * 15 / 23 );
+		$card.width( $card.height() * 14.9 / 23 );
 	});
 
 	$(window).resize( function() {
 		$card = $('.CardView_zoom .card_biggest');
-		$card.width( $card.height() * 15 / 23 );
+		$card.width( $card.height() * 14.9 / 23 );
 	} );
+
+	// ESCで閉じる
+	$(document).keydown( function(e) {
+		if ( e.keyCode == 27 ) {  // ESC 入力
+			$('.CardView-wrapper').fadeOut();
+		}
+	})
 
 
 	// $('.main').on( 'click', '.zoom_card', function(event) {

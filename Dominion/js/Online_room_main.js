@@ -169,7 +169,7 @@ $('#make-room-btn').click( function() {
 
 	/* test */
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
-	SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,35,56,54,51 ];
+	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,35,56,54,51 ];
 	/*
 			35	仮面舞踏会
 			56	貧民街
