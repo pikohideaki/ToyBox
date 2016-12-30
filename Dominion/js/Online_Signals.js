@@ -38,6 +38,11 @@ function* CatchSignal( signals_to_me ) {
 			FBref_SignalAttackEnd.set(true)  // Endシグナルを送る
 		] );
 	}
+
+	if ( signals_to_me.card_name == 'Masquerade' ) {
+		yield MyAsync( CardEffect['Masquerade_SelectPassCard'] );
+		yield FBref_SignalToMe.remove();
+	}
 }
 
 

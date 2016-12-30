@@ -795,7 +795,7 @@ $( function() {
 			yield FBref_Game.update( updates );
 
 			/* 灰色画面上にサプライテーブルを表示 */
-			$('.MyArea-wrapper').prepend( MakeHTML_Supply() );
+			$('.MyArea-wrapper .MyArea').prepend( MakeHTML_MyArea_Supply() );
 			PrintSupply();
 			/* サプライのクラス書き換え */
 			$('.SupplyArea').find('.card').addClass('Saboteur_GetCard pointer');
@@ -1034,6 +1034,8 @@ $( function() {
 
 	/* 51. 願いの井戸 */
 	CardEffect['Wishing Well'] = function*() {
+		if ( !Game.player().Drawable() ) return;
+
 		yield FBref_Message.set( 'カード名を1つ指定してください（サプライをクリックしてください）。\
 			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。' );
 
@@ -1090,11 +1092,86 @@ $( function() {
 
 	/* 35. 仮面舞踏会 */
 	CardEffect['Masquerade'] = function*() {
-		yield FBref_Message.set( '各プレイヤーは自分の手札のカードを1枚選び、次のプレイヤーに同時に渡す。\
-			その後、あなたは自分の手札のカードを1枚廃棄してもよい。' );
-		
+		yield FBref_Message.set( '各プレイヤーは自分の手札のカードを1枚選び、次のプレイヤーに同時に渡します。\
+			その後、あなたは自分の手札のカードを1枚廃棄することができます。' );
 
+		// 仮面舞踏会使用者が一旦全員分（自分含む）の選択したカードを集める
+		for ( let id = 0; id < Game.Players.length; ++id ) {
+			yield SendSignal( id, {
+				Attack    : false,
+				card_name : 'Masquerade',
+				Message   : '各プレイヤーは自分の手札のカードを1枚選び、次のプレイヤーに同時に渡します。',
+			} );
+		}
+
+		let Masquerade_passed_card_IDs = {};
+		let done_num = 0;
+
+		FBref_Signal.child('Masquerade_gather').on( 'value', function( FBsnapshot ) {
+			let passed_val = FBsnapshot.val();
+			if ( passed_val == null ) return;
+
+			// 全員分揃ったら次に
+			if ( ++done_num == Game.Players.length ) {
+				Masquerade_passed_card_IDs = passed_val;
+				Resolve['Masquerade_gather']();
+			}
+		} );
+		yield new Promise( resolve => Resolve['Masquerade_gather'] = resolve );
+		FBref_Signal.child('Masquerade_gather').off();  // 監視終了
+		FBref_Signal.child('Masquerade_gather').remove();
+
+		// 次のプレイヤーに渡す
+		for ( let id = 0; id < Game.Players.length; ++id ) {
+			Game.Players[ Game.NextPlayerID(id) ]
+				.AddToHandCards( Game.GetCardByID( Masquerade_passed_card_IDs[id] ) );
+			FBref_MessageTo.child(id).set('');
+		}
+		Game.Players.forEach( player => player.ResetFaceDown() );
+		yield FBref_Players.set( Game.Players );
+
+		// 手札を1枚廃棄できる
+		$('.action_buttons').append( MakeHTML_button( 'Masquerade_dont_trash', '廃棄しない' ) );
+		$('.HandCards').children('.card').addClass('Masquerade_dont_trash pointer');
+		yield new Promise( resolve => Resolve['Masquerade_dont_trash'] = resolve );
+		$('.action_buttons .Masquerade_dont_trash').remove();
+		$('.HandCards').children('.card').removeClass('Masquerade_dont_trash pointer');
 	};
+
+	CardEffect['Masquerade_SelectPassCard'] = function* () {
+		$('.HandCards,.MyHandCards').children('.card')
+			.addClass('Masquerade_SelectPassCard pointer');
+
+		// 渡すカードの選択待ち
+		const clicked_card_ID
+			= yield new Promise( resolve => Resolve['Masquerade_SelectPassCard'] = resolve );
+
+		// カードidを送る
+		yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( clicked_card_ID );
+	}
+
+	$('.HandCards,.MyHandCards').on( 'click', '.card.Masquerade_SelectPassCard', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+		let clicked_card = Game.GetCardByID( clicked_card_ID );
+		clicked_card.down = true;
+		Game.Me().AddToOpen( clicked_card );
+
+		FBref_Players.child( Game.Me().id ).set( Game.Me() )
+		.then( () => Resolve['Masquerade_SelectPassCard']( clicked_card_ID ) );
+	} );
+
+	$('.HandCards').on( 'click', '.card.Masquerade_dont_trash', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+		Game.TrashCardByID( clicked_card_ID );
+
+		Promise.all( [
+			FBref_Game.child('TrashPile').set( Game.TrashPile ),
+			FBref_Players.child( `${Game.player().id}/HandCards` ).set( Game.player().HandCards )
+		])
+		.then( () => Resolve['Masquerade_dont_trash']() );
+	} );
+
+	$('.action_buttons').on( 'click', '.Masquerade_dont_trash', () => Resolve['Masquerade_dont_trash']() );
 
 
 

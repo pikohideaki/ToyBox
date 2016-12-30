@@ -239,6 +239,7 @@ $GameRoomID = $_POST['room-id'];
 
 	<div class='BlackCover MyArea-wrapper'>
 		<div class='MyArea'>
+			<div class='clear'></div>
 			<div class='MessageToMe'> </div>
 			<div class='MyCardArea MyOpen'> </div>
 			<div class='clear'></div>

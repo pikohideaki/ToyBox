@@ -168,13 +168,9 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,55,54,51,35 ];
 	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,35,56,54,51 ];
 	/*
-			35	仮面舞踏会
-			56	貧民街
 			54	橋
-			51	願いの井戸
 
 		done
 		ok	52	ハーレム
@@ -198,6 +194,9 @@ $('#make-room-btn').click( function() {
 		ok	41	拷問人
 		ok	42	詐欺師
 		ok	53	破壊工作員
+		ok	35	仮面舞踏会
+		ok	56	貧民街
+		ok	51	願いの井戸
 
 
 		ok	8	市場

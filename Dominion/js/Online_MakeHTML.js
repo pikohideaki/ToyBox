@@ -29,7 +29,7 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist ) {
 
 
 
-function MakeHTML_Supply() {
+function MakeHTML_MyArea_Supply() {
 	return `
 			<div class='Common-Area'>
 				<div class='SupplyArea-wrapper'>
@@ -39,7 +39,6 @@ function MakeHTML_Supply() {
 					<!-- 王国カード -->
 					<div class='SupplyArea_line23'>
 						<div class='SupplyArea line2'> <!-- jsでここを書き換え --> </div>
-						<div class='clear'></div>
 						<div class='SupplyArea line3'> <!-- jsでここを書き換え --> </div>
 						<div class='clear'></div>
 					</div>
