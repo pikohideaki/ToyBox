@@ -68,8 +68,8 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		}
 
 		// 手番 アニメーション
-		$('.phase-dialog-wrapper .dialog_text').html( `${Game.player().name}のターン` );
-		$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut();
+		$('.turn-dialog-wrapper .dialog_text').html( `${Game.player().name}のターン` );
+		$('.turn-dialog-wrapper').fadeIn().delay(300).fadeOut();
 
 		/* 他のプレイヤーの背景 */
 		/* 背景色リセット */

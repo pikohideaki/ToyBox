@@ -44,7 +44,7 @@ $( function() {
 		if ( e.keyCode == 27 ) {  // ESC 入力
 			$('.CardView-wrapper').fadeOut();
 		}
-	})
+	});
 
 
 	// $('.main').on( 'click', '.zoom_card', function(event) {

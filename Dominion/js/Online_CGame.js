@@ -293,19 +293,32 @@ class CGame {
 
 
 	UseCard( playing_card_no, playing_card_ID ) {
-		if ( Game.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
-			alert( 'アクションカードを選んでください' );   return;
-		}
-		if ( Game.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
-			alert( '財宝カードを選んでください' );   return;
-		}
-		// if ( Game.phase === 'CleanUpPhase' ) return;
+		// if ( Game.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
+		// 	alert( 'アクションカードを選んでください' );   return;
+		// }
+		// if ( Game.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
+		// 	alert( '財宝カードを選んでください' );   return;
+		// }
+		// // if ( Game.phase === 'CleanUpPhase' ) return;
 
-		if ( IsActionCard( Cardlist, playing_card_no ) && Game.TurnInfo.action <= 0 ) {
-			alert( 'アクションが足りません' );   return;
-		}
+		// if ( IsActionCard( Cardlist, playing_card_no ) && Game.TurnInfo.action <= 0 ) {
+		// 	alert( 'アクションが足りません' );   return;
+		// }
 
-		MyAsync( function*() {
+		return MyAsync( function*() {
+			if ( Game.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
+				MyAlert( { message : 'アクションカードを選んでください' } );
+				return;
+			}
+			if ( Game.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
+				MyAlert( { message : '財宝カードを選んでください' } );
+				return;
+			}
+			if ( IsActionCard( Cardlist, playing_card_no ) && Game.TurnInfo.action <= 0 ) {
+				MyAlert( { message : 'アクションが足りません' } );
+				return;
+			}
+
 			switch ( Game.phase ) {
 				case 'ActionPhase' :
 					Game.phase = 'ActionPhase*';

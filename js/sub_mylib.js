@@ -225,3 +225,19 @@ function MyAlert( options ) {
 		} );
 	});
 }
+
+
+
+// http://www.programming-magic.com/file/20080205232140/keycode_table.html
+// $( function() {
+// 	$(document).keydown( function(e) {
+		// if ( e.keyCode == 27 ) {  // ESC 入力
+		// 	$('.MyAlert').fadeOut();
+		// }
+		// if ( e.keyCode == 13 ) {  // ESC 入力
+		// 	$('.MyAlert').fadeOut();
+		// }
+// 	});
+// });
+
+

@@ -27,6 +27,10 @@ $( function() {
 	// CardEffect['Shanty Town']    = function* () {}  /* 56. 貧民街 */
 	// CardEffect['Tribute']        = function* () {}  /* 57. 貢物 */
 
+
+
+
+
 	/* 37. 共謀者 */
 	CardEffect['Conspirator'] = function* () {
 		if ( Game.TurnInfo.played_actioncards_num < 3 ) return;
@@ -48,7 +52,7 @@ $( function() {
 	/* 34. 改良 */
 	CardEffect['Upgrade'] = function* () {
 		if ( Game.player().HandCards.length <= 0 ) {
-			alert( '手札にカードがありません。' );
+			yield MyAlert( { message : '手札にカードがありません。' } );
 			return;
 		}
 
@@ -66,12 +70,16 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Upgrade_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( (card) => (
-			card.cost        == TrashedCardCost.coin + 1 &&
-			card.cost_potion == TrashedCardCost.potion &&
-			card.cost_debt   == TrashedCardCost.debt
-		) );
-		if ( $('.SupplyArea').find('.available').length <= 0 ) return;
+		AddAvailableToSupplyCardIf( function( card, card_no ) {
+			return CostOp( '==',
+				new CCost(card),
+				CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) );
+		} );
+
+		if ( $('.SupplyArea').find('.available').length <= 0 ) {
+			yield MyAlert( { message : '獲得できるカードがありません' } );
+			return;
+		}
 
 		yield new Promise( resolve => Resolve['Upgrade_GetCard'] = resolve );
 	};
@@ -98,22 +106,25 @@ $( function() {
 	} );
 
 	$('.SupplyArea').on( 'click', '.card.Upgrade_GetCard', function() {
-		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
-		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
-		const clicked_card_ID = clicked_card.card_ID;
+		let $this = $(this);
+		MyAsync( function*() {
+			const clicked_card_name_eng = $this.attr('data-card-name-eng');
+			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+			const clicked_card_ID = clicked_card.card_ID;
 
-		if ( !$(this).hasClass('available') ) {
-			alert('獲得できません。' );
-			return;
-		}
+			if ( !$this.hasClass('available') ) {
+				yield MyAlert( { message : '獲得できません。' } );
+				return;
+			}
 
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 
-		let updates = {};
-		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
-		updates['Supply'] = Game.Supply;
-		FBref_Game.update( updates )
-		.then( () => Resolve['Upgrade_GetCard']() );
+			let updates = {};
+			updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
+			updates['Supply'] = Game.Supply;
+			yield FBref_Game.update( updates )
+			Resolve['Upgrade_GetCard']();
+		});
 	} );
 
 
@@ -125,12 +136,11 @@ $( function() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
 
 		$('.action_buttons')
-			.html('')
 			.append( MakeHTML_button( 'Nobles 3Cards'  , '+3 Cards'   ) )
 			.append( MakeHTML_button( 'Nobles 2Actions', '+2 Actions' ) );
 
 		yield new Promise( resolve => Resolve['Nobles'] = resolve );
-		$('.action_buttons').html('');  // reset
+		$('.action_buttons .Nobles').remove();  // reset
 	};
 
 	$('.action_buttons').on( 'click', '.Nobles.3Cards', function() {
@@ -160,7 +170,7 @@ $( function() {
 			.addClass('Baron_Discard pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 
 		yield new Promise( resolve => Resolve['Baron'] = resolve );
-		$('.action_buttons').html('');  // reset
+		$('.action_buttons .Baron.get_estate').remove();  // reset
 	};
 
 	$('.HandCards').on( 'click', '.Baron_Discard', function() {
@@ -253,14 +263,13 @@ $( function() {
 	CardEffect['Steward'] = function*() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
 		$('.action_buttons')
-			.html('')
 			.append( MakeHTML_button( 'Steward 2Cards', '+2 Cards' ) )
 			.append( MakeHTML_button( 'Steward 2Coins', '+2 Coins' ) )
 			.append( MakeHTML_button( 'Steward trash2', '手札から2枚廃棄' ) );
 
 		const btn_val = yield new Promise( resolve => Resolve['Steward'] = resolve );
 
-		$('.action_buttons').html('');
+		$('.action_buttons .Steward').remove();
 
 		switch ( btn_val ) {
 			case '2Cards' :
@@ -330,7 +339,6 @@ $( function() {
 		yield FBref_Message.set( '次のうち異なる二つを選んでください。' );
 
 		$('.action_buttons')
-			.html('')
 			.append( MakeHTML_button( 'Pawn 1Card'  , '+1 Card'   ) )
 			.append( MakeHTML_button( 'Pawn 1Action', '+1 Action' ) )
 			.append( MakeHTML_button( 'Pawn 1Buy'   , '+1 Buy'    ) )
@@ -339,7 +347,7 @@ $( function() {
 		const first  = yield new Promise( resolve => Resolve['Pawn'] = resolve );
 		const second = yield new Promise( resolve => Resolve['Pawn'] = resolve );
 
-		$('.action_buttons').html('');
+		$('.action_buttons .Pawn').remove();
 
 		let updates = {};
 
@@ -393,7 +401,7 @@ $( function() {
 		if ( victory_cards.length > 0 ) {
 			$('.action_buttons').html( MakeHTML_button( 'Scout_VictoryCards', '勝利点カードを手札に加える' ) );
 			yield new Promise( resolve => Resolve['Scout_VictoryCards'] = resolve );
-			$('.action_buttons').html('');
+			$('.action_buttons .Scout_VictoryCards').remove();
 			victory_cards.forEach( card => Game.player().AddToHandCards( Game.GetCardByID(card.card_ID) ) );
 
 			yield FBref_Players.child( Game.player().id ).update( {
@@ -463,22 +471,26 @@ $( function() {
 	};
 
 	$('.SupplyArea').on( 'click', '.card.Ironworks_GetCard', function() {
-		const clicked_card_no       = $(this).attr('data-card_no');
-		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
-		const clicked_card    = Game.Supply.byName( clicked_card_name_eng ).LookTopCard();
-		const clicked_card_ID = clicked_card.card_ID;
+		let $this = $(this);
+		MyAsync( function*() {
+			const clicked_card_no       = $this.attr('data-card_no');
+			const clicked_card_name_eng = $this.attr('data-card-name-eng');
+			const clicked_card    = Game.Supply.byName( clicked_card_name_eng ).LookTopCard();
+			const clicked_card_ID = clicked_card.card_ID;
 
-		if ( !$(this).hasClass('available') ) {
-			alert('コストが大きいので獲得できません。' );   return;
-		}
+			if ( !$this.hasClass('available') ) {
+				yield MyAlert( { message : 'コストが大きいので獲得できません。' } );
+				return;
+			}
 
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 
-		let updates = {};
-		updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
-		updates['Supply'] = Game.Supply;
-		FBref_Game.update( updates )
-		.then( () => Resolve['Ironworks_GetCard']( clicked_card_no ) );  // 再開
+			let updates = {};
+			updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
+			updates['Supply'] = Game.Supply;
+			yield FBref_Game.update( updates );
+			Resolve['Ironworks_GetCard']( clicked_card_no );  // 再開
+		});
 	} );
 
 
@@ -539,13 +551,12 @@ $( function() {
 		yield FBref_Message.set( 'このカードを即座に廃棄することができます。そうした場合、2コインを得ます。' );
 
 		$('.action_buttons')
-			.html('')
 			.append( MakeHTML_button( 'MiningVillage trash', '廃棄して +2 コイン'   ) )
 			.append( MakeHTML_button( 'MiningVillage', '廃棄しない' ) );
 
 		const btn_val = yield new Promise( resolve => Resolve['MiningVillage'] = resolve );
 
-		$('.action_buttons').html('');  // reset
+		$('.action_buttons .MiningVillage').remove();  // reset
 
 		if ( btn_val == 'trash' ) {
 			Game.TrashCardByID( playing_card_ID );
@@ -847,13 +858,12 @@ $( function() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
 
 		$('.action_buttons')
-			.html('')
 			.append( MakeHTML_button( 'Minion Discard', '手札を全て捨て札にして+4カード' ) )
 			.append( MakeHTML_button( 'Minion 2Coins' , '+2 コイン' ) );
 
 		const clicked_btn = yield new Promise( resolve => Resolve['Minion_select'] = resolve );
 
-		$('.action_buttons').html('');  // reset
+		$('.action_buttons .Minion').remove();  // reset
 
 		switch ( clicked_btn ) {
 		 case '2Coins' :
@@ -1016,21 +1026,25 @@ $( function() {
 	$('.MyArea .buttons').on( 'click', '.Saboteur_gotten_ok', () => Resolve['Saboteur_gotten_ok']() );
 
 	$('.MyArea-wrapper').on( 'click', '.SupplyArea .card.Saboteur_GetCard', function() {
-		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
-		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
-		const clicked_card_ID = clicked_card.card_ID;
+		let $this = $(this);
+		MyAsync( function*() {
+			const clicked_card_name_eng = $this.attr('data-card-name-eng');
+			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+			const clicked_card_ID = clicked_card.card_ID;
 
-		if ( !$(this).hasClass('available') ) {
-			alert('コストが大きいので獲得できません。' );  return;
-		}
+			if ( !$this.hasClass('available') ) {
+				yield MyAlert( { message : 'コストが大きいので獲得できません。' } );
+				return;
+			}
 
-		Game.Me().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.Me().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 
-		let updates = {};
-		updates[`Players/${Game.Me().id}/DiscardPile`] = Game.Me().DiscardPile;
-		updates['Supply'] = Game.Supply;
-		FBref_Game.update( updates )
-		.then( () => Resolve['Saboteur_GetCard']() );  // 再開
+			let updates = {};
+			updates[`Players/${Game.Me().id}/DiscardPile`] = Game.Me().DiscardPile;
+			updates['Supply'] = Game.Supply;
+			yield FBref_Game.update( updates );
+			Resolve['Saboteur_GetCard']();  // 再開
+		});
 	} );
 
 	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Saboteur', () => Resolve['Saboteur_ok']() );  /* 確認 */
@@ -1083,17 +1097,19 @@ $( function() {
 	};
 
 	$('.SupplyArea').on( 'click', '.card.Swindler_GetCard', function() {
-		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
-		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
-		const clicked_card_ID = clicked_card.card_ID;
+		let $this = $(this);
+		MyAsync( function*() {
+			const clicked_card_name_eng = $(this).attr('data-card-name-eng');
+			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+			const clicked_card_ID = clicked_card.card_ID;
 
-		if ( !$(this).hasClass('available') ) {
-			alert('コストが異なるので選べません。' );  return;
-		}
-		Resolve['Swindler_GetCard']( clicked_card_ID );
+			if ( !$this.hasClass('available') ) {
+				yield MyAlert( { message : 'コストが異なるので選べません。' } );
+				return;
+			}
+			Resolve['Swindler_GetCard']( clicked_card_ID );
+		});
 	} );
-
-	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Swindler', () => Resolve['Swindler_ok']() );  /* 確認 */
 
 
 
