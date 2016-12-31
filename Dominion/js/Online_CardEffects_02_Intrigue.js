@@ -444,11 +444,7 @@ $( function() {
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Ironworks_GetCard pointer');
-		AddAvailableToSupplyCardIf( (card) => (
-			card.cost        <= 4 &&
-			card.cost_potion <= 0 &&
-			card.cost_debt   <= 0
-		) );
+		AddAvailableToSupplyCardIf( card => CostOp( '<=', new CCost(card), new CCost([4,0,0]) ) );
 
 		const gotten_card_no
 			= yield new Promise( resolve => Resolve['Ironworks_GetCard'] = resolve );
@@ -533,10 +529,10 @@ $( function() {
 		});
 
 		// 公開したカードを捨て札に
-		Game.NextPlayer().Open.forEach( (card) => Game.NextPlayer().AddToDiscardPile( card ) );
-		updates[`Players/${Game.NextPlayerID()}/Open`] = [];
+		Game.NextPlayer().Open.forEach( card => Game.NextPlayer().AddToDiscardPile( card ) );
+		Game.NextPlayer().Open = [];
 		updates[`Players/${Game.NextPlayerID()}/DiscardPile`] = Game.NextPlayer().DiscardPile;
-
+		updates[`Players/${Game.NextPlayerID()}/Open`] = [];
 		yield FBref_Game.update( updates );
 	};
 
@@ -594,7 +590,6 @@ $( function() {
 
 
 
-
 	/* 56. 貧民街 */
 	CardEffect['Shanty Town'] = function*() {
 		yield FBref_Message.set( '手札を公開します。手札にアクションカードがない場合2枚カードを引きます。' );
@@ -605,7 +600,6 @@ $( function() {
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 
 		$('.action_buttons').append( MakeHTML_button('ShantyTown_OpenHandCards', 'OK' ) );
-
 		yield new Promise( resolve => Resolve['ShantyTown_OpenHandCards'] = resolve );
 		$('.action_buttons .ShantyTown_OpenHandCards').remove();
 
@@ -613,7 +607,6 @@ $( function() {
 		Game.player().Open.forEach( card => Game.player().AddToHandCards( card ) );
 		Game.player().Open = [];
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
-
 
 		let action_cards
 			= Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
@@ -744,7 +737,6 @@ $( function() {
 	$('.MyHandCards').on( 'click', '.card.SecretChamber_PutBackToDeck', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
-		// Game.Me().HandCards.forEach( card => card.face = false );  // 裏向きに
 		Game.Me().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
 
 		FBref_Players.child( myid ).update( {
@@ -775,7 +767,6 @@ $( function() {
 			} );
 			yield new Promise( resolve => Resolve['Torturer'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-			// yield FBref_MessageTo.child(id).set('');  /* reset */
 
 			// 呪い獲得確認
 			Show_OKbtn_OtherPlayer( id, 'Torturer' );
@@ -888,11 +879,6 @@ $( function() {
 				} );
 				yield new Promise( resolve => Resolve['Minion'] = resolve );  /* 他のプレイヤー待機 */
 				Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-				// yield FBref_MessageTo.child(id).set('');  /* reset */
-
-				// Show_OKbtn_OtherPlayer( id, 'Minion' );
-				// yield new Promise( resolve => Resolve['Minion_ok'] = resolve );
-				// Hide_OKbtn_OtherPlayer( id, 'Minion' );
 			}
 			return;
 
@@ -911,8 +897,7 @@ $( function() {
 	AttackEffect['Minion'] = function* () {  /* アタックされる側 */
 		// 手札が5枚以上ならば捨て札にして+4Cards
 		if ( Game.Me().HandCards.length >= 5 ) {
-			Game.Me().HandCards
-				.forEach( card => Game.Me().AddToDiscardPile(card) );
+			Game.Me().HandCards.forEach( card => Game.Me().AddToDiscardPile(card) );
 			Game.Me().HandCards = [];
 			Game.Me().DrawCards(4);
 			yield FBref_Players.child(myid).set( Game.Me() );
@@ -920,7 +905,6 @@ $( function() {
 		}
 	};
 
-	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Minion', () => Resolve['Minion_ok']() );  /* 確認 */
 
 
 
@@ -944,18 +928,13 @@ $( function() {
 			} );
 			yield new Promise( resolve => Resolve['Saboteur'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-			// yield FBref_MessageTo.child(id).set('');  /* reset */
-
-			// Show_OKbtn_OtherPlayer( id, 'Saboteur' );
-			// yield new Promise( resolve => Resolve['Saboteur_ok'] = resolve );
-			// Hide_OKbtn_OtherPlayer( id, 'Saboteur' );
 		}
 
 	};
 
 	AttackEffect['Saboteur'] = function* () {  /* アタックされる側 */
 		let LastRevealedCard;
-		let TrashedCardCost = -100;
+		let TrashedCardCostCoin = -100;
 
 		while ( Game.Me().Drawable() ) {
 			const RevealedCard = Game.Me().GetDeckTopCard();
@@ -966,7 +945,7 @@ $( function() {
 
 			if ( Card.cost >= 3 ) {
 				LastRevealedCard = RevealedCard;
-				TrashedCardCost = Card.cost;
+				TrashedCardCostCoin = Card.cost;
 				break;
 			}
 		}
@@ -978,7 +957,7 @@ $( function() {
 		$('.MyArea .buttons .Saboteur_revealed_ok').remove();
 
 		// コスト3以上のカードが公開されたなら廃棄して-2コスト以下のカードを獲得してもよい
-		if ( TrashedCardCost >= 3 ) {
+		if ( TrashedCardCostCoin >= 3 ) {
 			Game.TrashCardByID( LastRevealedCard.card_ID );
 			let updates = {};
 			updates[`Players/${myid}`] = Game.Me();
@@ -990,16 +969,14 @@ $( function() {
 			PrintSupply();
 			/* サプライのクラス書き換え */
 			$('.SupplyArea').find('.card').addClass('Saboteur_GetCard pointer');
-			AddAvailableToSupplyCardIf( (card) => (
-				card.cost        <= TrashedCardCost - 2 &&
-				card.cost_potion <= 0 &&
-				card.cost_debt   <= 0
-			) );
+			AddAvailableToSupplyCardIf( card =>
+				CostOp( '<=',
+					new CCost(card),
+					new CCost([TrashedCardCostCoin - 2,0,0])) );
 
 			if ( $('.SupplyArea').find('.available').length > 0 ) {
-				yield FBref_MessageToMe.set( `コスト${TrashedCardCost - 2}以下のカードを獲得できます。` );
-				$('.MyArea .buttons')
-					.append( MakeHTML_button( 'Saboteur_DontGetCard', '獲得しない' ) )
+				yield FBref_MessageToMe.set( `コスト${TrashedCardCostCoin - 2}以下のカードを獲得できます。` );
+				$('.MyArea .buttons').append( MakeHTML_button( 'Saboteur_DontGetCard', '獲得しない' ) );
 				yield new Promise( resolve => Resolve['Saboteur_GetCard'] = resolve );
 				$('.MyArea .buttons .Saboteur_DontGetCard').remove();
 			}
@@ -1007,8 +984,7 @@ $( function() {
 			$('.MyArea-wrapper .Common-Area').remove();
 
 			// 獲得したカードの確認
-			$('.MyArea .buttons')
-				.append( MakeHTML_button( 'Saboteur_gotten_ok', 'OK' ) )
+			$('.MyArea .buttons').append( MakeHTML_button( 'Saboteur_gotten_ok', 'OK' ) );
 			yield new Promise( resolve => Resolve['Saboteur_gotten_ok'] = resolve );
 			$('.MyArea .buttons .Saboteur_gotten_ok').remove();
 		}
@@ -1046,8 +1022,6 @@ $( function() {
 			Resolve['Saboteur_GetCard']();  // 再開
 		});
 	} );
-
-	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Saboteur', () => Resolve['Saboteur_ok']() );  /* 確認 */
 
 
 
@@ -1099,7 +1073,7 @@ $( function() {
 	$('.SupplyArea').on( 'click', '.card.Swindler_GetCard', function() {
 		let $this = $(this);
 		MyAsync( function*() {
-			const clicked_card_name_eng = $(this).attr('data-card-name-eng');
+			const clicked_card_name_eng = $this.attr('data-card-name-eng');
 			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
 			const clicked_card_ID = clicked_card.card_ID;
 

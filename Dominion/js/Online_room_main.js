@@ -169,37 +169,41 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
+	// SelectedCards.KingdomCards = [ 30, 9,16, 37,34,36,50,44,38,43,  ];
+
 	// SelectedCards.KingdomCards = [ 30,14,32,15,13,16,11,18,21,25, ];  //1
 	// SelectedCards.KingdomCards = [ 30,26,17,19,22,27,29,31,24,28, ];  //2
-	SelectedCards.KingdomCards = [ 30, 9,16, 37,34,36,50,44,38,43,  ];
+	// SelectedCards.KingdomCards = [ 34,36,50,44,38, 43,47,46,48,57, ]; //3
+	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //4
 	/*
 			54	橋
-
-		done
+		ok(2017/1/1)
 		ok	52	ハーレム
 		ok	33	大広間
 		ok	40	公爵
-			37	共謀者
+
+		ok	37	共謀者
 		ok	34	改良
 		ok	36	貴族
 		ok	50	中庭
 		ok	44	男爵
 		ok	38	交易場
 		ok	43	執事
-			47	手先
-			46	偵察員
-			48	鉄工所
-			57	貢物
-			39	鉱山の村
-			49	銅細工師
-			45	寵臣
-			55	秘密の部屋
-			41	拷問人
-			42	詐欺師
-			53	破壊工作員
-			35	仮面舞踏会
-			56	貧民街
-			51	願いの井戸
+		ok	47	手先
+		ok	46	偵察員
+		ok	48	鉄工所
+		ok	57	貢物
+
+		ok	39	鉱山の村
+		ok	49	銅細工師
+		ok	45	寵臣
+		ok	55	秘密の部屋
+		ok	41	拷問人
+		ok	42	詐欺師
+		ok	53	破壊工作員
+		ok	35	仮面舞踏会
+		ok	56	貧民街
+		ok	51	願いの井戸
 
 		ok	8	市場
 		ok	10	鍛冶屋
@@ -208,8 +212,8 @@ $('#make-room-btn').click( function() {
 		ok	20	祝祭
 		ok	30	村
 		ok	13	議事堂
-	d	ok	9	改築
-	d	ok	16	鉱山
+		ok	9	改築
+		ok	16	鉱山
 		ok	11	金貸し
 		ok	18	宰相
 		ok	21	書庫

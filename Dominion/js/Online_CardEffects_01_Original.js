@@ -534,7 +534,6 @@ $( function() {
 			} );
 			yield new Promise( resolve => Resolve['Militia'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 	};
 
@@ -593,7 +592,6 @@ $( function() {
 			Show_OKbtn_OtherPlayer( id, 'Bureaucrat' );
 			yield new Promise( resolve => Resolve['Bureaucrat_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Bureaucrat' );
-			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 		// 公開したカードを裏向きに戻す
 		Game.Players.forEach( player => player.ResetFaceDown() );
@@ -668,7 +666,6 @@ $( function() {
 				yield new Promise( resolve => Resolve['Thief_ok'] = resolve );
 				Hide_OKbtn_OtherPlayer( id, 'Thief' );
 			}
-			yield FBref_MessageTo.child(id).set('');  /* reset */
 
 			/* 公開したカードの残りを捨て札に */
 			let player = Game.Players[id];
@@ -796,8 +793,6 @@ $( function() {
 				yield new Promise( resolve => Resolve['Spy_Discard_or_PutBackToDeck'] = resolve );
 				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Spy`).remove();
 			}
-
-			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 		// 公開したカードを裏向きに戻す
 		Game.Players.forEach( player => player.ResetFaceDown() );
