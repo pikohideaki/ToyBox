@@ -13,10 +13,11 @@ FBref_Rooms.on('value', function( FBsnapshot ) {
 	$roomlist.html('');
 	for ( let key in Rooms ) {
 		if ( Rooms[key].GameEnd ) {
-			setTimeout( () => FBref_Rooms.child(key).remove(), 10000 );
-			/* 終了したゲームの部屋を10秒後にリストから削除
+			// setTimeout( () => FBref_Rooms.child(key).remove(), 10000 );
+			/* 終了したゲームの部屋を10秒後にリストから削除 -> やめる
 			 * （即時だとプレイヤーがゲーム終了後の画面表示をする前に消えてしまう可能性がある） */
-			return;
+			continue;
+			// return;
 		}
 		$roomlist.prepend( MakeHTML_Room( key, Rooms[key].RoomInfo ) );
 	}
@@ -168,7 +169,9 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	// SelectedCards.KingdomCards = [ 14,32,15,30,  42,53,35,56,54,51 ];
+	// SelectedCards.KingdomCards = [ 14,32,15,30,  26,55, 29,31,24,28, ];
+	// SelectedCards.KingdomCards = [ 14,32,15,30,  26,55, 45,41,42,53, ];
+
 	/*
 			54	橋
 
@@ -243,6 +246,7 @@ $('#make-room-btn').click( function() {
 	};
 	NewRoom.Game = new CGame();
 	NewRoom.Game.ResetTurnInfo();
+	NewRoom.Game.Settings.SkipReaction = new Array( NewRoom.RoomInfo.PlayerNum ).fill(true);
 
 	NewRoom.RoomInfo.permute = Permutation( NewRoom.RoomInfo.PlayerNum );
 	myid = NewRoom.RoomInfo.permute[0];

@@ -43,6 +43,16 @@ include( $Filename_sDc );
 			
 		</p>
 	</div>
+
+
+	<div class='BlackCover MyAlert'>
+		<div class='MyAlert-box'>
+			<div class='clear alert_text'></div>
+			<div class='clear alert_contents'></div>
+			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear'></div>
+		</div>
+	</div>
 </body>
 
 <script type="text/javascript">
@@ -64,8 +74,6 @@ $( function() {
 			setTimeout( resolve, sec * 1000 );
 		} );
 	}
-
-
 
 	function MyAsync( GenFunc, ...Args ) {
 
@@ -97,6 +105,17 @@ $( function() {
 			// console.log('ERROR : Promise or Generator constructor should be passed to MyAsync');
 		}
 	}
+
+
+
+	MyAsync( function*() {
+		console.log( '1' );
+		yield MyAlert( { message : 'アラートテスト' } );
+		console.log( '2' );
+		yield MyAlert( { message : 'アラートテスト2' } );
+		console.log( '3' );
+	})
+
 
 	// function MyAsync( GenFunc, ...Args ) {
 	// 	console.log( Args );

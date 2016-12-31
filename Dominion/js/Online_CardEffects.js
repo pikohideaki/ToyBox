@@ -25,6 +25,10 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
 		yield FBref_Message.set( 'リアクションカードを公開するプレイヤーがいないか待っています。' );
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+
+			// Player[id] がリアクションスキップオプションがオンで手札にリアクションカードがない場合
+			if ( Game.Settings.SkipReaction[id] && !Game.Players[id].HasReactionCard() ) continue;
+
 			/* 堀を公開するかどうかはアクションカード1枚ごとに決めてよい */
 			yield FBref_Game.child(`TurnInfo/Revealed_Moat/${id}`).set(false);  /* reset */
 
@@ -32,7 +36,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 			yield Monitor_FBref_SignalReactionEnd_on();
 
-			yield FBref_SignalRevealReaction.set(false)  /* reset */
+			yield FBref_SignalRevealReaction.set(false);  /* reset */
 
 			FBref_SignalRevealReaction.on( 'value', function(snap) {
 				if ( snap.val() == 'waiting_for_confirmation' ) {
@@ -43,9 +47,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 						yield FBref_SignalRevealReaction.set('confirmed');
 					} );
 				}
-			} )
-
-
+			} );
 			yield new Promise( resolve => Resolve['ReactionEnd'] = resolve );
 
 			Monitor_FBref_SignalReactionEnd_off();
@@ -113,9 +115,9 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 function AddAvailableToSupplyCardIf( conditions ) {
 	$('.SupplyArea').find('.card').each( function() {
 		const card_no = $(this).attr('data-card_no');
-		const card_ID = $(this).attr('data-top_card_ID');
+		// const card_ID = $(this).attr('data-top_card_ID');
 		const card = Cardlist[ card_no ];
-		if ( conditions( card, card_no, card_ID ) ) $(this).addClass('available');
+		if ( conditions( card, card_no ) ) $(this).addClass('available');
 	} );
 }
 

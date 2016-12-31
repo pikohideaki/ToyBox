@@ -378,6 +378,22 @@ function PrintTrashPile() {
 
 
 
+/* phase */
+function MovePhase( phase ) {
+	Game.phase = phase;
+	FBref_Game.child('phase').set( Game.phase );
+	let phase_jp;
+	switch ( Game.phase ) {
+		case 'ActionPhase' : phase_jp = 'アクションフェーズ'; break;
+		case 'BuyPhase'    : phase_jp = '購入フェーズ'; break;
+	}
+	$('.phase-dialog-wrapper .dialog_text').html( phase_jp );
+	$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut();
+}
+
+
+
+
 /* shortcut */
 function PrintPlayersCardAreas( player_id ) {
 	PrintOpen       ( player_id );
@@ -387,5 +403,9 @@ function PrintPlayersCardAreas( player_id ) {
 	PrintHandCards  ( player_id );
 	PrintDiscardPile( player_id );
 }
+
+
+
+
 
 

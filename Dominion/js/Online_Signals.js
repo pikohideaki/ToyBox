@@ -33,7 +33,7 @@ function* CatchSignal( signals_to_me ) {
 	if ( signals_to_me.Attack ) {  /* アタックのとき */
 		yield MyAsync( AttackEffect[ signals_to_me.card_name ] );
 		yield Promise.all( [
-			// FBref_MessageToMe.set(''),
+			FBref_MessageToMe.set(''),
 			FBref_SignalToMe.remove(),
 			FBref_SignalAttackEnd.set(true)  // Endシグナルを送る
 		] );

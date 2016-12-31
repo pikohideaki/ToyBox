@@ -92,6 +92,29 @@ function SetAndPrintDiscardPile( player_id, FBsnapshot ) {
 
 function SetAndPrintPhase( FBsnapshot ) {
 	FBSet_Phase( FBsnapshot );
+
+	// switch ( Game.phase ) {
+	// 	case 'ActionPhase' :
+	// 		// アクションフェーズでアクションか手札にアクションカードが無いならば購入フェーズに自動で移行
+	// 		if ( Game.TurnInfo.action <= 0 || !Game.player().HasActionCard() ) {
+	// 			// Game.phase = 'BuyPhase';
+	// 			// FBref_Game.child('phase').set( Game.phase );
+	// 			MovePhase('BuyPhase');
+	// 			return;
+	// 		}
+	// 		break;
+
+	// 	case 'BuyPhase*' :
+	// 	case 'BuyPhase' :
+	// 	case 'BuyPhase_GetCard' :
+	// 		// 購入フェーズで購入が無いならばクリーンアップフェーズに自動で移行
+	// 		if ( Game.TurnInfo.buy <= 0 ) {
+	// 			Game.MoveToNextPlayer();
+	// 			return;
+	// 		}
+	// 		break;
+
+	// }
 	PrintPhase();
 }
 

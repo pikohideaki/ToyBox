@@ -498,31 +498,41 @@ $( function() {
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
 			yield Monitor_FBref_SignalAttackEnd_on( 'Witch' );  // End受信 -> Resolve['Witch']()
-			yield SendSignal( id, {
-				Attack    : true,
-				card_name : 'Witch',
-				Message   : '呪いを獲得します。',
-			} );
-			yield new Promise( resolve => Resolve['Witch'] = resolve );  /* 他のプレイヤー待機 */
-			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+			yield FBref_MessageTo.child(id).set('呪いを獲得します。');
 
-			Show_OKbtn_OtherPlayer( id, 'Witch' );
-			yield new Promise( resolve => Resolve['Witch_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Witch' );
+			Game.Players[id].AddToDiscardPile( Game.Supply.byName('Curse').GetTopCard() );
+
+			let updates = {};
+			updates['Supply'] = Game.Supply;
+			updates[`Players/${id}/DiscardPile`] = Game.Players[id].DiscardPile;
+			yield FBref_Game.update( updates );
+
+
+			// yield SendSignal( id, {
+			// 	Attack    : true,
+			// 	card_name : 'Witch',
+			// 	Message   : '呪いを獲得します。',
+			// } );
+			// yield new Promise( resolve => Resolve['Witch'] = resolve );  /* 他のプレイヤー待機 */
+			// Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+
+			// Show_OKbtn_OtherPlayer( id, 'Witch' );
+			// yield new Promise( resolve => Resolve['Witch_ok'] = resolve );
+			// Hide_OKbtn_OtherPlayer( id, 'Witch' );
 			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 	};
 
-	AttackEffect['Witch'] = function* () {  /* アタックされる側 */
-		Game.Me().AddToDiscardPile( Game.Supply.byName('Curse').GetTopCard() );
+	// AttackEffect['Witch'] = function* () {  /* アタックされる側 */
+	// 	Game.Me().AddToDiscardPile( Game.Supply.byName('Curse').GetTopCard() );
 
-		let updates = {};
-		updates['Supply'] = Game.Supply;
-		updates[`Players/${myid}/DiscardPile`] = Game.Me().DiscardPile;
-		yield FBref_Game.update( updates );
-	};
+	// 	let updates = {};
+	// 	updates['Supply'] = Game.Supply;
+	// 	updates[`Players/${myid}/DiscardPile`] = Game.Me().DiscardPile;
+	// 	yield FBref_Game.update( updates );
+	// };
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Witch', () => Resolve['Witch_ok']() );  /* 確認 */
+	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Witch', () => Resolve['Witch_ok']() );  /* 確認 */
 
 
 
@@ -543,9 +553,9 @@ $( function() {
 			yield new Promise( resolve => Resolve['Militia'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
-			Show_OKbtn_OtherPlayer( id, 'Militia' );
-			yield new Promise( resolve => Resolve['Militia_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Militia' );
+			// Show_OKbtn_OtherPlayer( id, 'Militia' );
+			// yield new Promise( resolve => Resolve['Militia_ok'] = resolve );
+			// Hide_OKbtn_OtherPlayer( id, 'Militia' );
 			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 	};
@@ -569,7 +579,7 @@ $( function() {
 		.then( () => Resolve['Militia_Discard']() );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Militia', () => Resolve['Militia_ok']() );  /* 確認 */
+	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Militia', () => Resolve['Militia_ok']() );  /* 確認 */
 
 
 
@@ -603,6 +613,7 @@ $( function() {
 			yield new Promise( resolve => Resolve['Bureaucrat'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
+			// 山札に戻した勝利点カードか公開した手札を確認
 			Show_OKbtn_OtherPlayer( id, 'Bureaucrat' );
 			yield new Promise( resolve => Resolve['Bureaucrat_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Bureaucrat' );
@@ -676,11 +687,11 @@ $( function() {
 				const trashed_card_ID
 					= yield new Promise( resolve => Resolve['Thief_Trash'] = resolve );
 				if ( trashed_card_ID != undefined ) trashed_card_IDs.push( trashed_card_ID );
+			} else {
+				Show_OKbtn_OtherPlayer( id, 'Thief' );
+				yield new Promise( resolve => Resolve['Thief_ok'] = resolve );
+				Hide_OKbtn_OtherPlayer( id, 'Thief' );
 			}
-
-			Show_OKbtn_OtherPlayer( id, 'Thief' );
-			yield new Promise( resolve => Resolve['Thief_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Thief' );
 			yield FBref_MessageTo.child(id).set('');  /* reset */
 
 			/* 公開したカードの残りを捨て札に */
@@ -811,9 +822,9 @@ $( function() {
 				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Spy`).remove();
 			}
 
-			Show_OKbtn_OtherPlayer( id, 'Spy' );
-			yield new Promise( resolve => Resolve['Spy_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Spy' );
+			// Show_OKbtn_OtherPlayer( id, 'Spy' );
+			// yield new Promise( resolve => Resolve['Spy_ok'] = resolve );
+			// Hide_OKbtn_OtherPlayer( id, 'Spy' );
 			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 		// 公開したカードを裏向きに戻す
@@ -867,7 +878,7 @@ $( function() {
 		.then( () => Resolve['Spy_Discard_or_PutBackToDeck']() );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Spy', () => Resolve['Spy_ok']() );  /* 確認 */
+	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Spy', () => Resolve['Spy_ok']() );  /* 確認 */
 
 
 

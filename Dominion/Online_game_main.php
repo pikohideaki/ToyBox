@@ -56,6 +56,8 @@ $GameRoomID = $_POST['room-id'];
 		<div class='settings'>
 			<input type='checkbox' id='chbox_multirow' class='chbox_multirow'>
 			<label for='chbox_multirow' class='checkbox'>多段表示</label>
+			<input type='checkbox' id='chbox_SkipReaction' class='chbox_SkipReaction' checked>
+			<label for='chbox_SkipReaction' class='checkbox'>リアクションカードがないときの確認をスキップ</label>
 			<div>
 				<input type='button' class='btn-blue card_view' value='カード一覧'>
 				<!-- <input type='button' class='btn-blue logallcards' value='logallcards'> -->
@@ -217,6 +219,17 @@ $GameRoomID = $_POST['room-id'];
 
 
 
+
+
+
+	<div class='BlackCover phase-dialog-wrapper'>
+		<div class='dialog'>
+			<div> <b class='dialog_text'></b> </div>
+			<div class='clear'></div>
+		</div>
+	</div>
+
+
 	<div class='BlackCover dialog-wrapper'>
 		<div class='dialog'>
 			<div class='dialog_text'></div>
@@ -312,6 +325,7 @@ $GameRoomID = $_POST['room-id'];
 	let FBref_SignalAttackEnd      = FBref_Room.child( 'Signals/AttackEnd' );
 	let FBref_SignalReactionEnd    = FBref_Room.child( 'Signals/ReactionEnd' );
 	let FBref_SignalRevealReaction = FBref_Room.child( 'Signals/RevealReaction' );
+	let FBref_Settings             = FBref_Room.child( 'Game/Settings' );
 </script>
 
 <!-- function & class -->

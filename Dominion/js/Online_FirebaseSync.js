@@ -45,6 +45,11 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		}
 	});
 
+	// その他共有する設定
+	FBref_Settings.on('value', snap => Game.Settings = snap.val() );
+
+
+
 	// $('.text_disconnect').click( () => FBdatabase.goOffline() );
 	// $('.text_connect'   ).click( () => FBdatabase.goOnline()  );
 
@@ -61,6 +66,10 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		for ( let player_id = 0; player_id < Game.Players.length; ++player_id ) {
 			PrintPlayersCardAreas( player_id );
 		}
+
+		// 手番 アニメーション
+		$('.phase-dialog-wrapper .dialog_text').html( `${Game.player().name}のターン` );
+		$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut();
 
 		/* 他のプレイヤーの背景 */
 		/* 背景色リセット */
@@ -92,10 +101,10 @@ Initialize.then( function() {  /* 初期設定終わったら */
 
 	FBref_Game.child('TurnInfo' ).on('value', SetAndPrintTurnInfo  );
 	FBref_Game.child('Supply'   ).on('value', SetAndPrintSupply    );
-	FBref_Game.child('phase'    ).on('value', SetAndPrintPhase     );
 	FBref_Game.child('TrashPile').on('value', SetAndPrintTrashPile );
+	FBref_Game.child('phase'    ).on('value', SetAndPrintPhase     );
 
-	/* TrashPile は消えたときに親から監視しておかないと反応しない */
+	/* TrashPile は消えたときに親階層から監視しておかないと反応しない */
 	FBref_Game.on( 'child_removed', function( FBsnapshot ) {
 		if ( !FBsnapshot.hasChild('TrashPile') ) {
 			Game.TrashPile = [];

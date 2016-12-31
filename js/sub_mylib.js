@@ -202,3 +202,26 @@ function MyAsync( GenFunc, ...Args ) {
 	}
 }
 
+
+
+/*
+	<div class='BlackCover MyAlert'>
+		<div class='MyAlert-box'>
+			<div class='clear alert_text'></div>
+			<div class='clear alert_contents'></div>
+			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear'></div>
+		</div>
+	</div>
+	*/
+function MyAlert( options ) {
+	return new Promise( function( resolve, reject ) {
+		$('.alert_text').html( options.message );
+		$('.alert_contents').html( options.contents );
+		$('.MyAlert').fadeIn( 'normal' );
+
+		$('.MyAlert .buttons input[type=button]').click( function() {
+			$('.MyAlert').fadeOut( 'normal', resolve );
+		} );
+	});
+}

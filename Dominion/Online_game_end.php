@@ -101,22 +101,29 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 		PrintHead_Dominion();
 	?>
 
+	<link rel="stylesheet" href="/Dominion/css/Online_game_main.css">
 	<link rel="stylesheet" href="/Dominion/css/Online_Cards.css">
 	<style type="text/css">
+		.leftside {
+			top : 65px;
+		}
+		.rightside {
+			margin-top : 65px;
+		}
 		.back2roomlist {
 			margin-top : 10px;
 		}
-		.leftside {
+		.score_tables {
 			float: left;
 			width : 30%;
 			min-width : 400px;
 		}
-		.rightside {
+		.players_decks {
 			float: left;
 			margin-left : 20px;
 			width : 60%;
 		}
-		.rightside .card {
+		.players_decks .card {
 			width:45px;
 			height:69px;
 			margin: 1px;
@@ -130,7 +137,6 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 }
 
 	</style>
-	<!-- <link rel="stylesheet" href="/Dominion/css/Online_game_main.css"> -->
 </head>
 
 
@@ -146,64 +152,81 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 	</header>
 
 
-	<div class='main'>
-		<button class='btn-blue back2roomlist'>部屋一覧に戻る</button>
+	<div class='leftside'>
+		<div class='chat-wrapper'>
+			<div class='chat_list'> </div>
+			<div class='chat_mymsgbox'>
+				<input type='checkbox' id='auto_scroll' class='auto_scroll' checked='checked'>
+				<label for='auto_scroll' class='checkbox'>自動スクロール</label>
+				<textarea rows='3'  wrap='soft' class='chat_textbox'></textarea>
+				<button class='btn-blue chat_enter'>送信</button>
+			</div>
+		</div>
+		<div class='settings'>
+			<input type='checkbox' id='chbox_multirow' class='chbox_multirow'>
+		</div>
+	</div>
 
-		<h2><span class='winner-name'><?= h( $gr->player[0]->name ) ?></span> さんの勝ちです！</h2>
+	<div class='rightside'>
+
+		<div class='main'>
+			<button class='btn-blue back2roomlist'>部屋一覧に戻る</button>
+
+			<h2><span class='winner-name'><?= h( $gr->player[0]->name ) ?></span> さんの勝ちです！</h2>
 
 
-		<div class='clear'></div>
+			<div class='clear'></div>
 
-		<div class='leftside'>
-			<table class='tbl-blue'>
-				<thead>
-					<tr>
-						<th>順位</th>
-						<th>プレイヤー</th>
-						<th>VP</th>
-						<th>得点</th>
-						<th>同点手番勝ち</th>
-					</tr>
-				</thead>
-				<tbody>
+			<div class='score_tables'>
+				<table class='tbl-blue'>
+					<thead>
+						<tr>
+							<th>順位</th>
+							<th>プレイヤー</th>
+							<th>VP</th>
+							<th>得点</th>
+							<th>同点手番勝ち</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+					for ( $k = 0; $k < $player_num; $k++ ) {
+						$turn = ( $gr->player[$k]->turn ? '*' : '' );
+						$name = h( $gr->player[$k]->name );
+echo <<<EOM
+						<tr>
+							<td nowrap>{$gr->player[$k]->rank }</td>
+							<td nowrap>{$name}                 </td>
+							<td nowrap>{$gr->player[$k]->VP   }</td>
+							<td nowrap>{$gr->player[$k]->score}</td>
+							<td >{$turn}</td>
+						</tr>
+EOM;
+					}
+					?>
+					</tbody>
+				</table>
+
+
+				<h3>サプライ</h3>
+				<?php PrintSupply( $gr, $Setlist, $Cardlist, false ); ?>
+			</div>
+
+
+			<div class='players_decks'>
 				<?php
 				for ( $k = 0; $k < $player_num; $k++ ) {
-					$turn = ( $gr->player[$k]->turn ? '*' : '' );
-					$name = h( $gr->player[$k]->name );
 echo <<<EOM
-					<tr>
-						<td nowrap>{$gr->player[$k]->rank }</td>
-						<td nowrap>{$name}                 </td>
-						<td nowrap>{$gr->player[$k]->VP   }</td>
-						<td nowrap>{$gr->player[$k]->score}</td>
-						<td >{$turn}</td>
-					</tr>
+					<div class='player_cards {$gr->player[$k]->name}'>
+						<h4 class='player_name'> {$gr->player[$k]->name} </h4>
+						<div class='deck_all'></div>
+					</div>
+					<div class='clear'></div>
 EOM;
 				}
 				?>
-				</tbody>
-			</table>
-
-
-			<h3>サプライ</h3>
-			<?php PrintSupply( $gr, $Setlist, $Cardlist, false ); ?>
+			</div>
 		</div>
-
-
-		<div class='rightside'>
-			<?php
-			for ( $k = 0; $k < $player_num; $k++ ) {
-echo <<<EOM
-				<div class='player_cards {$gr->player[$k]->name}'>
-					<h4 class='player_name'> {$gr->player[$k]->name} </h4>
-					<div class='deck_all'></div>
-				</div>
-				<div class='clear'></div>
-EOM;
-			}
-			?>
-		</div>
-
 
 		<div class='clear'></div>
 
@@ -284,6 +307,30 @@ $( function() {
 			);
 		}
 	} );
+
+
+
+	FBref_Room.child('chat').on('value', function( FBsnapshot ) {
+		const msgs = FBsnapshot.val();
+
+		$('.chat_list').html(''); // reset
+		for ( let key in msgs ) {
+			$('.chat_list').append(`<p>${msgs[key]}</p>`);
+		}
+		if ( $('.auto_scroll').prop('checked') ) {
+			$('.chat_list').animate({scrollTop: $('.chat_list')[0].scrollHeight}, 'normal');
+		}
+	});
+
+
+	$('.chat-wrapper .chat_enter').click( function() {
+		const msg = $('.chat-wrapper .chat_textbox').val();
+		FBref_Room.child('chat').push( `<font color='red'>${myname}</font> : ${msg}` );
+		$('.chat-wrapper .chat_textbox').val('');
+	});
+
+
+
 });
 </script>
 

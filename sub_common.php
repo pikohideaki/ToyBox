@@ -31,6 +31,12 @@ function PrintHead( $TITLE ) {
 echo <<<EOM
 
 	<meta charset='UTF-8' />
+
+  <!-- dont cache -->
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="expires" content="0" />
+
 	<title>{$TITLE}</title>
 
   <!-- stylesheet -->

@@ -9,11 +9,11 @@ class CGame {
 			this.phase         = '';
 			this.Supply        = new CSupply();
 			this.Players       = [];
+			this.Settings      = {};
 		} else {
 			this.TrashPile     = ( FBobj_Game.TrashPile || [] );
 			this.whose_turn_id = FBobj_Game.whose_turn_id;
 			this.TurnInfo      = FBobj_Game.TurnInfo;
-			this.TurnInfo.Revealed_Moat = Array(RoomInfo.PlayerNum).fill(false);
 			this.phase         = FBobj_Game.phase;
 			this.Supply        = new CSupply( FBobj_Game.Supply );
 			this.Players       = [];
@@ -21,6 +21,7 @@ class CGame {
 			for ( let i = 0; i < RoomInfo.PlayerNum; ++i ) {
 				this.Players[i] = new CPlayer( FBobj_Game.Players[i] );
 			}
+			this.Settings      = ( FBobj_Game.Settings || {} );
 		}
 	}
 
@@ -63,7 +64,7 @@ class CGame {
 			played_actioncards_num : 0,  // 共謀者
 			add_copper_coin : 0,  // 銅細工師
 			cost_minus : 0,  // 橋
-			Revealed_Moat : [],  /* 堀を公開したか */
+			Revealed_Moat : new Array( PLAYER_NUM_MAX ).fill(false),  /* 堀を公開したか */
 		};
 		this.phase = 'ActionPhase';
 	}

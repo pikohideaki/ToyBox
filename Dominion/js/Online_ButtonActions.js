@@ -9,11 +9,9 @@ $( function() {
 	});
 
 	$('.MoveToBuyPhase').click( function() {
-		FBref_Game.child('phase').set( 'BuyPhase' );
-	});
-
-	$('.UseTreasuresDone').click( function() {
-		FBref_Game.child('phase').set( 'BuyPhase_GetCard' );
+		// Game.phase = 'BuyPhase';
+		// FBref_Game.child('phase').set( Game.phase );
+		MovePhase( 'BuyPhase' );
 	});
 
 	$('.MoveToNextPlayer').click( function() {
@@ -88,11 +86,13 @@ $( function() {
 	$('.SupplyArea').on( 'click', '.card.BuyCard', function() {
 		const clicked_pile_num = $(this).children('.card-num-of-remaining').html();
 		if ( clicked_pile_num <= 0 ) {
-			alert( 'そのサプライは空です。' );   return;
+			alert( 'そのサプライは空です。' );
+			return;
 		}
 
 		if ( Game.TurnInfo.buy <= 0 ) {
-			alert( 'これ以上購入できません。' );   return;
+			alert( 'これ以上購入できません。' );
+			return;
 		}
 
 		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
@@ -101,7 +101,8 @@ $( function() {
 		const clicked_card_ID = clicked_card.card_ID;
 		const Card = Cardlist[ clicked_card_no ];
 		if ( Card.cost > Game.TurnInfo.coin ) {
-			alert( 'お金が足りません。' );   return;
+			alert( 'お金が足りません。' );
+			return;
 		}
 		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 		FBref_Room.child('chat').push( `${Game.player().name}が「${Card.name_jp}」を購入しました。` );
@@ -109,10 +110,13 @@ $( function() {
 		let updates = {};
 		updates[ `Players/${Game.whose_turn_id}/DiscardPile` ] = Game.player().DiscardPile;
 		updates['Supply'] = Game.Supply;
-		updates['TurnInfo/buy' ] = Game.TurnInfo.buy - 1;
-		updates['TurnInfo/coin'] = Game.TurnInfo.coin - Card.cost;
+		Game.TurnInfo.buy--;
+		updates['TurnInfo/buy' ] = Game.TurnInfo.buy;
+		Game.TurnInfo.coin -= Card.cost;
+		updates['TurnInfo/coin'] = Game.TurnInfo.coin;
 		if ( Game.phase == 'BuyPhase' ) {  // 一度購入を始めたら以降財宝カードを追加で使用することはできない
-			updates['phase'] = 'BuyPhase_GetCard';
+			Game.phase = 'BuyPhase_GetCard';
+			updates['phase'] = Game.phase;
 		}
 		FBref_Game.update( updates );
 	});
@@ -131,5 +135,10 @@ $( function() {
 		click      : function(){ $('.CardView_zoom .card_biggest').attr('data-card_no', $(this).attr('data-card_no') ) },
 		// mouseleave : function(){  },
 	}, '.card_biggest' );
+
+	$('.chbox_SkipReaction').change( function() {
+		FBref_Settings.child(`SkipReaction/${myid}`).set( $(this).prop('checked') );
+	})
+
 
 });

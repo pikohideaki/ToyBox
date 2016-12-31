@@ -40,6 +40,7 @@ function SetSizeOfSupplyPile( card_no, PlayerNum, SelectedCards ) {
 		return PlayerNum * 3 + ( PlayerNum > 2 ? 12 : 8 );
 	}
 	if ( IsVictoryCard( Cardlist, card_no ) ) {
+// return 1;
 		return ( PlayerNum > 2 ? 12 : 8 );
 	}
 	return 10; /* KingdomCard default */
@@ -52,11 +53,9 @@ class CSupplyPile {
 		if ( SupplyPileObj == undefined ) {
 			this.card_no = 0;
 			this.pile    = [];
-			// this.class_array = ['face'];
 		} else {
 			this.card_no     = ( SupplyPileObj.card_no     || 0  );
 			this.pile        = ( SupplyPileObj.pile        || [] );
-			// this.class_array = ( SupplyPileObj.class_array || ['face'] );
 		}
 	}
 
@@ -109,6 +108,7 @@ class CSupply {
 
 		this.BlackMarket = [];
 		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
+			if ( SupplyObj.BlackMarket[i] == undefined ) continue;
 			this.BlackMarket[i] = SupplyObj.BlackMarket[i];
 		}
 	}

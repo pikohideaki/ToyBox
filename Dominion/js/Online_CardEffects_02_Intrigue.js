@@ -567,6 +567,186 @@ $( function() {
 
 
 
+	/* 49. 銅細工師 */
+	CardEffect['Coppersmith'] = function*() {
+		Game.TurnInfo.add_copper_coin++;
+		yield FBref_Message.set( 'このターン銅貨は+1コインを生みます。' );
+		yield FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin );
+		$('.action_buttons').append( MakeHTML_button( 'Coppersmith_ok', 'OK' ) );
+		yield new Promise( resolve => Resolve['Coppersmith_ok'] = resolve );
+		$('.action_buttons .Coppersmith_ok').remove();
+	};
+
+	$('.action_buttons').on( 'click', '.Coppersmith_ok', () => Resolve['Coppersmith_ok']() );
+
+
+
+
+
+
+	/* 56. 貧民街 */
+	CardEffect['Shanty Town'] = function*() {
+		yield FBref_Message.set( '手札を公開します。手札にアクションカードがない場合2枚カードを引きます。' );
+
+		// 手札を公開
+		Game.player().HandCards.forEach( card => Game.player().AddToOpen( card ) );
+		Game.player().HandCards = [];
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+
+		$('.action_buttons').append( MakeHTML_button('ShantyTown_OpenHandCards', 'OK' ) );
+
+		yield new Promise( resolve => Resolve['ShantyTown_OpenHandCards'] = resolve );
+		$('.action_buttons .ShantyTown_OpenHandCards').remove();
+
+		// 手札を戻す
+		Game.player().Open.forEach( card => Game.player().AddToHandCards( card ) );
+		Game.player().Open = [];
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+
+
+		let action_cards
+			= Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
+
+		if ( action_cards.length <= 0 ) {
+			FBref_Room.child('chat').push( 'アクションカードがなかったので2枚カードを引きます。' ),
+			Game.player().DrawCards(2);
+			yield FBref_Players.child( Game.player().id ).set( Game.player() );
+		}
+	};
+
+	$('.action_buttons').on( 'click', '.ShantyTown_OpenHandCards', function() {
+		Resolve['ShantyTown_OpenHandCards']();
+	} );
+
+
+
+
+
+	/* 51. 願いの井戸 */
+	CardEffect['Wishing Well'] = function*() {
+		if ( !Game.player().Drawable() ) return;
+
+		yield FBref_Message.set( 'カード名を1つ指定してください（サプライをクリックしてください）。\
+			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。' );
+
+		$('.action_buttons').append( MakeHTML_button( 'nonexistent_card_name', '存在しないカード名') );
+		$('.SupplyArea').find('.card').addClass('name_a_card pointer');
+
+		const named_card_no = yield new Promise( resolve => Resolve['name_a_card'] = resolve );
+
+		$('.action_buttons .nonexistent_card_name').remove();
+		$('.SupplyArea').find('.card').removeClass('name_a_card pointer');
+
+		const card_name_jp = ( named_card_no == 999999 ? '存在しないカード名' : `「${Cardlist[ named_card_no ].name_jp}」` );
+		yield Promise.all( [
+			FBref_Room.child('chat').push( `${Game.player().name}が${card_name_jp}を指定しました。` ),
+			FBref_Message.set( `${card_name_jp}を指定しました。` )
+		]);
+
+		// 山札の一番上のカードを公開
+		const DeckTopCard = Game.player().GetDeckTopCard();
+		Game.player().AddToOpen( DeckTopCard );
+		yield Promise.all( [
+			FBref_Players.child( Game.player().id ).set( Game.player() ),
+			FBref_Room.child('chat').push( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` ),
+			FBref_Message.set( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` )
+		]);
+
+		// 確認 （本当は全員の確認を待つようにするべき）
+		$('.action_buttons').append( MakeHTML_button( 'WishingWell_ok', 'OK') );
+		yield new Promise( resolve => Resolve['WishingWell_ok'] = resolve );
+		$('.action_buttons .WishingWell_ok').remove();
+
+		// 指定したカード名と一致したなら手札に加える。そうでなければ山札に戻す。
+		if ( named_card_no == DeckTopCard.card_no ) {
+			Game.player().AddToHandCards( Game.GetCardByID( DeckTopCard.card_ID ) );
+		} else {
+			Game.player().PutBackToDeck( Game.GetCardByID( DeckTopCard.card_ID ) );
+		}
+		yield FBref_Players.child( Game.player().id ).set( Game.player() );
+	};
+
+	$('.action_buttons').on( 'click', '.nonexistent_card_name', function() {
+		Resolve['name_a_card']( 999999 );
+	} );
+
+	$('.SupplyArea').on( 'click', '.card.name_a_card', function() {
+		Resolve['name_a_card']( $(this).attr('data-card_no') );
+	} );
+
+	$('.action_buttons').on( 'click', '.WishingWell_ok', () => Resolve['WishingWell_ok']() );
+
+
+
+
+
+	/* 55. 秘密の部屋 */
+	CardEffect['Secret Chamber'] = function*() {
+		yield FBref_Message.set( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけコインを得ます。' );
+
+		$('.action_buttons').append( MakeHTML_button( 'SecretChamber Done', '完了' ) );
+
+		let discarded_num = 0;
+		while (true) {
+			$('.HandCards').children('.card').addClass('SecretChamber_Discard pointer');
+			const end = yield new Promise( resolve => Resolve['SecretChamber_Discard'] = resolve );
+			if (end) break;
+			discarded_num++;
+			yield FBref_Message.set( `捨て札にした枚数 ： ${discarded_num}枚` );
+		}
+
+		$('.action_buttons .SecretChamber.Done').remove();  /* 完了ボタン消す */
+		Game.TurnInfo.coin += discarded_num;
+		yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin )
+	};
+
+	$('.HandCards').on( 'click', '.card.SecretChamber_Discard', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+
+		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );  /* 「地下貯蔵庫」 捨て札 */
+
+		FBref_Players.child( Game.player().id ).update( {
+			HandCards   : Game.player().HandCards,
+			DiscardPile : Game.player().DiscardPile,
+		} )
+		.then( () => Resolve['SecretChamber_Discard'](false) );
+	} );
+
+	$('.action_buttons').on( 'click', '.SecretChamber.Done', function() {
+		Resolve['SecretChamber_Discard'](true);
+	} );
+
+	ReactionEffect['Secret Chamber'] = function*( Resolve_GetReactionCardEffect ) {
+		yield FBref_MessageToMe.set('山札から2枚カードを手札に引いた後、手札から2枚山札に戻してください。');
+		Game.Me().DrawCards(2);
+		yield FBref_Players.child( myid ).set( Game.Me() );
+
+		let put_back_num = 0;
+		while ( put_back_num < 2 ) {
+			/* 手札のカードのクリック動作を山札に戻すカードの選択に変更 */
+			$('.MyHandCards').children('.card').addClass('SecretChamber_PutBackToDeck pointer');
+			yield new Promise( resolve => Resolve['SecretChamber_PutBackToDeck'] = resolve );
+			put_back_num++;
+		}
+	};
+
+	$('.MyHandCards').on( 'click', '.card.SecretChamber_PutBackToDeck', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+
+		// Game.Me().HandCards.forEach( card => card.face = false );  // 裏向きに
+		Game.Me().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
+
+		FBref_Players.child( myid ).update( {
+			HandCards : Game.Me().HandCards,
+			Deck      : Game.Me().Deck,
+		} )
+		.then( () => Resolve['SecretChamber_PutBackToDeck']() );  // (1)
+	} );
+
+
+
+
+
 	/* 41. 拷問人 */
 	CardEffect['Torturer'] = function*() {
 		yield FBref_Message.set( '他のプレイヤーは次のうち1つを選ぶ ： <br>\
@@ -584,11 +764,12 @@ $( function() {
 			} );
 			yield new Promise( resolve => Resolve['Torturer'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+			// yield FBref_MessageTo.child(id).set('');  /* reset */
 
+			// 呪い獲得確認
 			Show_OKbtn_OtherPlayer( id, 'Torturer' );
 			yield new Promise( resolve => Resolve['Torturer_ok'] = resolve );
 			Hide_OKbtn_OtherPlayer( id, 'Torturer' );
-			yield FBref_MessageTo.child(id).set('');  /* reset */
 		}
 		// 公開したカードを裏向きに戻す
 		Game.Players.forEach( player => player.ResetFaceDown() );
@@ -697,11 +878,11 @@ $( function() {
 				} );
 				yield new Promise( resolve => Resolve['Minion'] = resolve );  /* 他のプレイヤー待機 */
 				Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+				// yield FBref_MessageTo.child(id).set('');  /* reset */
 
-				Show_OKbtn_OtherPlayer( id, 'Minion' );
-				yield new Promise( resolve => Resolve['Minion_ok'] = resolve );
-				Hide_OKbtn_OtherPlayer( id, 'Minion' );
-				yield FBref_MessageTo.child(id).set('');  /* reset */
+				// Show_OKbtn_OtherPlayer( id, 'Minion' );
+				// yield new Promise( resolve => Resolve['Minion_ok'] = resolve );
+				// Hide_OKbtn_OtherPlayer( id, 'Minion' );
 			}
 			return;
 
@@ -729,7 +910,7 @@ $( function() {
 		}
 	};
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Minion', () => Resolve['Minion_ok']() );  /* 確認 */
+	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Minion', () => Resolve['Minion_ok']() );  /* 確認 */
 
 
 
@@ -753,11 +934,11 @@ $( function() {
 			} );
 			yield new Promise( resolve => Resolve['Saboteur'] = resolve );  /* 他のプレイヤー待機 */
 			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+			// yield FBref_MessageTo.child(id).set('');  /* reset */
 
-			Show_OKbtn_OtherPlayer( id, 'Saboteur' );
-			yield new Promise( resolve => Resolve['Saboteur_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Saboteur' );
-			yield FBref_MessageTo.child(id).set('');  /* reset */
+			// Show_OKbtn_OtherPlayer( id, 'Saboteur' );
+			// yield new Promise( resolve => Resolve['Saboteur_ok'] = resolve );
+			// Hide_OKbtn_OtherPlayer( id, 'Saboteur' );
 		}
 
 	};
@@ -814,17 +995,25 @@ $( function() {
 			}
 
 			$('.MyArea-wrapper .Common-Area').remove();
+
+			// 獲得したカードの確認
+			$('.MyArea .buttons')
+				.append( MakeHTML_button( 'Saboteur_gotten_ok', 'OK' ) )
+			yield new Promise( resolve => Resolve['Saboteur_gotten_ok'] = resolve );
+			$('.MyArea .buttons .Saboteur_gotten_ok').remove();
 		}
 
 		// 公開した残りのカードを捨て札にする
-		Game.Me().Open
-			.forEach( card => Game.Me().AddToDiscardPile( Game.GetCardByID( card.card_ID ) ) );
+		Game.Me().Open.forEach( card => Game.Me().AddToDiscardPile( card ) );
+		Game.Me().Open = [];
 		yield FBref_Players.child(myid).set( Game.Me() );
 	};
 
 	$('.MyArea .buttons').on( 'click', '.Saboteur_revealed_ok', () => Resolve['Saboteur_revealed_ok']() );
 
 	$('.MyArea .buttons').on( 'click', '.Saboteur_DontGetCard', () => Resolve['Saboteur_GetCard']() );
+
+	$('.MyArea .buttons').on( 'click', '.Saboteur_gotten_ok', () => Resolve['Saboteur_gotten_ok']() );
 
 	$('.MyArea-wrapper').on( 'click', '.SupplyArea .card.Saboteur_GetCard', function() {
 		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
@@ -844,92 +1033,7 @@ $( function() {
 		.then( () => Resolve['Saboteur_GetCard']() );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Saboteur', () => Resolve['Saboteur_ok']() );  /* 確認 */
-
-
-
-
-
-	/* 49. 銅細工師 */
-	CardEffect['Coppersmith'] = function*() {
-		Game.TurnInfo.add_copper_coin++;
-		yield FBref_Message.set( 'このターン銅貨は+1コインを生みます。' );
-		yield FBref_Game.child('TurnInfo/add_copper_coin').set( Game.TurnInfo.add_copper_coin );
-		$('.action_buttons').append( MakeHTML_button( 'Coppersmith_ok', 'OK' ) );
-		yield new Promise( resolve => Resolve['Coppersmith_ok'] = resolve );
-		$('.action_buttons .Coppersmith_ok').remove();
-	};
-
-	$('.action_buttons').on( 'click', '.Coppersmith_ok', () => Resolve['Coppersmith_ok']() );
-
-
-
-
-
-	/* 55. 秘密の部屋 */
-	CardEffect['Secret Chamber'] = function*() {
-		yield FBref_Message.set( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけコインを得ます。' );
-
-		$('.action_buttons').append( MakeHTML_button( 'SecretChamber Done', '完了' ) );
-
-		let discarded_num = 0;
-		while (true) {
-			$('.HandCards').children('.card').addClass('SecretChamber_Discard pointer');
-			const end = yield new Promise( resolve => Resolve['SecretChamber_Discard'] = resolve );
-			if (end) break;
-			discarded_num++;
-			yield FBref_Message.set( `捨て札にした枚数 ： ${discarded_num}枚` );
-		}
-
-		$('.action_buttons .SecretChamber.Done').remove();  /* 完了ボタン消す */
-		Game.TurnInfo.coin += discarded_num;
-		yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin )
-	};
-
-	$('.HandCards').on( 'click', '.card.SecretChamber_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );  /* 「地下貯蔵庫」 捨て札 */
-
-		FBref_Players.child( Game.player().id ).update( {
-			HandCards   : Game.player().HandCards,
-			DiscardPile : Game.player().DiscardPile,
-		} )
-		.then( () => Resolve['SecretChamber_Discard'](false) );
-	} );
-
-	$('.action_buttons').on( 'click', '.SecretChamber.Done', function() {
-		Resolve['SecretChamber_Discard'](true);
-	} );
-
-
-
-	ReactionEffect['Secret Chamber'] = function*( Resolve_GetReactionCardEffect ) {
-		yield FBref_MessageToMe.set('山札から2枚カードを手札に引いた後、手札から2枚山札に戻してください。');
-		Game.Me().DrawCards(2);
-		yield FBref_Players.child( myid ).set( Game.Me() );
-
-		let put_back_num = 0;
-		while ( put_back_num < 2 ) {
-			/* 手札のカードのクリック動作を山札に戻すカードの選択に変更 */
-			$('.MyHandCards').children('.card').addClass('SecretChamber_PutBackToDeck pointer');
-			yield new Promise( resolve => Resolve['SecretChamber_PutBackToDeck'] = resolve );
-			put_back_num++;
-		}
-	};
-
-	$('.MyHandCards').on( 'click', '.card.SecretChamber_PutBackToDeck', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-
-		// Game.Me().HandCards.forEach( card => card.face = false );  // 裏向きに
-		Game.Me().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
-
-		FBref_Players.child( myid ).update( {
-			HandCards : Game.Me().HandCards,
-			Deck      : Game.Me().Deck,
-		} )
-		.then( () => Resolve['SecretChamber_PutBackToDeck']() );  // (1)
-	} );
+	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Saboteur', () => Resolve['Saboteur_ok']() );  /* 確認 */
 
 
 
@@ -959,21 +1063,22 @@ $( function() {
 					new CCost(card),
 					new CCost( Cardlist[ DeckTopCard.card_no ] ) )
 			);
-			const clicked_card_ID
-				= yield new Promise( resolve => Resolve['Swindler_GetCard'] = resolve );
-
-			Game.TrashCardByID( DeckTopCard.card_ID );  // 廃棄
-			pl.AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 
 			let updates = {};
-			updates['TrashPile'] = Game.TrashPile;
-			updates[`Players/${id}`] = Game.Players[id];
-			yield FBref_Game.update( updates );
+			if ( $('.SupplyArea').find('.available').length > 0 ) {
+				const clicked_card_ID
+					= yield new Promise( resolve => Resolve['Swindler_GetCard'] = resolve );
+				pl.AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+				updates['Supply'] = Game.Supply;
+			}
 
-			Show_OKbtn_OtherPlayer( id, 'Swindler' );
-			yield new Promise( resolve => Resolve['Swindler_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Swindler' );
-			yield FBref_MessageTo.child(id).set('');  /* reset */
+			Game.TrashCardByID( DeckTopCard.card_ID );  // 廃棄
+			updates[`Players/${id}`] = Game.Players[id];
+			updates['TrashPile'] = Game.TrashPile;
+			yield Promise.all( [
+				FBref_Game.update( updates ),
+				FBref_MessageTo.child(id).set(''),  /* reset */
+			] );
 		}
 	};
 
@@ -983,108 +1088,12 @@ $( function() {
 		const clicked_card_ID = clicked_card.card_ID;
 
 		if ( !$(this).hasClass('available') ) {
-			alert('コストが異なるので獲得できません。' );  return;
+			alert('コストが異なるので選べません。' );  return;
 		}
 		Resolve['Swindler_GetCard']( clicked_card_ID );
 	} );
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Swindler', () => Resolve['Swindler_ok']() );  /* 確認 */
-
-
-
-
-
-	/* 56. 貧民街 */
-	CardEffect['Shanty Town'] = function*() {
-		yield FBref_Message.set( '手札を公開します。手札にアクションカードがない場合2枚カードを引きます。' );
-
-		// 手札を公開
-		Game.player().HandCards.forEach( card => Game.player().AddToOpen( card ) );
-		Game.player().HandCards = [];
-		yield FBref_Players.child( Game.player().id ).set( Game.player() );
-
-		$('.action_buttons').append( MakeHTML_button('ShantyTown_OpenHandCards', 'OK' ) );
-
-		yield new Promise( resolve => Resolve['ShantyTown_OpenHandCards'] = resolve );
-		$('.action_buttons .ShantyTown_OpenHandCards').remove();
-
-		// 手札を戻す
-		Game.player().Open.forEach( card => Game.player().AddToHandCards( card ) );
-		Game.player().Open = [];
-		yield FBref_Players.child( Game.player().id ).set( Game.player() );
-
-
-		let action_cards
-			= Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
-
-		if ( action_cards.length <= 0 ) {
-			FBref_Room.child('chat').push( 'アクションカードがなかったので2枚カードを引きます。' ),
-			Game.player().DrawCards(2);
-			yield FBref_Players.child( Game.player().id ).set( Game.player() );
-		}
-	};
-
-	$('.action_buttons').on( 'click', '.ShantyTown_OpenHandCards', function() {
-		Resolve['ShantyTown_OpenHandCards']();
-	} );
-
-
-
-
-
-	/* 51. 願いの井戸 */
-	CardEffect['Wishing Well'] = function*() {
-		if ( !Game.player().Drawable() ) return;
-
-		yield FBref_Message.set( 'カード名を1つ指定してください（サプライをクリックしてください）。\
-			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。' );
-
-		$('.action_buttons').append( MakeHTML_button( 'nonexistent_card_name', '存在しないカード名') );
-		$('.SupplyArea').find('.card').addClass('name_a_card pointer');
-
-		const named_card_no = yield new Promise( resolve => Resolve['name_a_card'] = resolve );
-
-		$('.action_buttons .nonexistent_card_name').remove();
-		$('.SupplyArea').find('.card').removeClass('name_a_card pointer');
-
-		const card_name_jp = ( named_card_no == 999999 ? '存在しないカード名' : `「${Cardlist[ named_card_no ].name_jp}」` );
-		yield Promise.all( [
-			FBref_Room.child('chat').push( `${Game.player().name}が${card_name_jp}を指定しました。` ),
-			FBref_Message.set( `${card_name_jp}を指定しました。` )
-		]);
-
-		// 山札の一番上のカードを公開
-		const DeckTopCard = Game.player().GetDeckTopCard();
-		Game.player().AddToOpen( DeckTopCard );
-		yield Promise.all( [
-			FBref_Players.child( Game.player().id ).set( Game.player() ),
-			FBref_Room.child('chat').push( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` ),
-			FBref_Message.set( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` )
-		]);
-
-		// 確認 （本当は全員の確認を待つようにするべき）
-		$('.action_buttons').append( MakeHTML_button( 'WishingWell_ok', 'OK') );
-		yield new Promise( resolve => Resolve['WishingWell_ok'] = resolve );
-		$('.action_buttons .WishingWell_ok').remove();
-
-		// 指定したカード名と一致したなら手札に加える。そうでなければ山札に戻す。
-		if ( named_card_no == DeckTopCard.card_no ) {
-			Game.player().AddToHandCards( Game.GetCardByID( DeckTopCard.card_ID ) );
-		} else {
-			Game.player().PutBackToDeck( Game.GetCardByID( DeckTopCard.card_ID ) );
-		}
-		yield FBref_Players.child( Game.player().id ).set( Game.player() );
-	};
-
-	$('.action_buttons').on( 'click', '.nonexistent_card_name', function() {
-		Resolve['name_a_card']( 999999 );
-	} );
-
-	$('.SupplyArea').on( 'click', '.card.name_a_card', function() {
-		Resolve['name_a_card']( $(this).attr('data-card_no') );
-	} );
-
-	$('.action_buttons').on( 'click', '.WishingWell_ok', () => Resolve['WishingWell_ok']() );
+	// $('.OtherPlayers-wrapper').on( 'click', '.ok.Swindler', () => Resolve['Swindler_ok']() );  /* 確認 */
 
 
 
@@ -1131,6 +1140,7 @@ $( function() {
 		yield FBref_Players.set( Game.Players );
 
 		// 手札を1枚廃棄できる
+		yield FBref_Message.set( '手札のカードを1枚廃棄することができます。');
 		$('.action_buttons').append( MakeHTML_button( 'Masquerade_dont_trash', '廃棄しない' ) );
 		$('.HandCards').children('.card').addClass('Masquerade_dont_trash pointer');
 		yield new Promise( resolve => Resolve['Masquerade_dont_trash'] = resolve );
