@@ -320,15 +320,8 @@
 
 
 
-.BlackCover {
-	position: fixed;
-	top    : 0;
-	right  : 0;
-	bottom : 0;
+.BlackCover_rightside {
 	left   : 300px;
-	background-color: rgba(0, 0, 0, 0.4);
-	z-index: 1000;
-	display: none;
 }
 
 .MyArea-wrapper {

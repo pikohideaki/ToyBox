@@ -222,14 +222,14 @@ $GameRoomID = $_POST['room-id'];
 
 
 
-	<div class='BlackCover phase-dialog-wrapper'>
+	<div class='BlackCover BlackCover_rightside phase-dialog-wrapper'>
 		<div class='dialog'>
 			<div> <b class='dialog_text'></b> </div>
 			<div class='clear'></div>
 		</div>
 	</div>
 
-	<div class='BlackCover turn-dialog-wrapper'>
+	<div class='BlackCover BlackCover_rightside turn-dialog-wrapper'>
 		<div class='dialog'>
 			<div> <b class='dialog_text'></b> </div>
 			<div class='clear'></div>
@@ -237,7 +237,7 @@ $GameRoomID = $_POST['room-id'];
 	</div>
 
 
-	<div class='BlackCover dialog-wrapper'>
+	<div class='BlackCover BlackCover_rightside dialog-wrapper'>
 		<div class='dialog'>
 			<div class='dialog_text'></div>
 			<div class='clear'></div>
@@ -248,7 +248,7 @@ $GameRoomID = $_POST['room-id'];
 	</div>
 
 
-	<div class='BlackCover connection-dialog-wrapper'>
+	<div class='BlackCover BlackCover_rightside connection-dialog-wrapper'>
 		<div class='dialog'>
 			<div class='dialog_text'>接続が切れました。再接続を試みます。</div>
 			<div class='clear'></div>
@@ -257,7 +257,7 @@ $GameRoomID = $_POST['room-id'];
 
 
 
-	<div class='BlackCover MyArea-wrapper'>
+	<div class='BlackCover BlackCover_rightside MyArea-wrapper'>
 		<div class='MyArea'>
 			<div class='clear'></div>
 			<div class='MessageToMe'> </div>
@@ -277,7 +277,7 @@ $GameRoomID = $_POST['room-id'];
 	</div>
 
 
-	<div class='BlackCover CardView-wrapper'>
+	<div class='BlackCover BlackCover_rightside CardView-wrapper'>
 		<div class='CardView'>
 			<div class='CardView_zoom'>
 				<button class='card_biggest face' data-card_no='1'> </button>
@@ -290,7 +290,7 @@ $GameRoomID = $_POST['room-id'];
 	</div>
 
 
-	<div class='BlackCover MyAlert'>
+	<div class='BlackCover BlackCover_rightside MyAlert'>
 		<div class='MyAlert-box'>
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>

@@ -63,7 +63,7 @@ class CGame {
 			coin   : 0,
 			played_actioncards_num : 0,  // 共謀者
 			add_copper_coin : 0,  // 銅細工師
-			cost_minus : 0,  // 橋
+			cost_minus_by_Bridge : 0,  // 橋によるコスト減少量
 			Revealed_Moat : new Array( PLAYER_NUM_MAX ).fill(false),  /* 堀を公開したか */
 		};
 		this.phase = 'ActionPhase';
@@ -120,6 +120,39 @@ class CGame {
 		FBref_Room.update( updates );
 		FBref_Room.child('chat').push( `${Game.player().name}のターン` );
 	}
+
+
+	// card_no のコスト
+	GetCost( card_no, player_id = this.whose_turn_id() ) {
+		let cost = new CCost( Cardlist[card_no] );
+
+		// 橋によるコスト減少量
+		cost = CostOp( '-', cost, [ this.TurnInfo.cost_minus_by_Bridge ,0,0] );
+
+		let playarea = this.Players[ player_id ].PlayArea;
+
+		// 街道（場にある枚数）
+		let Highway_num_in_play
+			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Highway' ).length;
+
+		// 石切場（場にある枚数）
+		let Quarry_num_in_play = 0;
+			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Quarry' ).length;
+
+		// 橋の下のトロル（場にある枚数）
+		let BridgeTroll_num_in_play = 0;
+			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Bridge Troll' ).length;
+
+		cost = CostOp( '-', cost, [ Highway_num_in_play ,0,0] );
+		cost = CostOp( '-', cost, [ BridgeTroll_num_in_play ,0,0] );
+
+		if ( IsActionCard( Cardlist, card_no ) ) {
+			cost = CostOp( '-', cost, [ Quarry_num_in_play ,0,0] );
+		}
+
+		return cost;
+	}
+
 
 
 	/* カード移動基本操作 */

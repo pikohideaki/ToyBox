@@ -103,6 +103,7 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 
 	<link rel="stylesheet" href="/Dominion/css/Online_game_main.css">
 	<link rel="stylesheet" href="/Dominion/css/Online_Cards.css">
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/Cardlist.css">
 	<style type="text/css">
 		.leftside {
 			top : 65px;
@@ -227,9 +228,18 @@ EOM;
 				?>
 			</div>
 		</div>
-
 		<div class='clear'></div>
+	</div>
 
+	<div class='clear'></div>
+
+	<div class='BlackCover MyAlert'>
+		<div class='MyAlert-box CardEffect-box'>
+			<div class='clear alert_text'></div>
+			<div class='clear alert_contents'></div>
+			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear'></div>
+		</div>
 	</div>
 </body>
 
@@ -276,6 +286,7 @@ EOM;
 	const SizeOf$sCard = new SizeOfjQueryObj( $('.SupplyArea.line1').find('.card') );
 </script>
 
+<script type='text/javascript' src='/Dominion/js/Cardlist.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_Cardlist.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_MakeHTML.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_CPlayer.js'></script>
@@ -329,6 +340,14 @@ $( function() {
 		$('.chat-wrapper .chat_textbox').val('');
 	});
 
+
+
+	$('.card_effect').click( function() {
+		const card_no = $(this).attr('data-card_no');
+		ShowCardEffectBox( Cardlist, card_no );
+	});
+
+	$(window).resize( PrintCardEffectBox );
 
 
 });

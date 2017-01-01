@@ -25,3 +25,27 @@
 	border-right: 3px solid #FFFF00;
 	border-bottom: 3px solid #FFFF00;
 }
+
+
+
+
+
+.card_biggest {
+	height : 100%;
+}
+
+.CardEffect-box {
+	width: 80%;
+	height : 80%;
+	top : 10%;
+	left : 10%;
+}
+.card_effect_text {
+	float : left;
+	width : 60%;
+}
+
+.card_effect_image {
+	float : left;
+	width : 40%;
+}

@@ -62,6 +62,7 @@ $selectlist->implemented = array();
 		PrintHead( "カードリスト" );
 		PrintHead_Dominion();
 	?>
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/Online_Cards.css">
 	<link rel="stylesheet" type="text/css" href="/Dominion/css/Cardlist.css">
 
 </head>
@@ -250,6 +251,14 @@ EOM;
 		</table>
 	</div>
 
+	<div class='BlackCover MyAlert'>
+		<div class='MyAlert-box CardEffect-box'>
+			<div class='clear alert_text'></div>
+			<div class='clear alert_contents'></div>
+			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear'></div>
+		</div>
+	</div>
 </body>
 
 
@@ -272,6 +281,7 @@ EOM;
 ?>
 
 
+<script type="text/javascript" src="./js/Online_MakeHTML.js"></script>
 <script type="text/javascript" src="./js/Cardlist.js"></script>
 <script type="text/javascript">
 	for ( var i = 0; i < Cardlist.length; i++ ) {

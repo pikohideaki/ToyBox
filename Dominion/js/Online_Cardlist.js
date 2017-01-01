@@ -43,14 +43,14 @@ function IsAttackCard( Cardlist, card_no ) {
 
 class CCost {
 	constructor( Obj ) {
-		if ( Obj instanceof Array ) {
+		if ( Obj == undefined ) {
+			this.coin   = 0;
+			this.potion = 0;
+			this.debt   = 0;
+		} else if ( Obj instanceof Array ) {
 			this.coin   = Obj[0];
 			this.potion = Obj[1];
 			this.debt   = Obj[2];
-		// } else if ( Obj instanceof CCard ) {
-		// 	this.coin   = Cardlist[ Obj.card_no ].cost;
-		// 	this.potion = Cardlist[ Obj.card_no ].cost_potion;
-		// 	this.debt   = Cardlist[ Obj.card_no ].cost_debt;
 		} else {
 			this.coin   = Obj.cost;
 			this.potion = Obj.cost_potion;
