@@ -61,9 +61,10 @@ class CGame {
 			action : 1,
 			buy    : 1,
 			coin   : 0,
+			potion : 0,
 			played_actioncards_num : 0,  // 共謀者
 			add_copper_coin : 0,  // 銅細工師
-			cost_minus_by_Bridge : 0,  // 橋によるコスト減少量
+			cost_down_by_Bridge : 0,  // 橋によるコスト減少量
 			Revealed_Moat : new Array( PLAYER_NUM_MAX ).fill(false),  /* 堀を公開したか */
 		};
 		this.phase = 'ActionPhase';
@@ -123,11 +124,11 @@ class CGame {
 
 
 	// card_no のコスト
-	GetCost( card_no, player_id = this.whose_turn_id() ) {
+	GetCost( card_no, player_id = this.whose_turn_id ) {
 		let cost = new CCost( Cardlist[card_no] );
 
 		// 橋によるコスト減少量
-		cost = CostOp( '-', cost, [ this.TurnInfo.cost_minus_by_Bridge ,0,0] );
+		cost = CostOp( '-', cost, new CCost( [ this.TurnInfo.cost_down_by_Bridge ,0,0] ) );
 
 		let playarea = this.Players[ player_id ].PlayArea;
 
@@ -143,13 +144,14 @@ class CGame {
 		let BridgeTroll_num_in_play
 			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Bridge Troll' ).length;
 
-		cost = CostOp( '-', cost, [ Highway_num_in_play ,0,0] );
-		cost = CostOp( '-', cost, [ BridgeTroll_num_in_play ,0,0] );
+		cost = CostOp( '-', cost, new CCost( [ Highway_num_in_play ,0,0] ) );
+		cost = CostOp( '-', cost, new CCost( [ BridgeTroll_num_in_play ,0,0] ) );
 
 		if ( IsActionCard( Cardlist, card_no ) ) {
-			cost = CostOp( '-', cost, [ Quarry_num_in_play ,0,0] );
+			cost = CostOp( '-', cost, new CCost( [ Quarry_num_in_play ,0,0] ) );
 		}
 
+		if ( cost.coin < 0 ) cost.coin = 0;  // 0未満にはならない
 		return cost;
 	}
 

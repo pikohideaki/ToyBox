@@ -268,32 +268,32 @@ function PrintSupply() {
 	let $SupplyArea1 = $('.SupplyArea.line1');
 	$SupplyArea1.html('');
 
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Copper'  ), Cardlist ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Silver'  ), Cardlist ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Gold'    ), Cardlist ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Copper'  ), Cardlist, Game ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Silver'  ), Cardlist, Game ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Gold'    ), Cardlist, Game ) );
 	if ( RoomInfo.SelectedCards.Prosperity ) {
-		$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Platinum'), Cardlist ) );
+		$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Platinum'), Cardlist, Game ) );
 	}
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Estate'  ), Cardlist ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Duchy'   ), Cardlist ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Province'), Cardlist ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Estate'  ), Cardlist, Game ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Duchy'   ), Cardlist, Game ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Province'), Cardlist, Game ) );
 	if ( RoomInfo.SelectedCards.Prosperity ) {
-		$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Colony'), Cardlist ) );
+		$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Colony'), Cardlist, Game ) );
 	}
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Curse'   ), Cardlist ) );
+	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Curse'   ), Cardlist, Game ) );
 
 	/* SupplyArea line2 */
 	let $SupplyArea2 = $('.SupplyArea.line2');
 	$SupplyArea2.html('');
 	for ( let i = 0; i < KINGDOMCARD_SIZE / 2; ++i ) {
-		$SupplyArea2.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist ) );
+		$SupplyArea2.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist, Game ) );
 	}
 
 	/* SupplyArea line3 */
 	let $SupplyArea3 = $('.SupplyArea.line3');
 	$SupplyArea3.html('');
 	for ( let i = KINGDOMCARD_SIZE / 2; i < KINGDOMCARD_SIZE; ++i ) {
-		$SupplyArea3.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist ) );
+		$SupplyArea3.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist, Game ) );
 	}
 
 	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {

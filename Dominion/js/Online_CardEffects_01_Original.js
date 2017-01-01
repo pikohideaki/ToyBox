@@ -112,11 +112,10 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Remodel_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( function( card, card_no ) {
-			return CostOp( '<=',
-				new CCost(card),
-				CostOp( '+', TrashedCardCost, new CCost([2,0,0]) ) );
-		} );
+		AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			CostOp( '<=',
+				Game.GetCost( card_no ),
+				CostOp( '+', TrashedCardCost, new CCost([2,0,0]) ) ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
 			yield MyAlert( { message : '獲得できるカードがありません' } );
@@ -129,7 +128,7 @@ $( function() {
 	/* 16. 基本 - 鉱山 */
 	CardEffect['Mine'] = function* () {
 		const Treasure = Game.player().HandCards
-			.filter( (card) => IsTreasureCard( Cardlist, card.card_no ) );
+			.filter( card => IsTreasureCard( Cardlist, card.card_no ) );
 
 		if ( Treasure.length <= 0 ) {
 			yield MyAlert( { message : '手札に財宝カードがありません。' } );
@@ -152,12 +151,11 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Mine_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( function( card, card_no ) {
-			return CostOp( '<=',
-				new CCost(card),
+		AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			CostOp( '<=',
+				Game.GetCost( card_no ),
 				CostOp( '+', TrashedCardCost, new CCost([3,0,0]) ) )
-				&& IsTreasureCard( Cardlist, card_no );
-		} );
+			&& IsTreasureCard( Cardlist, card_no ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
 			yield MyAlert( { message : '獲得できるカードがありません' } );
@@ -175,16 +173,14 @@ $( function() {
 		const clicked_card_no = $(this).attr('data-card_no');
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
-		Game.TrashCardByID( clicked_card_ID );  /* 「鉱山」 手札廃棄 */
-
-		const TrashedCard = Cardlist[ clicked_card_no ];
+		Game.TrashCardByID( clicked_card_ID );  /* 手札廃棄 */
 
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 		updates['TrashPile'] = Game.TrashPile;
 
 		FBref_Game.update( updates )
-		.then( () => Resolve[Remodel_or_Mine]( new CCost( TrashedCard ) ) );
+		.then( () => Resolve[Remodel_or_Mine]( Game.GetCost( clicked_card_no ) ) );
 	} );
 
 	$('.SupplyArea').on( 'click', '.card.Remodel_GetCard,.Mine_GetCard', function() {
@@ -213,7 +209,8 @@ $( function() {
 			Game.player()[`AddTo${DiscardPile_or_HandCards}`]( Game.GetCardByID( clicked_card_ID ) );
 
 			let updates = {};
-			updates[`Players/${Game.player().id}/${DiscardPile_or_HandCards}`] = Game.player()[DiscardPile_or_HandCards];
+			updates[`Players/${Game.player().id}/${DiscardPile_or_HandCards}`]
+				= Game.player()[DiscardPile_or_HandCards];
 			updates['Supply'] = Game.Supply;
 			yield FBref_Game.update( updates );
 			Resolve[Remodel_or_Mine]();
@@ -359,14 +356,14 @@ $( function() {
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Workshop_GetCard pointer');
-		AddAvailableToSupplyCardIf( card => CostOp( '<=', new CCost(card), new CCost([4,0,0]) ) );
+		AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			CostOp( '<=', Game.GetCost( card_no ), new CCost([4,0,0]) ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
 			yield MyAlert( { message : '獲得できるカードがありません' } );
 			return;
 		}
 
-		/* ゲーム未終了でコスト4以下のカードが1枚も無い状態はあり得ないのでチェック省略 */
 		yield new Promise( resolve => Resolve['Workshop_GetCard'] = resolve );
 	};
 
@@ -384,7 +381,8 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Feast_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( card => CostOp( '<=', new CCost(card), new CCost([5,0,0]) ) );
+		AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			CostOp( '<=', Game.GetCost( card_no ), new CCost([5,0,0]) ) );
 
 		yield new Promise( resolve => Resolve['Feast_GetCard'] = resolve );
 	};

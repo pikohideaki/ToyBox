@@ -169,6 +169,7 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
+	// SelectedCards.KingdomCards = [ 30, 9,16, 17,19, 34,48,53,42,   54,  ];
 	// SelectedCards.KingdomCards = [ 30, 9,16, 37,34,36,50,44,38,43,  ];
 
 	// SelectedCards.KingdomCards = [ 30,14,32,15,13,16,11,18,21,25, ];  //1
@@ -176,7 +177,6 @@ $('#make-room-btn').click( function() {
 	// SelectedCards.KingdomCards = [ 34,36,50,44,38, 43,47,46,48,57, ]; //3
 	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //4
 	/*
-			54	橋
 		ok(2017/1/1)
 		ok	52	ハーレム
 		ok	33	大広間
@@ -193,6 +193,7 @@ $('#make-room-btn').click( function() {
 		ok	46	偵察員
 		ok	48	鉄工所
 		ok	57	貢物
+		ok	54	橋
 
 		ok	39	鉱山の村
 		ok	49	銅細工師

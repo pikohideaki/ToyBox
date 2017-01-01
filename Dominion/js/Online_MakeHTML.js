@@ -5,11 +5,11 @@ function MakeHTML_button( class_str, button_value ) {
 
 
 /* supply html */
-function MakeHTML_SupplyPile( SupplyPile, Cardlist ) {
+function MakeHTML_SupplyPile( SupplyPile, Cardlist, Game ) {
 	const num           = SupplyPile.pile.length;
 	const card_name_eng = Cardlist[ SupplyPile.card_no ].name_eng;
 	const card_name_jp  = Cardlist[ SupplyPile.card_no ].name_jp;
-	const cost_coin     = Cardlist[ SupplyPile.card_no ].cost;
+	const cost_coin     = Game.GetCost( SupplyPile.card_no ).coin;
 	const card_no       = SupplyPile.card_no;
 	// const top_card_ID   = SupplyPile.LookTopCard().card_ID;
 					// data-top_card_ID='${top_card_ID}' 

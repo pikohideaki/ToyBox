@@ -70,11 +70,10 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Upgrade_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( function( card, card_no ) {
-			return CostOp( '==',
-				new CCost(card),
-				CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) );
-		} );
+		AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			CostOp( '==',
+				Game.GetCost( card_no ),
+				CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
 			yield MyAlert( { message : '獲得できるカードがありません' } );
@@ -88,21 +87,14 @@ $( function() {
 		const clicked_card_no = $(this).attr('data-card_no');
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
-		Game.TrashCardByID( clicked_card_ID );  /* 「鉱山」 手札廃棄 */
-
-		const TrashedCard = Cardlist[ clicked_card_no ];
-		const TrashedCardCost = {
-			coin   : TrashedCard.cost,
-			potion : TrashedCard.cost_potion,
-			debt   : TrashedCard.cost_debt,
-		};
+		Game.TrashCardByID( clicked_card_ID );  /* 手札廃棄 */
 
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 		updates['TrashPile'] = Game.TrashPile;
 
 		FBref_Game.update( updates )
-		.then( () => Resolve['Upgrade_Trash']( TrashedCardCost ) );
+		.then( () => Resolve['Upgrade_Trash']( Game.GetCost( clicked_card_no ) ) );
 	} );
 
 	$('.SupplyArea').on( 'click', '.card.Upgrade_GetCard', function() {
@@ -444,7 +436,9 @@ $( function() {
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('Ironworks_GetCard pointer');
-		AddAvailableToSupplyCardIf( card => CostOp( '<=', new CCost(card), new CCost([4,0,0]) ) );
+
+		AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			CostOp( '<=', Game.GetCost( card_no ), new CCost([4,0,0]) ) );
 
 		const gotten_card_no
 			= yield new Promise( resolve => Resolve['Ironworks_GetCard'] = resolve );
@@ -938,14 +932,14 @@ $( function() {
 
 		while ( Game.Me().Drawable() ) {
 			const RevealedCard = Game.Me().GetDeckTopCard();
-			const Card = Cardlist[ RevealedCard.card_no ];
 
 			Game.Me().AddToOpen( RevealedCard );
 			yield FBref_Players.child(myid).set( Game.Me() );
 
-			if ( Card.cost >= 3 ) {
+			const RevealedCard_cost_coin = Game.GetCost( RevealedCard.card_no ).coin;
+			if ( RevealedCard_cost_coin >= 3 ) {
 				LastRevealedCard = RevealedCard;
-				TrashedCardCostCoin = Card.cost;
+				TrashedCardCostCoin = RevealedCard_cost_coin;
 				break;
 			}
 		}
@@ -969,9 +963,9 @@ $( function() {
 			PrintSupply();
 			/* サプライのクラス書き換え */
 			$('.SupplyArea').find('.card').addClass('Saboteur_GetCard pointer');
-			AddAvailableToSupplyCardIf( card =>
+			AddAvailableToSupplyCardIf( ( card, card_no ) =>
 				CostOp( '<=',
-					new CCost(card),
+					Game.GetCost( card_no ),
 					new CCost([TrashedCardCostCoin - 2,0,0])) );
 
 			if ( $('.SupplyArea').find('.available').length > 0 ) {
@@ -1046,10 +1040,10 @@ $( function() {
 			// 同じコストのカードを1枚獲得
 			/* サプライのクラス書き換え */
 			$('.SupplyArea').find('.card').addClass('Swindler_GetCard pointer');
-			AddAvailableToSupplyCardIf(
-				card => CostOp( '==',
-					new CCost(card),
-					new CCost( Cardlist[ DeckTopCard.card_no ] ) )
+			AddAvailableToSupplyCardIf( ( card, card_no ) =>
+				CostOp( '==',
+					Game.GetCost( card_no ),
+					Game.GetCost( DeckTopCard.card_no ) )
 			);
 
 			let updates = {};
@@ -1179,8 +1173,16 @@ $( function() {
 
 	/* 54. 橋 */
 	CardEffect['Bridge'] = function*() {
-		yield FBref_Message.set( '' );
+		yield FBref_Message.set( 'このターン、全てのカードのコストは1コイン少なくなります（0コイン未満にはなりません）。' );
+		Game.TurnInfo.cost_down_by_Bridge++;
+		yield FBref_Game.child('TurnInfo/cost_down_by_Bridge').set( Game.TurnInfo.cost_down_by_Bridge );
+
+		$('.action_buttons').append( MakeHTML_button( 'Bridge_ok', 'OK' ) );
+		yield new Promise( resolve => Resolve['Bridge_ok'] = resolve );
+		$('.action_buttons .Bridge_ok').remove();
 	};
+
+	$('.action_buttons').on( 'click', '.Bridge_ok', () => Resolve['Bridge_ok']() );
 
 
 });
