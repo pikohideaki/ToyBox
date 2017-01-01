@@ -136,11 +136,11 @@ class CGame {
 			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Highway' ).length;
 
 		// 石切場（場にある枚数）
-		let Quarry_num_in_play = 0;
+		let Quarry_num_in_play
 			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Quarry' ).length;
 
 		// 橋の下のトロル（場にある枚数）
-		let BridgeTroll_num_in_play = 0;
+		let BridgeTroll_num_in_play
 			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Bridge Troll' ).length;
 
 		cost = CostOp( '-', cost, [ Highway_num_in_play ,0,0] );
