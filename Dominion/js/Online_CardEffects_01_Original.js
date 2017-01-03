@@ -263,7 +263,7 @@ $( function() {
 
 				ShowDialog( {
 					message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
-					contents : MakeHTML_Card(deck_top_card),
+					contents : MakeHTML_Card( deck_top_card, Game ),
 					buttons  :
 						MakeHTML_button( 'Library SetAside', '脇に置く' ) + 
 						MakeHTML_button( 'Library', '手札に加える' ),
@@ -686,7 +686,7 @@ $( function() {
 
 			trashed_card_IDs.forEach( function(id) {
 				const card = Game.GetCardByID( id, false );
-				$('.dialog_contents').append( MakeHTML_Card(card) );
+				$('.dialog_contents').append( MakeHTML_Card( card, Game ) );
 			} );
 			$('.dialog_contents').find('.card').addClass('Thief_GainTrashedCard pointer');
 

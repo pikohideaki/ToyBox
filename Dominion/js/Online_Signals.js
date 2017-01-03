@@ -80,7 +80,7 @@ function* Reaction() {
 		// 確認待ち
 		ShowDialog( {
 			message  : '公開したカードを他のプレイヤーが確認するのを待っています。',
-			contents : MakeHTML_Card(clicked_card),
+			contents : MakeHTML_Card( clicked_card, Game ),
 			buttons  : '',
 		} );
 		yield FBref_SignalRevealReaction.set('waiting_for_confirmation');

@@ -104,7 +104,7 @@ function PrintConnection( player_id ) {
 
 function PrintCardArea_sub( CardArea, $CardArea, face_down = 'face' ) {
 	$CardArea.html('');
-	CardArea.forEach( (card) => $CardArea.append( MakeHTML_Card( card ) ) );
+	CardArea.forEach( card => $CardArea.append( MakeHTML_Card( card, Game ) ) );
 
 	switch ( face_down ) {
 		case 'face' :  /* デフォルトは表 */
@@ -180,7 +180,7 @@ function PrintDeck_sub( player_id, $Deck ) {
 	let Deck = Game.Players[ player_id ].Deck;
 	$Deck.html('');
 	if ( Deck.length > 0 ) {
-		$Deck.html( MakeHTML_Card( Deck[0] ) );
+		$Deck.html( MakeHTML_Card( Deck[0], Game ) );
 		/* 山札枚数表示 */
 		$Deck.find('.card')
 			.append(`<span class='card-num-of-remaining'>${Deck.length}</span>` )
@@ -199,7 +199,7 @@ function PrintDiscardPile_sub( player_id, $DiscardPile ) {
 	let DiscardPile = Game.Players[ player_id ].DiscardPile;
 	$DiscardPile.html('');
 	if ( DiscardPile.length > 0 ) {
-		$DiscardPile.html( MakeHTML_Card( DiscardPile.back() ) );
+		$DiscardPile.html( MakeHTML_Card( DiscardPile.back(), Game ) );
 
 		/* デフォルトは表 */
 		$DiscardPile.find('.card').removeClass('down').addClass('face');
@@ -369,7 +369,7 @@ function PrintTurnInfo() {
 function PrintTrashPile() {
 	let $TrashPile = $('.TrashPile');
 	if ( Game.TrashPile.length > 0 ) {
-		$TrashPile.html( MakeHTML_Card( Game.TrashPile.back() ) );
+		$TrashPile.html( MakeHTML_Card( Game.TrashPile.back(), Game ) );
 		$TrashPile.children('.card').addClass('face');  /* デフォルトは表 */
 		$TrashPile.find('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
 	}

@@ -51,14 +51,15 @@ function MakeHTML_MyArea_Supply() {
 
 
 
-function MakeHTML_Card( card ) {
+function MakeHTML_Card( card, Game ) {
+	const cost_coin = Game.GetCost( card.card_no ).coin;
 	return `
 		<button
 			class='card face ${( card.class_str || '' )}'
 			data-card_no='${card.card_no}'
 			data-card_ID='${card.card_ID}'
 			data-card_name_jp='${Cardlist[ card.card_no ].name_jp}'>
-			<span class='card-cost-coin'>${Cardlist[ card.card_no ].cost}</span>
+			<span class='card-cost-coin'>${cost_coin}</span>
 		</button>
 		`;
 			// <i class="fa fa-search-plus zoom_card" aria-hidden="true"></i>

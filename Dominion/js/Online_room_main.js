@@ -102,6 +102,7 @@ function MakeHTML_Room( RoomID, RoomInfo ) {
 				<div class='room-list-item-wrapper'>
 				<div class='room-list-item ${disabled_str}' data-room-id='${RoomID}'>
 					<p>部屋<span class='room-no'>${RoomInfo.RoomNo}</span></p>
+					<p>作成日時 ： <span class='room-date'>${RoomInfo.Date}</span></p>
 					<p>状態 ： <span class='room-status'>${RoomInfo.Status}</span></p>
 					<p>使用する拡張セット ： <span class='room-use-set'>${RoomInfo.UsingSetlist.join('，')}</span></p>
 					<p>プレイヤー数 ： <span class='room-player-num'>${RoomInfo.PlayerNum}</span></p>
@@ -233,6 +234,9 @@ $('#make-room-btn').click( function() {
 		ok	23	庭園
 	*/
 
+	let date = new Date();
+
+
 	let NewRoom = {
 		RoomInfo : {
 			RoomNo        : NotUsedNumber( GetRoomNoList(), 1 ),
@@ -244,7 +248,8 @@ $('#make-room-btn').click( function() {
 			UsingSetlist  : UsingSetlist,
 			UseSet        : UseSet,
 			SelectedCards : SelectedCards,
-			Date          : new Date(),
+			Date          : 
+			`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
 		},
 		Game : {},
 	};
