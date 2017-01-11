@@ -333,12 +333,12 @@
 .turn-dialog-wrapper {
 	z-index: 1000;
 	background-color: rgba(0, 0, 0, 0.3);
-	font-size : 24px;
+	/*font-size : 24px;*/
 }
 .phase-dialog-wrapper {
 	z-index: 1000;
 	background-color: rgba(0, 0, 0, 0.1);
-	font-size : 20px;
+	/*font-size : 20px;*/
 }
 .connection-dialog-wrapper {
 	z-index: 100000;

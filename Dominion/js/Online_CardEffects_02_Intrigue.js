@@ -328,7 +328,11 @@ $( function() {
 
 	/* 47. 手先 */
 	CardEffect['Pawn'] = function*() {
-		yield FBref_Message.set( '次のうち異なる二つを選んでください。' );
+		yield FBref_Message.set( '次のうち異なる二つを選んでください。\
+			 - +1 Card<br>\
+			 - +1 Action<br>\
+			 - +1 Buy<br>\
+			 - +1 Coin<br>' );
 
 		$('.action_buttons')
 			.append( MakeHTML_button( 'Pawn 1Card'  , '+1 Card'   ) )
@@ -714,7 +718,7 @@ $( function() {
 		Resolve['SecretChamber_Discard'](true);
 	} );
 
-	ReactionEffect['Secret Chamber'] = function*( Resolve_GetReactionCardEffect ) {
+	ReactionEffect['Secret Chamber'] = function*() {
 		yield FBref_MessageToMe.set('山札から2枚カードを手札に引いた後、手札から2枚山札に戻してください。');
 		Game.Me().DrawCards(2);
 		yield FBref_Players.child( myid ).set( Game.Me() );
@@ -865,14 +869,27 @@ $( function() {
 
 			for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 				if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
-				yield Monitor_FBref_SignalAttackEnd_on( 'Minion' );  // End受信 -> Resolve['Minion']()
-				yield SendSignal( id, {
-					Attack    : true,
-					card_name : 'Minion',
-					Message   : '手札が5枚以上ある人は手札を捨て札にして+4カード',
-				} );
-				yield new Promise( resolve => Resolve['Minion'] = resolve );  /* 他のプレイヤー待機 */
-				Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+
+				let pl = Game.Players[id];
+
+				// 手札が5枚以上ならば捨て札にして+4Cards
+				yield FBref_MessageTo.child(id).set('手札が5枚以上ある人は手札を捨て札にして+4カード');
+				if ( pl.HandCards.length >= 5 ) {
+					pl.HandCards.forEach( card => pl.AddToDiscardPile(card) );
+					pl.HandCards = [];
+					pl.DrawCards(4);
+					yield FBref_Players.child(id).set( pl );
+					continue;
+				}
+				yield FBref_MessageTo.child(id).set('');
+				// yield Monitor_FBref_SignalAttackEnd_on( 'Minion' );  // End受信 -> Resolve['Minion']()
+				// yield SendSignal( id, {
+				// 	Attack    : true,
+				// 	card_name : 'Minion',
+				// 	Message   : '手札が5枚以上ある人は手札を捨て札にして+4カード',
+				// } );
+				// yield new Promise( resolve => Resolve['Minion'] = resolve );  /* 他のプレイヤー待機 */
+				// Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 			}
 			return;
 
@@ -887,17 +904,6 @@ $( function() {
 		if ( $(this).hasClass('Discard') ) clicked_btn = 'Discard';
 		Resolve['Minion_select']( clicked_btn );  // 再開
 	} );
-
-	AttackEffect['Minion'] = function* () {  /* アタックされる側 */
-		// 手札が5枚以上ならば捨て札にして+4Cards
-		if ( Game.Me().HandCards.length >= 5 ) {
-			Game.Me().HandCards.forEach( card => Game.Me().AddToDiscardPile(card) );
-			Game.Me().HandCards = [];
-			Game.Me().DrawCards(4);
-			yield FBref_Players.child(myid).set( Game.Me() );
-			return;
-		}
-	};
 
 
 
@@ -1024,7 +1030,7 @@ $( function() {
 	/* 42. 詐欺師 */
 	CardEffect['Swindler'] = function*() {
 		yield FBref_Message.set( '他のプレイヤーは全員、自分の山札の一番上のカードを廃棄し、\
-			廃棄したカードと同じコストのあなたが選んだカードを獲得します。' );
+			廃棄したカードと同じコストのあなたが選んだカード（サプライをクリック）を獲得します。' );
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ

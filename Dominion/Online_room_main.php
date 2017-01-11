@@ -70,12 +70,26 @@ for ( $i = 0; $i < $dominist_num; $i++ ) {
 				<div>
 					<input type="checkbox" name="" id='UseSet0' disabled="disabled">
 					<label for='UseSet0' class='checkbox disabled' >プロモ</label>
+
 					<input type="checkbox" name="" id='UseSet1' checked>
 					<label for='UseSet1' class='checkbox' >基本</label>
+
 					<input type="checkbox" name="" id='UseSet2' checked>
 					<label for='UseSet2' class='checkbox' >陰謀</label>
+
+					<input type="checkbox" name="" id='UseSet3' disabled>
+					<label for='UseSet3' class='checkbox disabled' >海辺</label>
+
+					<input type="checkbox" name="" id='UseSet4' disabled>
+					<label for='UseSet4' class='checkbox disabled' >錬金術</label>
+
+					<input type="checkbox" name="" id='UseSet5' disabled>
+					<label for='UseSet5' class='checkbox disabled' >繁栄</label>
+
+					<input type="checkbox" name="" id='UseSet6' checked>
+					<label for='UseSet6' class='checkbox' >収穫祭</label>
 					<?php
-						for ( $i = 3; $i < count( $Setlist ); $i++ ) {
+						for ( $i = 7; $i < count( $Setlist ); $i++ ) {
 echo <<<EOM
 					<input type="checkbox" id='UseSet{$i}' disabled="disabled">\n
 					<label for='UseSet{$i}' class='checkbox disabled' >{$Setlist[$i]}</label>\n

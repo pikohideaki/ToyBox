@@ -92,34 +92,38 @@ class CGame {
 
 	MoveToNextPlayer() {
 		let G = this;
-		let updates = {};
+		return MyAsync( function*() {
+			let updates = {};
 
-		this.player().CleanUp( false );
-		updates[ `Game/Players/${this.whose_turn_id}` ] = this.player();
+			G.player().CleanUp( false );
+			updates[ `Game/Players/${G.whose_turn_id}` ] = G.player();
 
-		if ( this.GameEnded() ) {
-			for ( let i = 0; i < this.Players.length; ++i ) {
-				this.Players[i].SumUpVP();
-				updates[ `Game/Players/${i}` ] = this.Players[i];
+			if ( G.GameEnded() ) {
+				for ( let i = 0; i < G.Players.length; ++i ) {
+					G.Players[i].SumUpVP();
+					updates[ `Game/Players/${i}` ] = G.Players[i];
+				}
+
+				updates['RoomInfo/Status'] = 'ゲーム終了';
+				updates['GameEnd'] = true;
+				yield FBref_Room.update( updates );
+				return;
 			}
 
-			updates['RoomInfo/Status'] = 'ゲーム終了';
-			updates['GameEnd'] = true;
-			FBref_Room.update( updates );
-			return;
-		}
-
-		this.whose_turn_id = this.NextPlayerID();
-		this.ResetTurnInfo();
-		/* アクションカードがなければスキップして購入フェーズに遷移 */
-		if ( !this.player().HasActionCard() ) {
-			this.phase = 'BuyPhase';
-		}
-		updates['Game/whose_turn_id'] = this.whose_turn_id;
-		updates['Game/TurnInfo'] = this.TurnInfo;
-		updates['Game/phase'] = this.phase;
-		FBref_Room.update( updates );
-		FBref_Room.child('chat').push( `${Game.player().name}のターン` );
+			G.whose_turn_id = G.NextPlayerID();
+			G.ResetTurnInfo();
+			/* アクションカードがなければスキップして購入フェーズに遷移 */
+			if ( !G.player().HasActionCard() ) {
+				G.phase = 'BuyPhase';
+			}
+			updates['Game/whose_turn_id'] = G.whose_turn_id;
+			updates['Game/TurnInfo'] = G.TurnInfo;
+			updates['Game/phase'] = G.phase;
+			yield Promise.all( [
+				FBref_Room.update( updates ),
+				FBref_Room.child('chat').push( `${Game.player().name}のターン` ),
+			]);
+		});
 	}
 
 

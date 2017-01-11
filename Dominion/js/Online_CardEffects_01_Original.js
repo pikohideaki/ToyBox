@@ -275,7 +275,7 @@ $( function() {
 				HideDialog();
 
 				if ( set_aside ) {
-					Game.player().AddToAside( deck_top_card );
+					Game.player().SetAside( deck_top_card );
 					yield FBref_Players.child( Game.player().id ).set( Game.player() );
 					continue;
 				}
@@ -344,7 +344,7 @@ $( function() {
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
-	$('.action_buttons').on( 'click', '.Adventurer.Done', () => Resolve['Adventurer']() );  // 再開
+	$('.action_buttons').on( 'click', '.Adventurer.Done', () => Resolve['Adventurer']() );
 
 
 

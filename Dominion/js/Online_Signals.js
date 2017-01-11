@@ -26,7 +26,7 @@ function* CatchSignal( signals_to_me ) {
 	if ( signals_to_me == null ) return;
 
 	if ( signals_to_me.listen_reaction ) {  // リアクションカードの効果
-		yield MyAsync( Reaction );
+		yield MyAsync( Reaction, signals_to_me );
 	}
 
 	/* received a signal from attacker */
@@ -47,7 +47,7 @@ function* CatchSignal( signals_to_me ) {
 
 
 
-function* Reaction() {
+function* Reaction( signals_to_me ) {
 	$('.MyArea .buttons').append( MakeHTML_button('end_reaction', 'リアクション終了') );
 	$end_reaction_btn = $('.MyArea .buttons .end_reaction');
 
@@ -102,7 +102,8 @@ function* Reaction() {
 
 		// リアクション効果
 		// yield FBref_MessageToMe.set('リアクションカードの効果を解決してください。');
-		yield MyAsync( ReactionEffect[ Cardlist[ clicked_card.card_no ].name_eng ] );
+		yield MyAsync( ReactionEffect[ Cardlist[ clicked_card.card_no ].name_eng ],
+				clicked_card.card_no, clicked_card_ID );
 	}
 
 	// リアクション 終了処理

@@ -145,7 +145,7 @@ class CPlayer {
 	}
 
 	/* Aside */
-	AddToAside( card, FBsync = false ) {  /* カード移動基本操作 */
+	SetAside( card, FBsync = false ) {  /* カード移動基本操作 */
 		if ( card == undefined ) return Promise.resolve();
 		this.Aside.push( card );
 		if ( FBsync ) {
@@ -278,9 +278,12 @@ class CPlayer {
 
 		this.VPtotal += this.VPtoken;
 
+		// 呪い
+		this.VPtotal -=
+			DeckAll.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Curse' ) ).length;
+
 		// 得点固定の勝利点カードの合計
 		VictoryCards.forEach( (card) => { this.VPtotal += Number( Cardlist[ card.card_no ].VP ) });
-
 
 		// 庭園 : デッキ枚数 ÷ 10 点
 		this.VPtotal +=
