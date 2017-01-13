@@ -35,6 +35,7 @@ $GameRoomID = $_POST['room-id'];
 		PrintHead_Dominion();
 	?>
 
+	<link rel="stylesheet" href="/Dominion/css/Online_ChatArea.css">
 	<link rel="stylesheet" href="/Dominion/css/Online_game_main.css">
 	<link rel="stylesheet" href="/Dominion/css/Online_Cards.css">
 </head>
@@ -51,6 +52,7 @@ $GameRoomID = $_POST['room-id'];
 				<label for='auto_scroll' class='checkbox'>自動スクロール</label>
 				<textarea rows='3'  wrap='soft' class='chat_textbox'></textarea>
 				<button class='btn-blue chat_enter'>送信</button>
+				<button class='btn-green leave_a_room'>退室</button>
 			</div>
 		</div>
 		<div class='settings'>
@@ -290,11 +292,25 @@ $GameRoomID = $_POST['room-id'];
 	</div>
 
 
+
+	<!-- alert, confirm -->
 	<div class='BlackCover BlackCover_rightside MyAlert'>
 		<div class='MyAlert-box'>
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>
 			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear'></div>
+		</div>
+	</div>
+
+	<div class='BlackCover BlackCover_rightside MyConfirm'>
+		<div class='MyConfirm-box'>
+			<div class='clear confirm_text'></div>
+			<div class='clear confirm_contents'></div>
+			<div class='clear buttons'>
+				<input type='button' class='btn-blue yes' value='はい'>
+				<input type='button' class='btn-blue no'  value='いいえ'>
+			</div>
 			<div class='clear'></div>
 		</div>
 	</div>
@@ -359,6 +375,7 @@ $GameRoomID = $_POST['room-id'];
 <script type='text/javascript'>
 	var CardName2No = MakeMap_CardName2No( Cardlist );  /* global object */
 </script>
+<script type='text/javascript' src='/Dominion/js/Online_ChatArea.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_MakeHTML.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_Print.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_FBSet.js'></script>

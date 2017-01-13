@@ -28,16 +28,19 @@ $( function() {
 
 
 	// カードリスト
+	function SetZoomedCardBoxSize() {
+		$card = $('.CardView_zoom .card_biggest');
+		const SizeOf$card = new SizeOfjQueryObj( $card );
+		$card.width( SizeOf$card.height * 15 / 23 );
+		$card.css( 'borderRadius', $card.width() / 10 );
+	}
+
 	$('.card_view').click( function() {
 		$('.CardView-wrapper').fadeToggle();
-		$card = $('.CardView_zoom .card_biggest');
-		$card.width( $card.height() * 14.9 / 23 );
+		SetZoomedCardBoxSize();
 	});
 
-	$(window).resize( function() {
-		$card = $('.CardView_zoom .card_biggest');
-		$card.width( $card.height() * 14.9 / 23 );
-	} );
+	$(window).resize( SetZoomedCardBoxSize );
 
 	// ESCで閉じる
 	$(document).keydown( function(e) {
@@ -130,12 +133,6 @@ $( function() {
 		});
 	});
 
-
-	$('.chat-wrapper .chat_enter').click( function() {
-		const msg = $('.chat-wrapper .chat_textbox').val();
-		FBref_Room.child('chat').push( `<font color='red'>${Game.Players[myid].name}</font> : ${msg}` );
-		$('.chat-wrapper .chat_textbox').val('');
-	});
 
 
 

@@ -213,7 +213,19 @@ function MyAsync( GenFunc, ...Args ) {
 			<div class='clear'></div>
 		</div>
 	</div>
-	*/
+
+	<div class='BlackCover MyConfirm'>
+		<div class='MyConfirm-box'>
+			<div class='clear confirm_text'></div>
+			<div class='clear confirm_contents'></div>
+			<div class='clear buttons'>
+				<input type='button' class='btn-blue yes' value='はい'>
+				<input type='button' class='btn-blue no' value='いいえ'>
+			</div>
+			<div class='clear'></div>
+		</div>
+	</div>
+*/
 function MyAlert( options ) {
 	return new Promise( function( resolve, reject ) {
 		$('.alert_text').html( options.message );
@@ -225,6 +237,22 @@ function MyAlert( options ) {
 		} );
 	});
 }
+
+function MyConfirm( options ) {
+	return new Promise( function( resolve, reject ) {
+		$('.confirm_text').html( options.message );
+		$('.confirm_contents').html( options.contents );
+		$('.MyConfirm').fadeIn( 'normal' );
+
+		$('.MyConfirm .buttons input[type=button]').click( function() {
+			$('.MyConfirm').fadeOut( 'normal', () => resolve( $(this).hasClass('yes') ) );
+			// $('.MyConfirm').fadeOut();
+			// resolve( $(this).hasClass('yes') );
+		} );
+	});
+}
+
+
 
 
 

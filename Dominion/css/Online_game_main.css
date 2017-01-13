@@ -19,34 +19,7 @@
 	height : 100%;
 	background-color : #AAE8F3;
 }
-.chat-wrapper {
-	margin : 10px;
-	height : 70%;
-}
-.chat_list {
-	/*width : 280px;*/
-	overflow : scroll;
-	background-color : white;
-	height : 70%;
-	padding : 10px;
-}
-.chat_mymsgbox {
-	height : 30%;
-	margin-top : 10px;
-}
-.chat_textbox {
-	max-width: 200px;
-	max-height: 100px;
 
-	max-height : 100px ;  /*IE8以下とAndroid4.3以下用フォールバック */
-	max-height : -webkit-calc(100% - 48px) ;
-	max-height : calc(100% - 48px) ;
-	float: left;
-}
-.chat_enter {
-	margin-left : 10px;
-	float : left;
-}
 .settings {
 	margin : 10px;
 	height : 20%;
@@ -375,7 +348,7 @@
 
 .CardView-wrapper {
 	z-index: 2000;
-	background-color: rgba(0, 0, 0, 0.8);
+	background-color: rgba(0, 0, 0, 0.6);
 }
 
 .CardView {

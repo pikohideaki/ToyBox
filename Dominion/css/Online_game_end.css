@@ -1,0 +1,30 @@
+.leftside {
+	top : 65px;
+}
+.rightside {
+	margin-top : 65px;
+}
+.back2roomlist {
+	margin-top : 10px;
+}
+.score_tables {
+	float: left;
+	width : 30%;
+	min-width : 400px;
+}
+.players_decks {
+	float: left;
+	margin-left : 20px;
+	width : 60%;
+}
+.players_decks .card {
+	width:45px;
+	height:69px;
+	margin: 1px;
+}
+.player_cards {
+	margin : 10px;
+}
+.player_name {
+	margin-bottom : 10px;
+}

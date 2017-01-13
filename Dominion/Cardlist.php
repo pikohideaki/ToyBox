@@ -64,6 +64,7 @@ $selectlist->implemented = array();
 	?>
 	<link rel="stylesheet" type="text/css" href="/Dominion/css/Online_Cards.css">
 	<link rel="stylesheet" type="text/css" href="/Dominion/css/Cardlist.css">
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/CardEffectBox.css">
 
 </head>
 
@@ -281,9 +282,10 @@ EOM;
 ?>
 
 
-<script type="text/javascript" src="./js/Online_MakeHTML.js"></script>
-<script type="text/javascript" src="./js/Cardlist.js"></script>
-<script type="text/javascript">
+<script type='text/javascript' src='./js/CardEffectBox.js'></script>
+<script type='text/javascript' src='./js/Online_MakeHTML.js'></script>
+<script type='text/javascript' src='./js/Cardlist.js'></script>
+<script type='text/javascript'>
 	for ( var i = 0; i < Cardlist.length; i++ ) {
 		Cardlist[i].display_flag = true;
 	}

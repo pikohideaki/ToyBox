@@ -121,19 +121,6 @@ Initialize.then( function() {  /* 初期設定終わったら */
 
 
 
-	FBref_Room.child('chat').on('value', function( FBsnapshot ) {
-		const msgs = FBsnapshot.val();
-
-		$('.chat_list').html(''); // reset
-		for ( let key in msgs ) {
-			$('.chat_list').append(`<p>${msgs[key]}</p>`);
-		}
-		if ( $('.auto_scroll').prop('checked') ) {
-			$('.chat_list').animate({scrollTop: $('.chat_list')[0].scrollHeight}, 'normal');
-		}
-	});
-
-
 	FBref_Room.child('GameEnd').on('value', function( FBsnapshot ) {
 		const GameEnd = FBsnapshot.val();
 		if ( GameEnd ) {

@@ -1,0 +1,41 @@
+
+.card_biggest {
+	height : 100%;
+	width : 100%;
+}
+
+/* 画面中央に縦横80% */
+.CardEffect-box {
+	width: 80%;
+	height : 80%;
+	top : 10%;
+	left : 10%;
+}
+
+/*
+ * ボタンの高さを引いた高さに．
+ * .alert_contents 内部に
+	<div class='card_effect_text'> </div>
+	<div class='card_effect_image'> </div>
+	が入る
+*/
+.CardEffect-box .alert_contents {
+	width : 100%;
+	height : 80% ; /* IE8以下とAndroid4.3以下用フォールバック */
+	height : -webkit-calc(100% - 50px);
+	height : calc(100% - 50px);
+}
+
+.card_effect_text {
+	float : left;
+	height : 100%;
+	width : 70%;
+	overflow : scroll;
+}
+
+.card_effect_image {
+	float : left;
+	width : 30%;
+	height : 100%;
+	padding : 10px;
+}

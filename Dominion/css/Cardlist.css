@@ -17,11 +17,11 @@
 .checkbox_on_blue_header:hover:after {
 	border-color: #FFFF00;
 }
-.radio:after, .checkbox:after {
+.radio:after, .checkbox_on_blue_header:after {
 	border: 2px solid #ccc;
 }
 
-.checkbox:before {
+.checkbox_on_blue_header:before {
 	border-right: 3px solid #FFFF00;
 	border-bottom: 3px solid #FFFF00;
 }
@@ -30,22 +30,3 @@
 
 
 
-.card_biggest {
-	height : 100%;
-}
-
-.CardEffect-box {
-	width: 80%;
-	height : 80%;
-	top : 10%;
-	left : 10%;
-}
-.card_effect_text {
-	float : left;
-	width : 60%;
-}
-
-.card_effect_image {
-	float : left;
-	width : 40%;
-}

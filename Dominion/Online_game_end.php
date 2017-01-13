@@ -101,41 +101,11 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 		PrintHead_Dominion();
 	?>
 
-	<link rel="stylesheet" href="/Dominion/css/Online_game_main.css">
-	<link rel="stylesheet" href="/Dominion/css/Online_Cards.css">
-	<link rel="stylesheet" type="text/css" href="/Dominion/css/Cardlist.css">
-	<style type="text/css">
-		.leftside {
-			top : 65px;
-		}
-		.rightside {
-			margin-top : 65px;
-		}
-		.back2roomlist {
-			margin-top : 10px;
-		}
-		.score_tables {
-			float: left;
-			width : 30%;
-			min-width : 400px;
-		}
-		.players_decks {
-			float: left;
-			margin-left : 20px;
-			width : 60%;
-		}
-		.players_decks .card {
-			width:45px;
-			height:69px;
-			margin: 1px;
-		}
-		.player_cards {
-			margin : 10px;
-		}
-		.player_name {
-			margin-bottom : 10px;
-		}
-}
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/Online_ChatArea.css">
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/Online_game_main.css">
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/Online_Cards.css">
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/CardEffectBox.css">
+	<link rel="stylesheet" type="text/css" href="/Dominion/css/Online_game_end.css">
 
 	</style>
 </head>
@@ -161,6 +131,7 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 				<label for='auto_scroll' class='checkbox'>自動スクロール</label>
 				<textarea rows='3'  wrap='soft' class='chat_textbox'></textarea>
 				<button class='btn-blue chat_enter'>送信</button>
+				<button class='btn-green leave_a_room'>退室</button>
 			</div>
 		</div>
 		<div class='settings'>
@@ -174,10 +145,9 @@ if ( $myname == $gr->player[0]->name ) { // 書き込みは代表者が行う
 			<button class='btn-blue back2roomlist'>部屋一覧に戻る</button>
 
 			<h2><span class='winner-name'><?= h( $gr->player[0]->name ) ?></span> さんの勝ちです！</h2>
-
-
 			<div class='clear'></div>
 
+			<!-- 左側 -->
 			<div class='score_tables'>
 				<table class='tbl-blue'>
 					<thead>
@@ -213,7 +183,7 @@ EOM;
 				<?php PrintSupply( $gr, $Setlist, $Cardlist, false ); ?>
 			</div>
 
-
+			<!-- 右側 -->
 			<div class='players_decks'>
 				<?php
 				for ( $k = 0; $k < $player_num; $k++ ) {
@@ -227,17 +197,34 @@ EOM;
 				}
 				?>
 			</div>
+			<div class='clear'></div>
+
 		</div>
 		<div class='clear'></div>
 	</div>
 
 	<div class='clear'></div>
 
-	<div class='BlackCover MyAlert'>
+
+
+	<!-- alert, confirm -->
+	<div class='BlackCover BlackCover_rightside MyAlert'>
 		<div class='MyAlert-box CardEffect-box'>
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>
 			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear'></div>
+		</div>
+	</div>
+
+	<div class='BlackCover BlackCover_rightside MyConfirm'>
+		<div class='MyConfirm-box'>
+			<div class='clear confirm_text'></div>
+			<div class='clear confirm_contents'></div>
+			<div class='clear buttons'>
+				<input type='button' class='btn-blue yes' value='はい'>
+				<input type='button' class='btn-blue no'  value='いいえ'>
+			</div>
 			<div class='clear'></div>
 		</div>
 	</div>
@@ -286,73 +273,13 @@ EOM;
 	const SizeOf$sCard = new SizeOfjQueryObj( $('.SupplyArea.line1').find('.card') );
 </script>
 
+<script type='text/javascript' src='/Dominion/js/CardEffectBox.js'></script>
 <script type='text/javascript' src='/Dominion/js/Cardlist.js'></script>
+<script type='text/javascript' src='/Dominion/js/Online_ChatArea.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_Cardlist.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_MakeHTML.js'></script>
 <script type='text/javascript' src='/Dominion/js/Online_CPlayer.js'></script>
-
-
-
-<script type="text/javascript">
-$( function() {
-	$('.back2roomlist').click( () => { window.location.href = 'Online_room_main.php'; } );
-
-
-	FBref_Game.once( 'value' ).then( function( FBsnapshot ) {
-		let Players = FBsnapshot.val().Players;
-		for ( let i = 0; i < Players.length; ++i ) {
-			Players[i] = new CPlayer( Players[i] );
-			Players[i].HandCards = Players[i].GetDeckAll();
-			Players[i].SortHandCards();
-			const DeckAll = Players[i].HandCards;
-
-			$deck_all = $(`.${Players[i].name} .deck_all`);
-			$deck_all.html('');
-			DeckAll.forEach( (card) =>
-				$deck_all.append( `
-					<button class='card face'
-						data-card_no='${card.card_no}'
-						data-card_name_jp='${Cardlist[ card.card_no ].name_jp}'>
-					</button>
-				` )
-			);
-		}
-	} );
-
-
-
-	FBref_Room.child('chat').on('value', function( FBsnapshot ) {
-		const msgs = FBsnapshot.val();
-
-		$('.chat_list').html(''); // reset
-		for ( let key in msgs ) {
-			$('.chat_list').append(`<p>${msgs[key]}</p>`);
-		}
-		if ( $('.auto_scroll').prop('checked') ) {
-			$('.chat_list').animate({scrollTop: $('.chat_list')[0].scrollHeight}, 'normal');
-		}
-	});
-
-
-	$('.chat-wrapper .chat_enter').click( function() {
-		const msg = $('.chat-wrapper .chat_textbox').val();
-		FBref_Room.child('chat').push( `<font color='red'>${myname}</font> : ${msg}` );
-		$('.chat-wrapper .chat_textbox').val('');
-	});
-
-
-
-	$('.card_effect').click( function() {
-		const card_no = $(this).attr('data-card_no');
-		ShowCardEffectBox( Cardlist, card_no );
-	});
-
-	$(window).resize( PrintCardEffectBox );
-
-
-});
-</script>
-
+<script type='text/javascript' src='/Dominion/js/Online_game_end.js'></script>
 
 
 

@@ -198,32 +198,6 @@ function cardlist_display() {
 
 
 
-function PrintCardEffectBox() {
-	$card = $('.card_biggest');
-	const SizeOf$MyAlert_box = new SizeOfjQueryObj( $('.MyAlert-box') );
-	const SizeOf$buttons = new SizeOfjQueryObj( $('.MyAlert .buttons') );
-	$card.height( SizeOf$MyAlert_box.height_without_padding() - SizeOf$buttons.height_with_margin() );
-	$card.width( $card.height() * 14.9 / 23 );
-}
-
-function ShowCardEffectBox( Cardlist, card_no ) {
-	const Card = Cardlist[card_no];
-	MyAlert( {
-		contents : `
-			<div class='card_effect_text'>
-				${Card.effect1}<br><br>
-				${Card.effect2}<br><br>
-				${Card.effect3}<br><br>
-				${Card.effect4}<br><br>
-			</div>
-			<div class='card_effect_image'>
-				${MakeHTML_CardBiggest( card_no )}
-			</div> `,
-	});
-
-	PrintCardEffectBox();
-}
-
 
 $( function() {
 	$('.select_all_set'          ).click( () => { changechbox_set_name   (true ); cardlist_filter(); } );
@@ -241,12 +215,12 @@ $( function() {
 
 
 
+	// CardEffectBox
+
 	$('#tbody_cardlist').on( 'click', '.card_effect', function() {
 		const card_no = $(this).attr('data-card_no');
 		ShowCardEffectBox( Cardlist, card_no );
 	});
-
-	$(window).resize( PrintCardEffectBox );
 
 } );
 
