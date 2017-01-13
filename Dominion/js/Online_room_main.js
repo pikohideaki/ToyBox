@@ -178,7 +178,9 @@ $('#make-room-btn').click( function() {
 	// SelectedCards.KingdomCards = [ 34,36,50,44,38, 43,47,46,48,57, ]; //3
 	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //4
 
-	SelectedCards.KingdomCards = [ 127,128,129,130,131,132,133,134,135,136,]; //
+	SelectedCards.KingdomCards = [ 30,14,32, 127,129,133,134, 137,140,141, ]; //
+	
+
 	/*
 		ok(2017/1/1)
 		ok	52	ハーレム

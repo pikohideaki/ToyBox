@@ -206,6 +206,7 @@ $GameRoomID = $_POST['room-id'];
 				<p>
 					<span class='action_buttons'> <!-- jsでここを書き換え --> </span>
 					<input type='button' class='btn-blue SortHandCards'    value='手札をソート'>
+					<input type='button' class='btn-blue UseAllTreasures'  value='基本財宝カードを全て払う'>
 					<input type='button' class='btn-blue MoveToBuyPhase'   value='購入フェーズへ'>
 					<input type='button' class='btn-blue MoveToNextPlayer' value='ターン終了'>
 					<!-- <input type='button' class='btn-blue test' value='test'> -->

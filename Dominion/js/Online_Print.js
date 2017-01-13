@@ -314,44 +314,49 @@ function PrintPhase() {
 	PrintHandCardsOfPlayer();
 
 	switch ( Game.phase ) {
-		case 'ActionPhase' : {
+		case 'ActionPhase' :
 			FBref_Message.set( 'アクションカードを選択してください。' );
 			$('.phase').html('アクションフェーズ');
 			$('.SortHandCards').show();
+			$('.UseAllTreasures').hide();
 			$('.MoveToBuyPhase').show();
 			$('.MoveToNextPlayer').show();
-		} break;
+			break;
 
-		case 'ActionPhase*' : {
+		case 'ActionPhase*' : 
 			$('.phase').html('アクションフェーズ');
 			$('.SortHandCards').hide();
+			$('.UseAllTreasures').hide();
 			$('.MoveToBuyPhase').hide();
 			$('.MoveToNextPlayer').hide();
-		} break;
+			break;
 
 		case 'BuyPhase*' :
-		case 'BuyPhase' : {
+		case 'BuyPhase'  :
 			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
 			$('.phase').html('購入フェーズ');
 			$('.SortHandCards').show();
+			$('.UseAllTreasures').show();
 			$('.MoveToBuyPhase').hide();
 			$('.MoveToNextPlayer').show();
-		} break;
+			break;
 
-		case 'BuyPhase_GetCard' : {
+		case 'BuyPhase_GetCard' :
 			FBref_Message.set( 'カードを購入してください。' );
 			$('.phase').html('購入フェーズ');
 			$('.SortHandCards').show();
+			$('.UseAllTreasures').hide();
 			$('.MoveToBuyPhase').hide();
 			$('.MoveToNextPlayer').show();
-		} break;
+			break;
 
-		default : {
+		default :
 			$('.phase').html('');
 			$('.SortHandCards').show();
+			$('.UseAllTreasures').hide();
 			$('.MoveToBuyPhase').hide();
 			$('.MoveToNextPlayer').show();
-		} break;
+			break;
 	}
 }
 

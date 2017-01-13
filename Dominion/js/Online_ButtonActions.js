@@ -61,16 +61,18 @@ $( function() {
 
 
 
-	// $('#UseAllTreasure').click( function() {
-	// 	let Me = Game.player();
-	// 	for ( let i = Me.HandCards.length - 1; i >= 0; --i ) {
-	// 		let Card = Me.HandCards[i];
-	// 		if ( IsTreasureCard( Cardlist, Card.card_no ) ) {
-	// 			Game.UseCard( Card.card_no, Card.card_ID );
-	// 			Me.AddToPlayArea( Game.GetCardByID( Card.card_ID ) );
-	// 		}
-	// 	}
-	// });
+	$('.UseAllTreasures').click( () => MyAsync( function*() {
+		// $('.UseAllTreasures').hide();
+		let BasicTreasures
+			= Game.player().HandCards.filter( card =>
+				card.card_no == CardName2No['Copper']  ||
+				card.card_no == CardName2No['Silver']  ||
+				card.card_no == CardName2No['Gold']    ||
+				card.card_no == CardName2No['Platinum'] );
+		for ( let i = 0; i < BasicTreasures.length; ++i ) {
+			yield Game.UseCard( BasicTreasures[i].card_no, BasicTreasures[i].card_ID );
+		}
+	}) );
 
 	// $('.Common-Area').on( 'click', '.card-cost-coin', function() {
 	// 	alert( 'info ' + $(this).parent().attr('data-card_no') );
