@@ -10,11 +10,11 @@ $( function() {
 	// CardEffect['Harvest']         = function*() {}  ok /* 134. 収穫 */
 	// CardEffect['Hunting Party']   = function*() {}  ok /* 135. 狩猟団 */
 	// CardEffect['Hamlet']          = function*() {}  ok /* 136. 村落 */
-	// CardEffect['Jester']          = function*() {}     /* 137. 道化師 */
+	// CardEffect['Jester']          = function*() {}  ok /* 137. 道化師 */
 	// CardEffect['Farming Village'] = function*() {}  ok /* 138. 農村 */
 	// CardEffect['Tournament']      = function*() {}     /* 139. 馬上槍試合 */
 	CardEffect['Fairgrounds']     = function*() {}  /* 140. 品評会 */
-	// CardEffect['Horn of Plenty']  = function*() {}     /* 141. 豊穣の角笛 */
+	// CardEffect['Horn of Plenty']  = function*() {}  ok /* 141. 豊穣の角笛 */
 	// CardEffect['Young Witch']     = function*() {}     /* 142. 魔女娘 */
 	// CardEffect['Trusty Steed']    = function*() {}     /* 143. 名馬 */
 	// CardEffect['Followers']       = function*() {}     /* 144. 郎党 */
@@ -99,7 +99,7 @@ $( function() {
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
 
-			yield FBref_MessageTo.child(id).set( msg );
+			yield FBref_MessageTo.child( id ).set( msg );
 
 			let pl = Game.Players[id];
 
@@ -133,7 +133,7 @@ $( function() {
 
 			yield Promise.all( [
 				FBref_Players.child( pl.id ).set( pl ),
-				FBref_MessageTo.child(id).set(''),
+				FBref_MessageTo.child( id ).set(''),
 			] );
 		}
 
@@ -176,13 +176,9 @@ $( function() {
 
 	/* 133. 再建 */
 	CardEffect['Remake'] = function*() {
-		yield FBref_Message.set( '次の操作を2回行います ： <br>\
-			手札から1枚廃棄し、そのカード+1コインのコストのカードを獲得します。' );
-
-		yield sleep(1);
 
 		for ( let i = 0; i < 2; ++i ) {
-			yield FBref_Message.set( '手札から1枚廃棄し、そのカード+1コインのコストのカードを獲得します。' );
+			yield FBref_Message.set( `手札から1枚廃棄し、そのカード+1コインのコストのカードを獲得します。（${i + 1}/2回目）` );
 
 			if ( Game.player().HandCards.length <= 0 ) {
 				yield MyAlert( { message : '手札にカードがありません。' } );
@@ -389,61 +385,74 @@ $( function() {
 
 	/* 137. 道化師 */
 	CardEffect['Jester'] = function*() {
-		let msg = '山札の一番上のカードを捨て札にします。\
+		const msg = '山札の一番上のカードを捨て札にします。\
 			そのカードが勝利点カードの場合、そのプレイヤーは呪いカード1枚を獲得します。\
 			勝利点以外のカードの場合、捨て札にしたカードと同じカードをそのプレイヤーが獲得するか、あなたが獲得するかをあなたが選びます。';
-		yield FBref_Message.set( '他のプレイヤーは全員、自分の' + msg );
+
+		yield FBref_Message.set( `他のプレイヤーは全員、自分の${msg}` );
 
 		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
 			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
-			yield FBref_MessageTo.child(id).set( msg );
+			yield FBref_MessageTo.child( id ).set( msg );
 
 			let pl = Game.Players[id];
 
 			// 山札の一番上のカードを公開
 			const DeckTopCard = pl.GetDeckTopCard();
 			pl.AddToOpen( DeckTopCard );
-			yield FBref_Players.child(id).set( pl );
+			yield FBref_Players.child( id ).set( pl );
 
-			// 勝利点カードの場合、そのプレイヤーは呪いカード1枚を獲得
 			if ( IsVictoryCard( Cardlist, DeckTopCard.card_no ) ) {
+				// 勝利点カードの場合、そのプレイヤーは呪いカード1枚を獲得
+				yield FBref_MessageTo.child( id ).set( '呪いを獲得します。' );
 
+				// 確認
+				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons`)
+					.append( MakeHTML_button( 'Jester_GetCurse', '呪いを獲得させる' ) );
+				yield new Promise( resolve => Resolve['Jester_GetCurse'] = resolve );
+				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Jester_GetCurse`).remove();
+
+				// 公開したカードを捨て札に
+				pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );
+				yield FBref_Players.child( id ).set( pl );
+
+				// 呪いを獲得
+				pl.AddToDiscardPile( Game.Supply.byName('Curse').GetTopCard() );
 			} else {
+				// 勝利点以外のカードの場合、
+				// 捨て札にしたカードと同じカードをそのプレイヤーが獲得するか、あなたが獲得するかをあなたが選びます。
+				ShowDialog( {
+					message  : `「${Cardlist[ DeckTopCard.card_no ].name_jp}」を捨て札にしました。このカードを`,
+					contents : MakeHTML_Card( DeckTopCard, Game ),
+					buttons  : MakeHTML_button( 'me',  '自分が獲得' )
+					         + MakeHTML_button( 'you', `${pl.name}が獲得` ),
+				} );
+				const who_get_card = yield new Promise( resolve => Resolve['Thief_GainTrashedCard'] = resolve );
+				HideDialog();
 
+				// 公開したカードを捨て札に
+				pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );
+				yield FBref_Players.child( id ).set( pl );
+
+				// 同じ名前のカード獲得
+				const the_same_card = Game.Supply.byName( Cardlist[ DeckTopCard.card_no ].name_eng ).GetTopCard();
+				if ( who_get_card == 'me'  ) Game.player().AddToDiscardPile( the_same_card );
+				if ( who_get_card == 'you' )            pl.AddToDiscardPile( the_same_card );
 			}
 
-			// 同じ名前のカードを1枚自分かそのプレイヤーが獲得
-
-			let updates = {};
-			if ( $('.SupplyArea').find('.available').length > 0 ) {
-				const clicked_card_ID
-					= yield new Promise( resolve => Resolve['Jester_GetCard'] = resolve );
-				pl.AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
-				updates['Supply'] = Game.Supply;
-			}
-
-			pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );  // 廃棄
-			yield Promise.all( [
-				FBref_Players.child(id).set( pl ),
-				FBref_MessageTo.child(id).set(''),  /* reset */
-			] );
+			yield FBref_Game.update( {
+				Supply : Game.Supply,
+				Players : Game.Players,
+				[`MessageTo/${id}`] : '',
+			} );
 		}
 	};
 
-	$('.SupplyArea').on( 'click', '.card.Jester_GetCard', function() {
-		let $this = $(this);
-		MyAsync( function*() {
-			const clicked_card_name_eng = $this.attr('data-card-name-eng');
-			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
-			const clicked_card_ID = clicked_card.card_ID;
+	$('.OtherPlayers-wrapper' ).on( 'click', '.Jester_GetCurse', () => Resolve['Jester_GetCurse']() );  /* 確認 */
 
-			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '名前が異なるので選べません。' } );
-				return;
-			}
-			Resolve['Jester_GetCard']( clicked_card_ID );
-		});
-	} );
+	$('.dialog_buttons').on( 'click', '.me',  () => Resolve['Thief_GainTrashedCard']('me')  );  // 再開
+	$('.dialog_buttons').on( 'click', '.you', () => Resolve['Thief_GainTrashedCard']('you') );  // 再開
+
 
 
 
@@ -503,11 +512,11 @@ $( function() {
 
 	/* 141. 豊穣の角笛 */
 	CardEffect['Horn of Plenty'] = function*( this_card_ID ) {
-		yield FBref_Message.set( 'このカードを含めて場に出ているカードの種類数分のコイン以下のコストのカードを1枚獲得します。\
-			もし勝利点カードを獲得したならばこのカードを廃棄します。' );
-
 		// 場に出ているカードの種類数分のコイン
 		const max_cost_coin = Game.player().PlayArea.uniq( card => card.card_no ).length;
+
+		yield FBref_Message.set( `このカードを含めて場に出ているカードの種類数分のコイン(=${max_cost_coin})以下のコストのカードを1枚獲得します。\
+			もし勝利点カードを獲得したならばこのカードを廃棄します。` );
 
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('HornOfPlenty_GetCard pointer');
@@ -527,12 +536,9 @@ $( function() {
 		if ( gained_victory ) {
 			// もし勝利点カードを獲得したならばこのカードを廃棄
 			Game.TrashCardByID( this_card_ID );
-			// updates[`Players/${Game.player().id}`] = Game.player();  /* 更新 */
-			// updates['TrashPile'] = Game.TrashPile;
-			// yield FBref_Game.child('TrashPile').set( Game.TrashPile );
 			yield FBref_Game.update( {
 				TrashPile : Game.TrashPile,
-				[`Players/${Game.player().id}`] : Game.player()
+				[`Players/${Game.player().id}`] : Game.player(),
 			} );
 		}
 	}
@@ -546,7 +552,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できません。' } );
+				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
 				return;
 			}
 

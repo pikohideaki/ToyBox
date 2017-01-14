@@ -202,7 +202,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : 'コストが大きいので獲得できません。' } );
+				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
 				return;
 			}
 
@@ -399,7 +399,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : 'コストが大きいので獲得できません。' } );
+				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
 				return;
 			}
 

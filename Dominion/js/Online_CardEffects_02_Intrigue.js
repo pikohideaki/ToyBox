@@ -473,7 +473,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : 'コストが大きいので獲得できません。' } );
+				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
 				return;
 			}
 
@@ -501,10 +501,9 @@ $( function() {
 			' );
 
 		Game.NextPlayer().OpenDeckTop( 2, true );  // sync
+
 		Show_OKbtn_OtherPlayer( Game.NextPlayerID(), 'Tribute' );
-
 		yield new Promise( resolve => Resolve['Tribute_ok'] = resolve );
-
 		Hide_OKbtn_OtherPlayer( Game.NextPlayerID(), 'Tribute' );
 
 		let updates = {};
@@ -1009,7 +1008,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : 'コストが大きいので獲得できません。' } );
+				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
 				return;
 			}
 
