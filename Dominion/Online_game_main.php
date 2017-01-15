@@ -64,12 +64,12 @@ $GameRoomID = $_POST['room-id'];
 				<input type='button' class='btn-blue card_view' value='カード一覧'>
 				<!-- <input type='button' class='btn-blue logallcards' value='logallcards'> -->
 			</div>
-			<!-- <button class='btn-blue card_list_view'>カード一覧</button> -->
 <!-- 
 			<div>
 				<input type='button' class='btn-blue text_disconnect' value='接続解除'>
 				<input type='button' class='btn-blue text_connect'    value='再接続'>
-			</div> -->
+			</div>
+-->
 		</div>
 	</div>
 

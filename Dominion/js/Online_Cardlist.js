@@ -56,8 +56,8 @@ class CCost {
 			this.coin   = Obj[0];
 			this.potion = Obj[1];
 			this.debt   = Obj[2];
-		} else {
-			this.coin   = Obj.cost;
+		} else {  // Cardlist のカード
+			this.coin   = Obj.cost_coin;
 			this.potion = Obj.cost_potion;
 			this.debt   = Obj.cost_debt;
 		}

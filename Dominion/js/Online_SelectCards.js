@@ -33,6 +33,7 @@ function CSelectedCards() {
 
 function Randomizer( SelectedCards, UsingSetlist, Cardlist ) {
 	SelectKingdomCards( SelectedCards, UsingSetlist, Cardlist );
+	SelectBaneCard( SelectedCards, UsingSetlist, Cardlist );
 }
 
 
@@ -46,26 +47,17 @@ function SelectKingdomCards( SelectedCards, UsingSetlist, Cardlist ) {
 
 		let r = RandInt( 1, Cardlist.length - 1 );
 
-		let continue__ = false;
-
 		// 未実装カードならばスキップ
-		if ( Cardlist[r].implemented != '実装済み' ) continue__ = true;
+		if ( Cardlist[r].implemented != '実装済み' ) continue;
 
 		/* 王国カードでなければスキップ */
-		if ( Cardlist[r].class !== '王国' ) continue__ = true;
-
+		if ( Cardlist[r].class !== '王国' ) continue;
 
 		/* 使わないセットのカードならスキップ */
-		for ( let j = 0; j < UsingSetlist.length; j++ ) {
-			if ( !UsingSetlist.val_exists( Cardlist[r].set_name ) ) continue__ = true;
-		}
+		if ( !UsingSetlist.val_exists( Cardlist[r].set_name ) ) continue;
 
 		/* 使用済みカードならスキップ */
-		for ( let k = 0; k < generated_num; k++ ) {
-			if ( SelectedCards.KingdomCards[k] === r ) continue__ = true;
-		}
-
-		if ( continue__ ) continue;
+		if ( SelectedCards.KingdomCards.val_exists(r) ) continue;
 
 		/* rが有効なとき */
 		SelectedCards.KingdomCards[generated_num] = r;
@@ -74,14 +66,61 @@ function SelectKingdomCards( SelectedCards, UsingSetlist, Cardlist ) {
 	}
 
 	if ( generated_num < KINGDOMCARD_SIZE ) {
-		alert( 'サプライが足りません．選択中のセットに含まれるサプライの種類が少ない可能性があります．'  );
+		alert( 'サプライが足りません。選択中のセットに含まれるサプライの種類が少ない可能性があります。'  );
 		return 1;
 	}
 
 	SelectedCards.Prosperity  = ( Cardlist[ SelectedCards.KingdomCards[0] ].set_name === '繁栄' );
 	SelectedCards.DarkAges    = ( Cardlist[ SelectedCards.KingdomCards[9] ].set_name === '暗黒時代' );
 
-	SelectedCards.KingdomCards.sort( (a, b) => ( Cardlist[a].cost - Cardlist[b].cost ) );
+	SelectedCards.KingdomCards.sort( (a, b) => ( Cardlist[a].cost_coin - Cardlist[b].cost_coin ) );
 }
+
+
+
+
+
+function SelectBaneCard( SelectedCards, UsingSetlist, Cardlist ) {
+	let r = -1;
+	let count = 999;  // 最大ループ回数
+	while ( count-- ) {
+		r = myrand( 1, Cardlist.length - 1 );
+
+		// 未実装カードならばスキップ
+		if ( Cardlist[r].implemented != '実装済み' ) continue;
+
+		/* 王国カードでなければスキップ */
+		if ( Cardlist[r].class !== '王国' ) continue;
+
+		/* 使わないセットのカードならスキップ */
+		if ( !UsingSetlist.val_exists( Cardlist[r].set_name ) ) continue;
+
+		/* 使用済みカードならスキップ */
+		if ( SelectedCards.KingdomCards.val_exists(r) ) continue;
+
+		/* コストは2~3 */
+		if ( Cardlist[r].cost_potion != 0
+		  || Cardlist[r].cost_debt   != 0
+		  || Cardlist[r].cost_coin   >  3
+		  || Cardlist[r].cost_coin   <  2 )
+		{
+			continue;
+		}
+
+		// 有効なカードが見つかったら抜ける
+		break;
+	}
+
+	if ( r < 0 || count < 1 ) {
+		alert('災いカード用のサプライが足りません。チェック中のセットに含まれるサプライの種類が少ない可能性があります。');
+		SelectedCards.BaneCard = 0;
+		return 1;
+	}
+
+	SelectedCards.BaneCard = r;
+
+	return 0;
+}
+
 
 

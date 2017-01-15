@@ -56,6 +56,27 @@ class CGame {
 	}
 
 
+
+	MovePhase( phase ) {
+		this.phase = phase;
+		FBref_Game.child('phase').set( this.phase );
+
+		let phase_jp;
+		switch ( this.phase ) {
+			case 'ActionPhase' :
+				phase_jp = 'アクションフェーズ';
+				break;
+
+			case 'BuyPhase' :
+				$('.UseAllTreasures' ).show();  // 1度だけ表示
+				phase_jp = '購入フェーズ';
+				break;
+		}
+		$('.phase-dialog-wrapper .dialog_text').html( phase_jp );
+		$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut();
+	}
+
+
 	ResetTurnInfo() {
 		this.TurnInfo = {
 			action : 1,
@@ -99,10 +120,10 @@ class CGame {
 			updates[ `Game/Players/${G.whose_turn_id}` ] = G.player();
 
 			if ( G.GameEnded() ) {
-				for ( let i = 0; i < G.Players.length; ++i ) {
-					G.Players[i].SumUpVP();
-					updates[ `Game/Players/${i}` ] = G.Players[i];
-				}
+				G.Players.forEach( function( player, id ) {
+					player.SumUpVP();
+					updates[ `Game/Players/${id}` ] = player;
+				} );
 
 				updates['RoomInfo/Status'] = 'ゲーム終了';
 				updates['GameEnd'] = true;
@@ -112,17 +133,18 @@ class CGame {
 
 			G.whose_turn_id = G.NextPlayerID();
 			G.ResetTurnInfo();
-			/* アクションカードがなければスキップして購入フェーズに遷移 */
-			if ( !G.player().HasActionCard() ) {
-				G.phase = 'BuyPhase';
-			}
+
 			updates['Game/whose_turn_id'] = G.whose_turn_id;
 			updates['Game/TurnInfo'] = G.TurnInfo;
 			updates['Game/phase'] = G.phase;
+
 			yield Promise.all( [
 				FBref_Room.update( updates ),
-				FBref_Room.child('chat').push( `${Game.player().name}のターン` ),
+				FBref_Room.child('chat').push( `${G.player().name}のターン` ),
 			]);
+
+			/* アクションカードがなければスキップして購入フェーズに遷移 */
+			if ( !G.player().HasActionCard() ) G.MovePhase( 'BuyPhase' );
 		});
 	}
 
@@ -332,60 +354,49 @@ class CGame {
 
 
 	UseCard( playing_card_no, playing_card_ID ) {
-		// if ( Game.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
-		// 	alert( 'アクションカードを選んでください' );   return;
-		// }
-		// if ( Game.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
-		// 	alert( '財宝カードを選んでください' );   return;
-		// }
-		// // if ( Game.phase === 'CleanUpPhase' ) return;
-
-		// if ( IsActionCard( Cardlist, playing_card_no ) && Game.TurnInfo.action <= 0 ) {
-		// 	alert( 'アクションが足りません' );   return;
-		// }
-
+		let G = this;
 		return MyAsync( function*() {
-			if ( Game.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
+			if ( G.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
 				MyAlert( { message : 'アクションカードを選んでください' } );
 				return;
 			}
-			if ( Game.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
+			if ( G.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
 				MyAlert( { message : '財宝カードを選んでください' } );
 				return;
 			}
-			if ( IsActionCard( Cardlist, playing_card_no ) && Game.TurnInfo.action <= 0 ) {
+			if ( IsActionCard( Cardlist, playing_card_no ) && G.TurnInfo.action <= 0 ) {
 				MyAlert( { message : 'アクションが足りません' } );
 				return;
 			}
 
-			switch ( Game.phase ) {
+			switch ( G.phase ) {
 				case 'ActionPhase' :
-					Game.phase = 'ActionPhase*';
+					G.phase = 'ActionPhase*';
 					break;
 				case 'BuyPhase' :
-					Game.phase = 'BuyPhase*';
+					G.phase = 'BuyPhase*';
 					break;
 				default :
 					throw new Error('GetCardEffect should be called in ActionPhase or BuyPhase' );
 					break;
 			}
 
-			Game.player().AddToPlayArea( Game.GetCardByID( playing_card_ID ) );  /* カード移動 */
+			G.player().AddToPlayArea( G.GetCardByID( playing_card_ID ) );  /* カード移動 */
 
 			// アクションを1消費
-			if ( IsActionCard( Cardlist, playing_card_no ) ) Game.TurnInfo.action--;
+			if ( IsActionCard( Cardlist, playing_card_no ) ) G.TurnInfo.action--;
 
 			let updates = {};
-			updates['phase'] = Game.phase;
-			updates[`Players/${Game.whose_turn_id}/PlayArea`]  = Game.player().PlayArea;
-			updates[`Players/${Game.whose_turn_id}/HandCards`] = Game.player().HandCards;
-			updates['TurnInfo/action'] = Game.TurnInfo.action;
+			updates['phase'] = G.phase;
+			updates[`Players/${G.whose_turn_id}/PlayArea`]  = G.player().PlayArea;
+			updates[`Players/${G.whose_turn_id}/HandCards`] = G.player().HandCards;
+			updates['TurnInfo/action'] = G.TurnInfo.action;
 			yield FBref_Game.update( updates );
 
 			yield MyAsync( GetCardEffect, playing_card_no, playing_card_ID );
 
 			// 終了
-			switch ( Game.phase ) {
+			switch ( G.phase ) {
 				case 'ActionPhase*' :
 					yield FBref_Game.child('phase').set( 'ActionPhase' );
 					break;

@@ -31,6 +31,7 @@ function SetSizeOfSupplyPile( card_no, PlayerNum, SelectedCards ) {
 		case CardName2No['Silver'  ] : return 40;
 		case CardName2No['Gold'    ] : return 30;
 		case CardName2No['Platinum'] : return 12;
+		case CardName2No['Potion'  ] : return 16;
 		case CardName2No['Curse'   ] : return ( PlayerNum - 1 ) * 10;
 		default : break;
 	}
@@ -128,6 +129,74 @@ class CSupply {
 
 
 
+
+
+	InitSupply( SelectedCards, PlayerNum ) {
+		/* initialize supply */
+		for ( let i = 0; i <= 9; ++i ) {
+			this.Basic[i] = new CSupplyPile();
+		}
+		this.Basic[0].InitSupplyPile( CardName2No['Copper'  ], PlayerNum, SelectedCards );
+		this.Basic[1].InitSupplyPile( CardName2No['Silver'  ], PlayerNum, SelectedCards );
+		this.Basic[2].InitSupplyPile( CardName2No['Gold'    ], PlayerNum, SelectedCards );
+		this.Basic[3].InitSupplyPile( CardName2No['Platinum'], PlayerNum, SelectedCards );
+		this.Basic[4].InitSupplyPile( CardName2No['Potion'  ], PlayerNum, SelectedCards );
+		this.Basic[5].InitSupplyPile( CardName2No['Estate'  ], PlayerNum, SelectedCards );
+		this.Basic[6].InitSupplyPile( CardName2No['Duchy'   ], PlayerNum, SelectedCards );
+		this.Basic[7].InitSupplyPile( CardName2No['Province'], PlayerNum, SelectedCards );
+		this.Basic[8].InitSupplyPile( CardName2No['Colony'  ], PlayerNum, SelectedCards );
+		this.Basic[9].InitSupplyPile( CardName2No['Curse'   ], PlayerNum, SelectedCards );
+
+		if ( !SelectedCards.Prosperity ) {
+			this.Basic[3].in_use = false;  // Platinum
+			this.Basic[8].in_use = false;  // Colony
+		}
+
+		const use_potion
+		 = [].concat( SelectedCards.KingdomCards )
+		     .concat( SelectedCards.BlackMarket )
+		     .filter( card_no => Cardlist[ card_no ].cost_potion > 0 )
+		     .length > 0;
+		if ( !use_potion ) this.Basic[4].in_use = false;  // Potion
+
+
+		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
+			this.KingdomCards[i] = new CSupplyPile();
+			this.KingdomCards[i].InitSupplyPile( SelectedCards.KingdomCards[i], PlayerNum, SelectedCards );
+		}
+
+
+
+		// 褒賞カード
+		const PrizeCard = Cardlist.filter( card => IsPrizeCard( Cardlist, card.card_no ) );
+		for ( let i = 0; i < PRIZECARD_SIZE; ++i ) {
+			this.Prize[i] = new CSupplyPile();
+			this.Prize[i].InitSupplyPile( PrizeCard[i].card_no, PlayerNum, SelectedCards );
+			this.Prize[i].IsSupply = false;
+		}
+		if ( !SelectedCards.KingdomCards.val_exists( CardName2No['Tournament'] ) ) {
+			this.Prize.forEach( p => p.in_use = false );
+		}
+
+
+		// 魔女娘 災いカード
+		this.BaneCard = new CSupplyPile();
+		this.BaneCard.InitSupplyPile( SelectedCards.BaneCard, PlayerNum, SelectedCards );
+		if ( !SelectedCards.KingdomCards.val_exists( CardName2No['Young Witch'] ) ) {
+			this.BaneCard.in_use = false;
+		}
+
+
+
+		// 闇市場
+		this.BlackMarket = [];
+		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
+			this.BlackMarket[i] = new CCard( SelectedCards.BlackMarket[i], global_card_ID++, [] );
+		}
+	}
+
+
+
 	byName( name ) {
 		/* reverse dictionary */
 		switch (name) {
@@ -162,56 +231,15 @@ class CSupply {
 
 
 
-
-	InitSupply( SelectedCards, PlayerNum ) {
-		/* initialize supply */
-		for ( let i = 0; i <= 9; ++i ) {
-			this.Basic[i] = new CSupplyPile();
-		}
-		this.Basic[0].InitSupplyPile( CardName2No['Copper'  ], PlayerNum, SelectedCards );
-		this.Basic[1].InitSupplyPile( CardName2No['Silver'  ], PlayerNum, SelectedCards );
-		this.Basic[2].InitSupplyPile( CardName2No['Gold'    ], PlayerNum, SelectedCards );
-		this.Basic[3].InitSupplyPile( CardName2No['Platinum'], PlayerNum, SelectedCards );
-		this.Basic[4].InitSupplyPile( CardName2No['Potion'  ], PlayerNum, SelectedCards );
-		this.Basic[5].InitSupplyPile( CardName2No['Estate'  ], PlayerNum, SelectedCards );
-		this.Basic[6].InitSupplyPile( CardName2No['Duchy'   ], PlayerNum, SelectedCards );
-		this.Basic[7].InitSupplyPile( CardName2No['Province'], PlayerNum, SelectedCards );
-		this.Basic[8].InitSupplyPile( CardName2No['Colony'  ], PlayerNum, SelectedCards );
-		this.Basic[9].InitSupplyPile( CardName2No['Curse'   ], PlayerNum, SelectedCards );
-
-		if ( !SelectedCards.KingdomCards.val_exists( CardName2No['Tournament'] ) ) {
-			this.Prize.forEach( p => p.in_use = false );
-		}
-
-		if ( !SelectedCards.Prosperity ) {
-			this.byName('Platinum').in_use = false;
-			this.byName('Colony'  ).in_use = false;
-		}
-
-		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
-			this.KingdomCards[i] = new CSupplyPile();
-			this.KingdomCards[i].InitSupplyPile( SelectedCards.KingdomCards[i], PlayerNum, SelectedCards );
-		}
-
-		this.BaneCard = new CSupplyPile();
-		this.BaneCard.InitSupplyPile( SelectedCards.BaneCard, PlayerNum, SelectedCards );
-
-
-		this.BlackMarket = [];
-		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
-			this.BlackMarket[i] = new CCard( SelectedCards.BlackMarket[i], global_card_ID++, [] );
-		}
-	}
-
-
-
-
 	GetAllCards() {
 		let AllCards = [];
-		this.Basic.forEach( function( supply ) {
+		this.Basic.filter( s => s.in_use ).forEach( function( supply ) {
 			AllCards = AllCards.concat( supply.pile );
 		});
 		this.KingdomCards.forEach( function( supply ) {
+			AllCards = AllCards.concat( supply.pile );
+		});
+		this.Prize.filter( s => s.in_use ).forEach( function( supply ) {
 			AllCards = AllCards.concat( supply.pile );
 		});
 		AllCards = AllCards.concat( this.BaneCard.pile );

@@ -264,23 +264,13 @@ function PrintDiscardPile( player_id ) {
 
 
 function PrintSupply() {
+
 	/* SupplyArea line1 */
 	let $SupplyArea1 = $('.SupplyArea.line1');
 	$SupplyArea1.html('');
-
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Copper'  ), Cardlist, Game ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Silver'  ), Cardlist, Game ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Gold'    ), Cardlist, Game ) );
-	if ( RoomInfo.SelectedCards.Prosperity ) {
-		$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Platinum'), Cardlist, Game ) );
-	}
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Estate'  ), Cardlist, Game ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Duchy'   ), Cardlist, Game ) );
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Province'), Cardlist, Game ) );
-	if ( RoomInfo.SelectedCards.Prosperity ) {
-		$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Colony'), Cardlist, Game ) );
-	}
-	$SupplyArea1.append( MakeHTML_SupplyPile( Game.Supply.byName('Curse'   ), Cardlist, Game ) );
+	Game.Supply.Basic.filter( pile => pile.in_use ).forEach( function(pile) {
+		$SupplyArea1.append( MakeHTML_SupplyPile( pile, Cardlist, Game ) );
+	} );
 
 	/* SupplyArea line2 */
 	let $SupplyArea2 = $('.SupplyArea.line2');
@@ -296,19 +286,23 @@ function PrintSupply() {
 		$SupplyArea3.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist, Game ) );
 	}
 
+	// 購入フェーズならクリック可能に
 	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
 		$('.SupplyArea').find('.card').addClass('BuyCard pointer');
 	}
-	$('.SupplyArea').find('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
-
 
 	// 褒賞カード（5枚）
 	const $PrizeArea = $('.Prize');
+	$('.Prize').html('');
 	Game.Supply.Prize.forEach( function( prize_pile ) {
 		if ( prize_pile.in_use ) {
 			$PrizeArea.append( MakeHTML_SupplyPile( prize_pile, Cardlist, Game ) );
 		}
 	});
+
+
+	// 更新時アニメーション
+	$('.SupplyArea').find('.card').css( 'box-shadow', '0 0 30px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
 }
 
 
@@ -337,6 +331,15 @@ function PrintPhase() {
 			$('.MoveToNextPlayer').hide();
 			break;
 
+		case 'BuyPhase'  :
+			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
+			$('.phase').html('購入フェーズ');
+			$('.SortHandCards'   ).show();
+			// $('.UseAllTreasures' ).hide();
+			$('.MoveToBuyPhase'  ).hide();
+			$('.MoveToNextPlayer').show();
+			break;
+
 		case 'BuyPhase*' :
 			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
 			$('.phase').html('購入フェーズ');
@@ -344,15 +347,6 @@ function PrintPhase() {
 			$('.UseAllTreasures' ).hide();
 			$('.MoveToBuyPhase'  ).hide();
 			$('.MoveToNextPlayer').hide();
-			break;
-
-		case 'BuyPhase'  :
-			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
-			$('.phase').html('購入フェーズ');
-			$('.SortHandCards'   ).show();
-			$('.UseAllTreasures' ).show();
-			$('.MoveToBuyPhase'  ).hide();
-			$('.MoveToNextPlayer').show();
 			break;
 
 		case 'BuyPhase_GetCard' :
@@ -396,19 +390,6 @@ function PrintTrashPile() {
 
 
 
-
-/* phase */
-function MovePhase( phase ) {
-	Game.phase = phase;
-	FBref_Game.child('phase').set( Game.phase );
-	let phase_jp;
-	switch ( Game.phase ) {
-		case 'ActionPhase' : phase_jp = 'アクションフェーズ'; break;
-		case 'BuyPhase'    : phase_jp = '購入フェーズ'; break;
-	}
-	$('.phase-dialog-wrapper .dialog_text').html( phase_jp );
-	$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut();
-}
 
 
 

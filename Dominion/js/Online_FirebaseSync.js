@@ -22,7 +22,6 @@ Initialize = FBref_Room.once('value').then( function( FBsnapshot ) {
 
 	// make CardView
 	$CardViewlist = $('.CardView_list');
-	
 
 	let AllCardNo = Game.GetAllCards().map( a => a.card_no ).uniq().sortNumeric().remove_val(0);
 	AllCardNo.forEach( (card_no) => $CardViewlist.append( MakeHTML_CardBiggest( card_no ) ) );

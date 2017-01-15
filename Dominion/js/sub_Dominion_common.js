@@ -14,12 +14,13 @@ function PHP2JS_Cardlist( Cardlist, Cardlist_1array, Cardlist_length ) {
 	var k = 0;
 	for ( var i = 0; i < Cardlist_length; i++ ) {
 		Cardlist[i] = {};
+		Cardlist[i].card_no     = i;
 		Cardlist[i].name_jp     =         Cardlist_1array[k++];
 		Cardlist[i].name_yomi   =         Cardlist_1array[k++];
 		Cardlist[i].name_eng    =         Cardlist_1array[k++];
 		Cardlist[i].set_name    =         Cardlist_1array[k++];
 		Cardlist[i].cost_str    =         Cardlist_1array[k++];
-		Cardlist[i].cost        = Number( Cardlist_1array[k++] );
+		Cardlist[i].cost_coin   = Number( Cardlist_1array[k++] );
 		Cardlist[i].cost_potion = Number( Cardlist_1array[k++] );
 		Cardlist[i].cost_debt   = Number( Cardlist_1array[k++] );
 		Cardlist[i].class       =         Cardlist_1array[k++];

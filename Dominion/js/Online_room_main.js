@@ -12,13 +12,7 @@ FBref_Rooms.on('value', function( FBsnapshot ) {
 	let $roomlist = $('#room-list');
 	$roomlist.html('');
 	for ( let key in Rooms ) {
-		if ( Rooms[key].GameEnd ) {
-			// setTimeout( () => FBref_Rooms.child(key).remove(), 10000 );
-			/* 終了したゲームの部屋を10秒後にリストから削除 -> やめる
-			 * （即時だとプレイヤーがゲーム終了後の画面表示をする前に消えてしまう可能性がある） */
-			continue;
-			// return;
-		}
+		if ( Rooms[key].GameEnd ) continue;  // 終了したゲームは非表示（削除は手動）
 		$roomlist.prepend( MakeHTML_Room( key, Rooms[key].RoomInfo ) );
 	}
 
@@ -115,27 +109,6 @@ function MakeHTML_Room( RoomID, RoomInfo ) {
 }
 
 
-// $('#room-list').on( 'click', '.room-list-item', function() {
-// 	if ( $(this).hasClass( 'disabled' ) ) return;  // 何もしない 
-// 	if ( $(this).hasClass('active') ) {
-// 		$(this).removeClass('active');
-// 	} else {
-// 		$(this).addClass('active');
-// 	}
-// } )
-
-
-// $('.room-list').on( 'click', '.delete-room', function() {
-// 	let $modal = $(this).parent();
-// 	let RoomNo = Number( $modal.find('.room-no').html() );
-// 	let RoomID = $modal.attr('data-room-id');
-
-// 	if ( confirm( `部屋${RoomNo}を削除しますか？` ) ) {
-// 		FBref_Rooms.child( RoomID ).remove();
-// 	}
-// });
-
-
 
 
 
@@ -176,12 +149,11 @@ $('#make-room-btn').click( function() {
 	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //2-2
 
 	// SelectedCards.KingdomCards = [ 30,14,32, 127,129,133,134, 137,140,141, ]; //
-SelectedCards.KingdomCards[0] = 139;
-SelectedCards.KingdomCards[1] = 142;
-SelectedCards.KingdomCards[2] = 128;
+	SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
+	SelectedCards.KingdomCards[1] = 142;  // 魔女娘
+	SelectedCards.KingdomCards[2] = 128;  // 馬商人
 
-	let date = new Date();
-
+	const date = new Date();
 
 	let NewRoom = {
 		RoomInfo : {
@@ -207,7 +179,7 @@ SelectedCards.KingdomCards[2] = 128;
 	myid = NewRoom.RoomInfo.permute[0];
 
 	/* 今立てた部屋のID */
-	let RoomID = FBref_Rooms.push( NewRoom ).key;
+	const RoomID = FBref_Rooms.push( NewRoom ).key;
 	SelectedRoomID = RoomID;
 	SetModalHTML( SelectedRoomID, NewRoom );  /* RoomID取得がvalueイベントの後なので最初だけ手動で更新 */
 
@@ -225,7 +197,7 @@ $('.modal-cancel').click( function() {
 	$('.waiting-modal-wrapper .modal-cancel').removeClass( 'room-maker' );
 
 	/* 今立てた部屋のID */
-	let RoomID = $('#form-new-game [name=room-id]').val();
+	const RoomID = $('#form-new-game [name=room-id]').val();
 	SelectedRoomID = undefined;
 
 	/* Firebaseのデータベースから削除 */

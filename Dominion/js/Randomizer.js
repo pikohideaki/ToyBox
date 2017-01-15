@@ -51,7 +51,7 @@ function randomizer( Setlist, UseSet_flag, Cardlist, Supply )
 
 	Supply.kingdomcards.sort(
 		function(a, b) {
-			return ( Cardlist[a].cost - Cardlist[b].cost );
+			return ( Cardlist[a].cost_coin - Cardlist[b].cost_coin );
 		}
 	);
 }
@@ -79,7 +79,7 @@ function select_banecard( Setlist, UseSet_flag, Cardlist, Supply )
 			if ( r === Supply.kingdomcards[j] ) continue__ = true;
 		}
 		/* コストは2~3 */
-		if ( Cardlist[r].cost > 3 || Cardlist[r].cost < 2 ) continue__ = true;
+		if ( Cardlist[r].cost_coin > 3 || Cardlist[r].cost_coin < 2 ) continue__ = true;
 
 		if ( continue__ )  continue;
 		break;
@@ -178,12 +178,12 @@ function select_event_and_landmark( Setlist, UseSet_flag, Cardlist, Supply )
 
 	Supply.eventcards.sort(
 		function(a, b) {
-			return ( Cardlist[a].cost - Cardlist[b].cost );
+			return ( Cardlist[a].cost_coin - Cardlist[b].cost_coin );
 		}
 	);
 	Supply.landmark.sort(
 		function(a, b) {
-			return ( Cardlist[a].cost - Cardlist[b].cost );
+			return ( Cardlist[a].cost_coin - Cardlist[b].cost_coin );
 		}
 	);
 }

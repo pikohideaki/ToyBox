@@ -99,7 +99,7 @@ function SetAndPrintPhase( FBsnapshot ) {
 	// 		if ( Game.TurnInfo.action <= 0 || !Game.player().HasActionCard() ) {
 	// 			// Game.phase = 'BuyPhase';
 	// 			// FBref_Game.child('phase').set( Game.phase );
-	// 			MovePhase('BuyPhase');
+	// 			Game.MovePhase('BuyPhase');
 	// 			return;
 	// 		}
 	// 		break;

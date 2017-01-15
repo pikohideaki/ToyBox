@@ -9,9 +9,7 @@ $( function() {
 	});
 
 	$('.MoveToBuyPhase').click( function() {
-		// Game.phase = 'BuyPhase';
-		// FBref_Game.child('phase').set( Game.phase );
-		MovePhase( 'BuyPhase' );
+		Game.MovePhase( 'BuyPhase' );
 	});
 
 	$('.MoveToNextPlayer').click( function() {
@@ -62,21 +60,26 @@ $( function() {
 
 
 	$('.UseAllTreasures').click( () => MyAsync( function*() {
-		// $('.UseAllTreasures').hide();
-		let BasicTreasures
+		yield FBref_Game.child('phase').set( 'BuyPhase*' );
+		const BasicTreasures
 			= Game.player().HandCards.filter( card =>
-				card.card_no == CardName2No['Copper']  ||
-				card.card_no == CardName2No['Silver']  ||
-				card.card_no == CardName2No['Gold']    ||
-				card.card_no == CardName2No['Platinum'] );
-		for ( let i = 0; i < BasicTreasures.length; ++i ) {
-			yield Game.UseCard( BasicTreasures[i].card_no, BasicTreasures[i].card_ID );
-		}
-	}) );
+				card.card_no == CardName2No['Copper'  ] ||
+				card.card_no == CardName2No['Silver'  ] ||
+				card.card_no == CardName2No['Gold'    ] ||
+				card.card_no == CardName2No['Platinum'] ||
+				card.card_no == CardName2No['Potion'  ] );
 
-	// $('.Common-Area').on( 'click', '.card-cost-coin', function() {
-	// 	alert( 'info ' + $(this).parent().attr('data-card_no') );
-	// });
+		for( let i = 0; i < BasicTreasures.length; ++i ) {
+			Game.player().AddToPlayArea( Game.GetCardByID( BasicTreasures[i].card_ID ) );  /* カード移動 */
+			Game.TurnInfo.coin += Cardlist[ BasicTreasures[i].card_no ].coin;
+
+			yield FBref_Game.update( {
+				[`Players/${Game.player().id}`] : Game.player(),
+				'TurnInfo/coin' : Game.TurnInfo.coin,
+			} );
+		}
+		yield FBref_Game.child('phase').set( 'BuyPhase' );
+	}) );
 
 
 

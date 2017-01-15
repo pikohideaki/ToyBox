@@ -316,7 +316,7 @@ function print_supply() /* globaly declared : Setlist.length, set_name, card, su
 		}
 		blackmarket_sorted.sort(
 			function(a, b) {
-				return ( Cardlist[a]['cost'] - Cardlist[b]['cost'] );
+				return ( Cardlist[a].cost_coin - Cardlist[b].cost_coin );
 			}
 		);
 
