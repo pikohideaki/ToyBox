@@ -20,7 +20,6 @@ $( function() {
 	// CardEffect['Followers']       = function*() {}     /* 144. 郎党 */
 
 
-
 	/* 127. 移動動物園 */
 	CardEffect['Menagerie'] = function*() {
 		yield FBref_Message.set( '手札を公開します。もし重複しているカードが無ければ +3カード、そうでなければ +1カード。' );

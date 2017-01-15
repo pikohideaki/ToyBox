@@ -1,0 +1,4 @@
+<Files ~ "\.(html|php|js|jpe?g|gif|png)$">
+Header set Pragma no-cache
+Header set Cache-Control no-cache
+</Files>

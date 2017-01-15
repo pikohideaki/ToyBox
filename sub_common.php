@@ -126,7 +126,7 @@ EOM;
 function PrintHome() {
 echo <<<EOM
 		<div class='header-left'>
-			<a href="/index.php" class='home-btn'> <span class='fa fa-home'></span> </a>
+			<a href='/index.php' class='home-btn'> <span class='fa fa-home'></span> </a>
 		</div>
 EOM;
 }

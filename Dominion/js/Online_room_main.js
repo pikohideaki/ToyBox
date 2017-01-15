@@ -170,73 +170,15 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	// SelectedCards.KingdomCards = [ 30, 9,16, 17,19, 34,48,53,42,   54,  ];
-	// SelectedCards.KingdomCards = [ 30, 9,16, 37,34,36,50,44,38,43,  ];
+	// SelectedCards.KingdomCards = [ 30,14,32,15,13,16,11,18,21,25, ];  //1-1
+	// SelectedCards.KingdomCards = [ 30,26,17,19,22,27,29,31,24,28, ];  //1-2
+	// SelectedCards.KingdomCards = [ 34,36,50,44,38, 43,47,46,48,57, ]; //2-1
+	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //2-2
 
-	// SelectedCards.KingdomCards = [ 30,14,32,15,13,16,11,18,21,25, ];  //1
-	// SelectedCards.KingdomCards = [ 30,26,17,19,22,27,29,31,24,28, ];  //2
-	// SelectedCards.KingdomCards = [ 34,36,50,44,38, 43,47,46,48,57, ]; //3
-	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //4
-
-	SelectedCards.KingdomCards = [ 30,14,32, 127,129,133,134, 137,140,141, ]; //
-	
-
-	/*
-		ok(2017/1/1)
-		ok	52	ハーレム
-		ok	33	大広間
-		ok	40	公爵
-
-		ok	37	共謀者
-		ok	34	改良
-		ok	36	貴族
-		ok	50	中庭
-		ok	44	男爵
-		ok	38	交易場
-		ok	43	執事
-		ok	47	手先
-		ok	46	偵察員
-		ok	48	鉄工所
-		ok	57	貢物
-		ok	54	橋
-
-		ok	39	鉱山の村
-		ok	49	銅細工師
-		ok	45	寵臣
-		ok	55	秘密の部屋
-		ok	41	拷問人
-		ok	42	詐欺師
-		ok	53	破壊工作員
-		ok	35	仮面舞踏会
-		ok	56	貧民街
-		ok	51	願いの井戸
-
-		ok	8	市場
-		ok	10	鍛冶屋
-		ok	12	木こり
-		ok	15	研究所
-		ok	20	祝祭
-		ok	30	村
-		ok	13	議事堂
-		ok	9	改築
-		ok	16	鉱山
-		ok	11	金貸し
-		ok	18	宰相
-		ok	21	書庫
-		ok	25	冒険者
-		ok	17	工房
-		ok	19	祝宴
-		ok	32	礼拝堂
-		ok	22	地下貯蔵庫
-		ok	27	魔女
-		ok	29	民兵
-		ok	31	役人
-		ok	24	泥棒
-		ok	28	密偵
-		ok	14	玉座の間
-		ok	26	堀
-		ok	23	庭園
-	*/
+	// SelectedCards.KingdomCards = [ 30,14,32, 127,129,133,134, 137,140,141, ]; //
+SelectedCards.KingdomCards[0] = 139;
+SelectedCards.KingdomCards[1] = 142;
+SelectedCards.KingdomCards[2] = 128;
 
 	let date = new Date();
 

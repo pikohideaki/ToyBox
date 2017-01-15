@@ -297,12 +297,18 @@ function PrintSupply() {
 	}
 
 	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
-		$('.SupplyArea').find('.card').each( function() {
-			$(this).addClass('BuyCard pointer');
-		});
+		$('.SupplyArea').find('.card').addClass('BuyCard pointer');
 	}
 	$('.SupplyArea').find('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
 
+
+	// 褒賞カード（5枚）
+	const $PrizeArea = $('.Prize');
+	Game.Supply.Prize.forEach( function( prize_pile ) {
+		if ( prize_pile.in_use ) {
+			$PrizeArea.append( MakeHTML_SupplyPile( prize_pile, Cardlist, Game ) );
+		}
+	});
 }
 
 
@@ -317,44 +323,52 @@ function PrintPhase() {
 		case 'ActionPhase' :
 			FBref_Message.set( 'アクションカードを選択してください。' );
 			$('.phase').html('アクションフェーズ');
-			$('.SortHandCards').show();
-			$('.UseAllTreasures').hide();
-			$('.MoveToBuyPhase').show();
+			$('.SortHandCards'   ).show();
+			$('.UseAllTreasures' ).hide();
+			$('.MoveToBuyPhase'  ).show();
 			$('.MoveToNextPlayer').show();
 			break;
 
 		case 'ActionPhase*' : 
 			$('.phase').html('アクションフェーズ');
-			$('.SortHandCards').hide();
-			$('.UseAllTreasures').hide();
-			$('.MoveToBuyPhase').hide();
+			$('.SortHandCards'   ).hide();
+			$('.UseAllTreasures' ).hide();
+			$('.MoveToBuyPhase'  ).hide();
 			$('.MoveToNextPlayer').hide();
 			break;
 
 		case 'BuyPhase*' :
+			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
+			$('.phase').html('購入フェーズ');
+			$('.SortHandCards'   ).hide();
+			$('.UseAllTreasures' ).hide();
+			$('.MoveToBuyPhase'  ).hide();
+			$('.MoveToNextPlayer').hide();
+			break;
+
 		case 'BuyPhase'  :
 			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
 			$('.phase').html('購入フェーズ');
-			$('.SortHandCards').show();
-			$('.UseAllTreasures').show();
-			$('.MoveToBuyPhase').hide();
+			$('.SortHandCards'   ).show();
+			$('.UseAllTreasures' ).show();
+			$('.MoveToBuyPhase'  ).hide();
 			$('.MoveToNextPlayer').show();
 			break;
 
 		case 'BuyPhase_GetCard' :
 			FBref_Message.set( 'カードを購入してください。' );
 			$('.phase').html('購入フェーズ');
-			$('.SortHandCards').show();
-			$('.UseAllTreasures').hide();
-			$('.MoveToBuyPhase').hide();
+			$('.SortHandCards'   ).show();
+			$('.UseAllTreasures' ).hide();
+			$('.MoveToBuyPhase'  ).hide();
 			$('.MoveToNextPlayer').show();
 			break;
 
 		default :
 			$('.phase').html('');
-			$('.SortHandCards').show();
-			$('.UseAllTreasures').hide();
-			$('.MoveToBuyPhase').hide();
+			$('.SortHandCards'   ).show();
+			$('.UseAllTreasures' ).hide();
+			$('.MoveToBuyPhase'  ).hide();
 			$('.MoveToNextPlayer').show();
 			break;
 	}

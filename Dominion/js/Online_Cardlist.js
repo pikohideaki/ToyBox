@@ -39,6 +39,11 @@ function IsAttackCard( Cardlist, card_no ) {
 	return Cardlist[ card_no ].category.match( /Attack/ );
 }
 
+// 褒賞カード
+function IsPrizeCard( Cardlist, card_no ) {
+	return Cardlist[ card_no ].category.match( /Prize/ );
+}
+
 
 
 class CCost {

@@ -4,6 +4,7 @@ const PLAYER_NUM_MIN     = 2;
 const PLAYER_NUM_DEFAULT = 4;
 const PLAYER_NUM_MAX     = 6;
 const KINGDOMCARD_SIZE   = 10;
+const PRIZECARD_SIZE     = 5;
 const BLACKMARKET_SIZE   = 15;
 const SET_NUM_MAX        = 20;
 

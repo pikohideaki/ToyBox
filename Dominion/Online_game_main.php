@@ -78,6 +78,10 @@ $GameRoomID = $_POST['room-id'];
 		<div class='main'>
 			<div class='Common-Area'>
 				<div class='SupplyArea-wrapper'>
+					<!-- 褒賞カード（「馬上槍試合」使用時） -->
+					<div class='Prize'> </div>
+					<div class='clear'></div>
+
 					<!-- 基本カード -->
 					<div class='SupplyArea line1'> <!-- jsでここを書き換え -->
 						<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
@@ -91,26 +95,30 @@ $GameRoomID = $_POST['room-id'];
 					<div class='clear'></div>
 
 					<!-- 王国カード -->
-					<div class='SupplyArea_line23'>
-						<div class='SupplyArea line2'> <!-- jsでここを書き換え -->
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+					<div>
+						<div class='SupplyArea_line23'>
+							<div class='SupplyArea line2'> <!-- jsでここを書き換え -->
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+							</div>
+							<div class='clear'></div>
+							<div class='SupplyArea line3'> <!-- jsでここを書き換え -->
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+								<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
+							</div>
+							<div class='clear'></div>
+						</div>
+
+						<div class='TrashPile-wrapper'>
+							<div class='TrashPile'> <!-- jsでここを書き換え --> </div>
 						</div>
 						<div class='clear'></div>
-						<div class='SupplyArea line3'> <!-- jsでここを書き換え -->
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-							<div class='supply-card-wrapper'> <button class='card down'> </button> </div>
-						</div>
-						<div class='clear'></div>
-					</div>
-					<div class='TrashPile-wrapper'>
-						<div class='TrashPile'> <!-- jsでここを書き換え --> </div>
 					</div>
 					<div class='clear'></div>
 				</div>

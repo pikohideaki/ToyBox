@@ -965,6 +965,7 @@ $( function() {
 
 			/* 灰色画面上にサプライテーブルを表示 */
 			$('.MyArea-wrapper .MyArea').prepend( MakeHTML_MyArea_Supply() );
+			$('.MyArea-wrapper .MyArea .TrashPile-wrapper').remove()
 			PrintSupply();
 			/* サプライのクラス書き換え */
 			$('.SupplyArea').find('.card').addClass('Saboteur_GetCard pointer');

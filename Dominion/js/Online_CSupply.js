@@ -36,12 +36,13 @@ function SetSizeOfSupplyPile( card_no, PlayerNum, SelectedCards ) {
 	}
 	if ( Number(card_no) === CardName2No['Estate'] ) {
 		if ( SelectedCards.DarkAges ) return ( PlayerNum > 2 ? 12 : 8 );
-// return PlayerNum * 3 + 1;//////////////////////////////////////////////////////////////////////////////////////////////////////
 		return PlayerNum * 3 + ( PlayerNum > 2 ? 12 : 8 );
 	}
 	if ( IsVictoryCard( Cardlist, card_no ) ) {
-// return 1;
 		return ( PlayerNum > 2 ? 12 : 8 );
+	}
+	if ( IsPrizeCard( Cardlist, card_no ) ) {
+		return 1;
 	}
 	return 10; /* KingdomCard default */
 }
@@ -51,11 +52,15 @@ function SetSizeOfSupplyPile( card_no, PlayerNum, SelectedCards ) {
 class CSupplyPile {
 	constructor( SupplyPileObj ) {
 		if ( SupplyPileObj == undefined ) {
-			this.card_no = 0;
-			this.pile    = [];
+			this.card_no  = 0;
+			this.pile     = [];
+			this.IsSupply = true;
+			this.in_use   = true;
 		} else {
-			this.card_no     = ( SupplyPileObj.card_no     || 0  );
-			this.pile        = ( SupplyPileObj.pile        || [] );
+			this.card_no  = ( SupplyPileObj.card_no  || 0  );
+			this.pile     = ( SupplyPileObj.pile     || [] );
+			this.IsSupply = ( SupplyPileObj.IsSupply || false );
+			this.in_use   = ( SupplyPileObj.in_use   || false );
 		}
 	}
 
@@ -68,9 +73,9 @@ class CSupplyPile {
 		}
 	}
 
-	IsEmpty() {
-		return (this.pile.length <= 0);
-	}
+	IsEmpty() { return (this.pile.length <= 0); }
+
+	IsSupply() { return this.IsSupply; }
 
 	LookTopCard() {
 		if ( this.IsEmpty() ) return undefined;
@@ -93,20 +98,28 @@ class CSupply {
 	constructor( SupplyObj ) {
 		this.Basic = [];
 		this.KingdomCards = [];
+		this.Prize = [];  // prize is not supply
+		this.BaneCard;
+		this.BlackMarket = [];
+
 		if ( SupplyObj == undefined ) return;
 
-		for ( let i = 0; i <= 8; ++i ) {
+
+		for ( let i = 0; i <= 9; ++i ) {
 			this.Basic[i] = new CSupplyPile( SupplyObj.Basic[i] );
 		}
 
-		this.KingdomCards = [];
 		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
 			this.KingdomCards[i] = new CSupplyPile( SupplyObj.KingdomCards[i] );
 		}
 
+
+		for ( let i = 0; i < PRIZECARD_SIZE; ++i ) {
+			this.Prize[i] = new CSupplyPile( SupplyObj.Prize[i] );
+		}
+
 		this.BaneCard = new CSupplyPile( SupplyObj.BaneCard );
 
-		this.BlackMarket = [];
 		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
 			if ( SupplyObj.BlackMarket[i] == undefined ) continue;
 			this.BlackMarket[i] = SupplyObj.BlackMarket[i];
@@ -114,22 +127,65 @@ class CSupply {
 	}
 
 
+
+	byName( name ) {
+		/* reverse dictionary */
+		switch (name) {
+			case 'Copper'   : return this.Basic[0];
+			case 'Silver'   : return this.Basic[1];
+			case 'Gold'     : return this.Basic[2];
+			case 'Platinum' : return this.Basic[3];
+			case 'Potion'   : return this.Basic[4];
+			case 'Estate'   : return this.Basic[5];
+			case 'Duchy'    : return this.Basic[6];
+			case 'Province' : return this.Basic[7];
+			case 'Colony'   : return this.Basic[8];
+			case 'Curse'    : return this.Basic[9];
+
+			case Cardlist[ this.BaneCard.card_no ].name_eng : return this.BaneCard[i];
+			default: break;
+		}
+		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
+			if ( name === Cardlist[ this.KingdomCards[i].card_no ].name_eng ) {
+				return this.KingdomCards[i];
+			}
+		}
+		if ( name === Cardlist[ this.BaneCard.card_no ].name_eng ) {
+			return this.BaneCard;
+		}
+		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
+			if ( name === Cardlist[ this.BlackMarket[i].card_no ].name_eng ) {
+				return this.BlackMarket[i];
+			}
+		}
+	}
+
+
+
+
 	InitSupply( SelectedCards, PlayerNum ) {
 		/* initialize supply */
-		for ( let i = 0; i <= 8; ++i ) {
+		for ( let i = 0; i <= 9; ++i ) {
 			this.Basic[i] = new CSupplyPile();
 		}
 		this.Basic[0].InitSupplyPile( CardName2No['Copper'  ], PlayerNum, SelectedCards );
 		this.Basic[1].InitSupplyPile( CardName2No['Silver'  ], PlayerNum, SelectedCards );
 		this.Basic[2].InitSupplyPile( CardName2No['Gold'    ], PlayerNum, SelectedCards );
-		this.Basic[3].InitSupplyPile( CardName2No['Estate'  ], PlayerNum, SelectedCards );
-		this.Basic[4].InitSupplyPile( CardName2No['Duchy'   ], PlayerNum, SelectedCards );
-		this.Basic[5].InitSupplyPile( CardName2No['Province'], PlayerNum, SelectedCards );
-		this.Basic[6].InitSupplyPile( CardName2No['Curse'   ], PlayerNum, SelectedCards );
+		this.Basic[3].InitSupplyPile( CardName2No['Platinum'], PlayerNum, SelectedCards );
+		this.Basic[4].InitSupplyPile( CardName2No['Potion'  ], PlayerNum, SelectedCards );
+		this.Basic[5].InitSupplyPile( CardName2No['Estate'  ], PlayerNum, SelectedCards );
+		this.Basic[6].InitSupplyPile( CardName2No['Duchy'   ], PlayerNum, SelectedCards );
+		this.Basic[7].InitSupplyPile( CardName2No['Province'], PlayerNum, SelectedCards );
+		this.Basic[8].InitSupplyPile( CardName2No['Colony'  ], PlayerNum, SelectedCards );
+		this.Basic[9].InitSupplyPile( CardName2No['Curse'   ], PlayerNum, SelectedCards );
 
-		if ( SelectedCards.Prosperity ) {
-			this.Basic[7].InitSupplyPile( CardName2No['Platinum'], PlayerNum, SelectedCards );
-			this.Basic[8].InitSupplyPile( CardName2No['Colony'  ], PlayerNum, SelectedCards );
+		if ( !SelectedCards.KingdomCards.val_exists( CardName2No['Tournament'] ) ) {
+			this.Prize.forEach( p => p.in_use = false );
+		}
+
+		if ( !SelectedCards.Prosperity ) {
+			this.byName('Platinum').in_use = false;
+			this.byName('Colony'  ).in_use = false;
 		}
 
 		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
@@ -148,36 +204,6 @@ class CSupply {
 	}
 
 
-
-	byName( name ) {
-		/* reverse dictionary */
-		switch (name) {
-			case 'Copper'   : return this.Basic[0];
-			case 'Silver'   : return this.Basic[1];
-			case 'Gold'     : return this.Basic[2];
-			case 'Estate'   : return this.Basic[3];
-			case 'Duchy'    : return this.Basic[4];
-			case 'Province' : return this.Basic[5];
-			case 'Curse'    : return this.Basic[6];
-			case 'Platinum' : return this.Basic[7];
-			case 'Colony'   : return this.Basic[8];
-			case Cardlist[ this.BaneCard.card_no ].name_eng : return this.BaneCard[i];
-			default: break;
-		}
-		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
-			if ( name === Cardlist[ this.KingdomCards[i].card_no ].name_eng ) {
-				return this.KingdomCards[i];
-			}
-		}
-		if ( name === Cardlist[ this.BaneCard.card_no ].name_eng ) {
-			return this.BaneCard;
-		}
-		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
-			if ( name === Cardlist[ this.BlackMarket[i].card_no ].name_eng ) {
-				return this.BlackMarket[i];
-			}
-		}
-	}
 
 
 	GetAllCards() {
