@@ -247,7 +247,8 @@ class CPlayer {
 	}
 
 
-	OpenHandCards( FBsync = true ) {
+	// 手札を公開
+	RevealHandCards( FBsync = true ) {
 		this.HandCards.forEach( function( card ) {
 			card.face = true;
 			card.down = false;
@@ -256,6 +257,23 @@ class CPlayer {
 			return FBref_Players.child( `${this.id}/HandCards` ).update( this.HandCards );
 		}
 	}
+
+
+	// 山札をそのままひっくり返して捨て山に置く（宰相など）
+	PutDeckIntoDiscardPile() {
+		const pl = this;
+		return new Promise( function( resolve ) {
+			pl.Deck.reverse();  /* 山札をそのままひっくり返して捨て山に置く */
+			pl.Deck.forEach( card => pl.AddToDiscardPile(card) );
+			pl.Deck = [];
+			FBref_Players.child( pl.id ).set( pl ).then( resolve );
+		})
+	}
+
+
+
+
+
 
 
 

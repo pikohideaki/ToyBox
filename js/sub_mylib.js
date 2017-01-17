@@ -231,10 +231,23 @@ function MyAlert( options ) {
 		$('.alert_text').html( options.message );
 		$('.alert_contents').html( options.contents );
 		$('.MyAlert').fadeIn( 'normal' );
+		$('.MyAlert .buttons input[type=button]').focus();
 
+		// 閉じる
 		$('.MyAlert .buttons input[type=button]').click( function() {
 			$('.MyAlert').fadeOut( 'normal', resolve );
 		} );
+		$(document).keydown( function(e) {
+			switch ( e.keyCode ) {
+				case 27 :  // ESC 入力
+				case 13 :  // Enter 入力
+					$('.MyAlert').fadeOut( 'normal', resolve );
+					break;
+				default :
+					break;
+			}
+		});
+
 	});
 }
 
@@ -243,12 +256,25 @@ function MyConfirm( options ) {
 		$('.confirm_text').html( options.message );
 		$('.confirm_contents').html( options.contents );
 		$('.MyConfirm').fadeIn( 'normal' );
+		$('.MyConfirm .buttons input[type=button]').focus();
 
+		// 閉じる
 		$('.MyConfirm .buttons input[type=button]').click( function() {
 			$('.MyConfirm').fadeOut( 'normal', () => resolve( $(this).hasClass('yes') ) );
-			// $('.MyConfirm').fadeOut();
-			// resolve( $(this).hasClass('yes') );
 		} );
+		$(document).keydown( function(e) {
+			switch ( e.keyCode ) {
+				case 27 :  // ESC 入力
+					$('.MyConfirm').fadeOut( 'normal', () => resolve( false ) );
+					break;
+				case 13 :  // Enter 入力
+					$('.MyConfirm').fadeOut( 'normal', () => resolve( true ) );
+					break;
+				default :
+					break;
+			}
+		});
+
 	});
 }
 

@@ -38,7 +38,7 @@ Initialize.then( function() {  /* 初期設定終わったら */
 			$('.connection-dialog-wrapper').fadeOut();
 			FBref_Players.child( `${myid}/Connection` ).set(true);
 			FBref_Players.child( `${myid}/Connection` ).onDisconnect().set(false)
-			// .then( FBref_Room.child('chat').push( `${Game.Players[myid]name}が再接続中です…。` ) );
+			// .then( FBref_chat.push( `${Game.Players[myid]name}が再接続中です…。` ) );
 		} else {
 			$('.connection-dialog-wrapper').fadeIn();
 		}
@@ -144,6 +144,7 @@ Initialize.then( function() {  /* 初期設定終わったら */
 				for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
 					$.cookie( `BlackMarket${i}`, RoomInfo.SelectedCards.BlackMarket[i] );
 				}
+				$.cookie( 'Banecard', RoomInfo.SelectedCards.Banecard );
 
 				// 手番勝ちを計算
 

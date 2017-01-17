@@ -1,23 +1,23 @@
 
 $( function() {
-	// CardEffect['Menagerie']       = function*() {}  ok /* 127. 移動動物園 */
-	// CardEffect['Horse Traders']   = function*() {}     /* 128. 馬商人 */
-	// CardEffect['Fortune Teller']  = function*() {}  ok /* 129. 占い師 */
-	// CardEffect['Diadem']          = function*() {}     /* 130. 王冠 */
-	// CardEffect['Princess']        = function*() {}     /* 131. 王女 */
-	// CardEffect['Bag of Gold']     = function*() {}     /* 132. 金貨袋 */
-	// CardEffect['Remake']          = function*() {}  ok /* 133. 再建 */
-	// CardEffect['Harvest']         = function*() {}  ok /* 134. 収穫 */
-	// CardEffect['Hunting Party']   = function*() {}  ok /* 135. 狩猟団 */
-	// CardEffect['Hamlet']          = function*() {}  ok /* 136. 村落 */
-	// CardEffect['Jester']          = function*() {}  ok /* 137. 道化師 */
-	// CardEffect['Farming Village'] = function*() {}  ok /* 138. 農村 */
-	// CardEffect['Tournament']      = function*() {}     /* 139. 馬上槍試合 */
-	CardEffect['Fairgrounds']     = function*() {}  /* 140. 品評会 */
-	// CardEffect['Horn of Plenty']  = function*() {}  ok /* 141. 豊穣の角笛 */
-	// CardEffect['Young Witch']     = function*() {}     /* 142. 魔女娘 */
-	// CardEffect['Trusty Steed']    = function*() {}     /* 143. 名馬 */
-	// CardEffect['Followers']       = function*() {}     /* 144. 郎党 */
+	// CardEffect['Menagerie']       = function*() {}  /* ok 127. 移動動物園 */
+	// CardEffect['Horse Traders']   = function*() {}  /*    128. 馬商人 */
+	// CardEffect['Fortune Teller']  = function*() {}  /* ok 129. 占い師 */
+	// CardEffect['Diadem']          = function*() {}  /* ok 130. 王冠 */
+	// CardEffect['Princess']        = function*() {}  /* ok 131. 王女 */
+	// CardEffect['Bag of Gold']     = function*() {}  /* ok 132. 金貨袋 */
+	// CardEffect['Remake']          = function*() {}  /* ok 133. 再建 */
+	// CardEffect['Harvest']         = function*() {}  /* ok 134. 収穫 */
+	// CardEffect['Hunting Party']   = function*() {}  /* ok 135. 狩猟団 */
+	// CardEffect['Hamlet']          = function*() {}  /* ok 136. 村落 */
+	// CardEffect['Jester']          = function*() {}  /* ok 137. 道化師 */
+	// CardEffect['Farming Village'] = function*() {}  /* ok 138. 農村 */
+	// CardEffect['Tournament']      = function*() {}  /* ok 139. 馬上槍試合 */
+	   CardEffect['Fairgrounds']     = function*() {}  /* ok 140. 品評会 */
+	// CardEffect['Horn of Plenty']  = function*() {}  /* ok 141. 豊穣の角笛 */
+	// CardEffect['Young Witch']     = function*() {}  /* ok 142. 魔女娘 */
+	// CardEffect['Trusty Steed']    = function*() {}  /* ok 143. 名馬 */
+	// CardEffect['Followers']       = function*() {}  /* ok 144. 郎党 */
 
 
 	/* 127. 移動動物園 */
@@ -148,7 +148,12 @@ $( function() {
 
 	/* 130. 王冠 */
 	CardEffect['Diadem'] = function*() {
+		yield FBref_Message.set('このカードを使うとき、あなたが使用しなかったアクション1毎に +1 Coin を得ます。');
 
+		yield AcknowledgeButton();
+
+		Game.TurnInfo.coin += Game.TurnInfo.action;
+		yield FBref_Game.child('TurnInfo').set( Game.TurnInfo );
 	}
 
 
@@ -157,7 +162,8 @@ $( function() {
 
 	/* 131. 王女 */
 	CardEffect['Princess'] = function*() {
-
+		yield FBref_Message.set( 'このカードが場に出ているかぎり、カードのコストは2コイン少なくなります（0コイン未満にはなりません）。' );
+		yield AcknowledgeButton();
 	}
 
 
@@ -166,7 +172,21 @@ $( function() {
 
 	/* 132. 金貨袋 */
 	CardEffect['Bag of Gold'] = function*() {
+		yield FBref_Message.set( '金貨1枚を獲得し、自分の山札の一番上に置きます。' );
 
+		const gold = Game.Supply.byName('Gold').GetTopCard();
+		if ( gold != undefined ) gold.face = true;
+		Game.player().PutBackToDeck( gold );  /* 金貨を山札の一番上に獲得 */
+		yield FBref_Game.update( {
+			[`Players/${Game.player().id}/Deck`] : Game.player().Deck,
+			Supply : Game.Supply,
+		} );
+
+		yield AcknowledgeButton();  // 確認
+
+		// 公開したカードを裏向きに戻す
+		Game.player().ResetFaceDown();
+		yield FBref_Players.child( `${Game.player().id}/Deck` ).set( Game.player().Deck );
 	}
 
 
@@ -439,9 +459,9 @@ $( function() {
 				if ( who_get_card == 'you' )            pl.AddToDiscardPile( the_same_card );
 			}
 
-			yield FBref_Game.update( {
-				Supply : Game.Supply,
-				Players : Game.Players,
+			yield FBref_Room.update( {
+				'Game/Supply' : Game.Supply,
+				'Game/Players' : Game.Players,
 				[`MessageTo/${id}`] : '',
 			} );
 		}
@@ -502,8 +522,188 @@ $( function() {
 
 	/* 139. 馬上槍試合 */
 	CardEffect['Tournament'] = function*() {
+		yield FBref_Message.set( '\
+			すべてのプレイヤーは、自分の手札から属州1枚を公開することができます。<br>\
+			あなたがそうした場合、そのカードを捨て札にし、\
+			褒賞カード1枚（褒賞の山札から）または公領1枚を獲得し、\
+			それをあなたの山札の一番上に置きます。<br>\
+			他のプレイヤーが誰も公開しなかった場合、+1 Card, +1 Coin を得ます。 ');
 
+		// 自分を含め全員にシグナル送信
+		for ( let id = 0; id < Game.Players.length; ++id ) {
+			yield SendSignal( id, {
+				Attack    : false,
+				card_name : 'Tournament',
+				Message   : '各プレイヤーは、自分の手札から属州を公開することができます。',
+			} );
+		}
+
+		// 集計
+		let Tournament_Revealed_card_IDs = [];
+		let done_num = 0;
+
+		FBref_Signal.child('Tournament_gather').on( 'value', function( FBsnapshot ) {
+			const passed_val = FBsnapshot.val();
+			if ( passed_val == null ) return;
+
+			// 全員分揃ったら次に
+			if ( ++done_num == Game.Players.length ) {
+				Tournament_Revealed_card_IDs = passed_val;
+				Resolve['Tournament_gather']();
+			}
+		} );
+		yield new Promise( resolve => Resolve['Tournament_gather'] = resolve );
+		FBref_Signal.child('Tournament_gather').off();  // 監視終了
+		FBref_Signal.child('Tournament_gather').remove();
+
+		yield FBref_Message.set( '公開されたカードを確認してください。' );
+
+		// 公開したカードの確認
+		$('.action_buttons').append( MakeHTML_button( 'Tournament_RevealProvince_ok', 'OK' ) );
+		yield new Promise( resolve => Resolve['Tournament_RevealProvince_ok'] = resolve );
+		$('.action_buttons .Tournament_RevealProvince_ok').remove();
+
+		// 他のプレイヤーの公開したカードを戻す
+		for ( let id = 0; id < Game.Players.length; ++id ) {
+			if ( Tournament_Revealed_card_IDs[id] == 99999999 ) continue;
+			if ( id == Game.player().id ) continue; // 自分は飛ばす
+			Game.Players[id].AddToHandCards( Game.GetCardByID( Tournament_Revealed_card_IDs[id] ) );
+		}
+		yield FBref_Players.set( Game.Players );
+
+
+		// 自分が属州を公開したとき
+		if ( Tournament_Revealed_card_IDs[ Game.player().id ] != 99999999 ) {
+			FBref_chat.push( `${Game.player().name}が属州を公開しました。` );
+			yield FBref_Message.set( '褒賞カードまたは公領を獲得してください。' );
+
+			// 公開した属州を捨て札に
+			const MyProvince_card_ID = Tournament_Revealed_card_IDs[ Game.player().id ];
+			Game.player().AddToDiscardPile( Game.GetCardByID( MyProvince_card_ID ) );
+			yield FBref_Players.child( Game.player().id ).set( Game.player() );
+
+			// 褒賞または公領を獲得し山札の一番上に置く
+
+			/* サプライと褒賞カードのクラス書き換え */
+			$('.SupplyArea').find('.card')
+				.filter( function() { return $(this).attr('data-card_num_of_remaining') > 0; } )
+				.filter( function() { return $(this).attr('data-card_no') == CardName2No['Duchy'] } )
+				.addClass('Tournament_GetCard available pointer');
+
+			$('.Prize').find('.card')
+				.filter( function() { return $(this).attr('data-card_num_of_remaining') > 0; } )
+				.addClass('Tournament_GetCard available pointer');
+
+			if ( $('.SupplyArea-wrapper').find('.available').length <= 0 ) {
+				yield MyAlert( { message : '獲得できるカードがありません' } );
+			} else {
+				yield new Promise( resolve => Resolve['Tournament_GetCard'] = resolve );
+
+				// 獲得したカードの確認
+				$('.action_buttons').append( MakeHTML_button( 'Tournament_GetCard_ok', 'OK' ) );
+				yield new Promise( resolve => Resolve['Tournament_GetCard_ok'] = resolve );
+				$('.action_buttons .Tournament_GetCard_ok').remove();
+
+				// 裏向きに
+				Game.player().ResetFaceDown();
+				yield FBref_Players.child( Game.player().id ).set( Game.player() );
+			}
+		}
+
+
+		// 他のプレイヤーが誰も属州を公開していないとき
+		if ( Tournament_Revealed_card_IDs
+				.filter( (val, index) => index != Game.Me().id )
+				.every( val => val == 99999999 ) )
+		{
+			// +1 Card, +1 Coin
+			// yield FBref_Message.set(
+				// '他のプレイヤーが誰も属州を公開していないので、 +1 Card, +1 Coin を得ます。' );
+			Game.TurnInfo.coin += 1;
+			Game.player().DrawCards(1);
+			yield FBref_Game.update( {
+				'TurnInfo/coin' : Game.TurnInfo.coin,
+				[`Players/${Game.player().id}`] : Game.player(),
+			});
+		}
 	}
+
+	// 自分と他のプレイヤー
+	CardEffect['Tournament_RevealProivince'] = function* () {
+		// 属州を公開できる
+		$('.HandCards,.MyHandCards').children('.card')
+			.filter( function() { return $(this).attr('data-card_no') == CardName2No['Province'] } )
+			.addClass('Tournament_RevealProivince pointer');
+
+		// 公開したかどうか
+		$('.action_buttons')
+			.append( MakeHTML_button('dont_reveal_province', '公開しない' ) );
+		$('.MyArea .buttons' )
+			.append( MakeHTML_button('dont_reveal_province', '公開しない' ) );
+		const revealed_card_ID
+		  = yield new Promise( resolve => Resolve['Tournament_RevealProivince'] = resolve );
+		$('.action_buttons  .dont_reveal_province').remove();
+		$('.MyArea .buttons .dont_reveal_province').remove();
+
+		if ( revealed_card_ID == 99999999 ) {
+			FBref_chat.push( `${Game.Me().name}は属州を公開しませんでした。` );
+		} else {
+			FBref_chat.push( `${Game.Me().name}は属州を公開しました。` );
+		}
+
+		// reset
+		FBref_SignalToMe.remove();
+		FBref_MessageToMe.set('');
+
+		// カードidを送る
+		yield FBref_Signal.child(`Tournament_gather/${Game.Me().id}`).set( revealed_card_ID );
+	}
+
+	// 自分と他のプレイヤー
+	$('.HandCards,.MyHandCards').on( 'click', '.card.Tournament_RevealProivince', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+		Game.Me().AddToOpen( Game.GetCardByID( clicked_card_ID ) );
+		FBref_Players.child( `${Game.Me().id}` ).set( Game.Me() )
+		.then( () => Resolve['Tournament_RevealProivince']( clicked_card_ID ) );
+	} );
+
+	// 自分と他のプレイヤー
+	$('.action_buttons,.MyArea .buttons').on( 'click', '.dont_reveal_province',
+		() => Resolve['Tournament_RevealProivince']( 99999999 ) );
+
+	// 自分
+	$('.SupplyArea,.Prize').on( 'click', '.card.Tournament_GetCard', function() {
+		let $this = $(this);
+		MyAsync( function*() {
+			if ( !$this.hasClass('available') ) {
+				yield MyAlert( { message : '獲得できません。' } );
+				return;
+			}
+
+			const clicked_card_name_eng = $this.attr('data-card-name-eng');
+			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+			const clicked_card_ID = clicked_card.card_ID;
+
+			const gotten_card = Game.GetCardByID( clicked_card_ID );
+			FBref_chat.push(
+				`${Game.player().name}が${Cardlist[ gotten_card.card_no ].name_jp}を獲得しました。` );
+
+			gotten_card.face = true;
+			Game.player().PutBackToDeck( gotten_card );
+
+			let updates = {};
+			updates[`Players/${Game.player().id}/Deck`] = Game.player().Deck;
+			updates['Supply'] = Game.Supply;
+			yield FBref_Game.update( updates )
+			Resolve['Tournament_GetCard']();
+		});
+	} );
+
+	// 自分
+	$('.action_buttons').on( 'click', '.Tournament_RevealProvince_ok',
+		() => Resolve['Tournament_RevealProvince_ok']() );
+	$('.action_buttons').on( 'click', '.Tournament_GetCard_ok',
+		() => Resolve['Tournament_GetCard_ok']() );
 
 
 
@@ -572,7 +772,90 @@ $( function() {
 	/* 142. 魔女娘 */
 	CardEffect['Young Witch'] = function*() {
 
+		// 手札から2枚捨て札に
+		yield FBref_Message.set('カード2枚を捨て札にしてください。');
+		let discarded_num = 0;
+		while ( discarded_num < 2 && $('.HandCards').children('.card').length > 0 ) {
+			$('.HandCards').children('.card').addClass('YoungWitch_Discard pointer');
+			yield new Promise( resolve => Resolve['YoungWitch_Discard'] = resolve );
+			discarded_num++;
+		}
+
+		yield FBref_Message.set('他のプレイヤーは全員、災いカードを公開することができます。\
+			公開しなかった他のプレイヤーは、呪いカード1枚を獲得します。');
+
+		// 災いカードの公開を待つ
+		let Monitor_FBref_SignalBaneCardEnd_on = function () {
+			return FBref_SignalBaneCardEnd.set(false)  /* reset */
+				.then( function() {
+				FBref_SignalBaneCardEnd.on( 'value', function(snap) {
+					if ( snap.val() ) Resolve['BaneCardEnd']();
+				} )
+			} );
+		}
+
+
+		yield FBref_Message.set( '災いカードを公開するプレイヤーがいないか待っています。' );
+		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+
+			const has_banecard
+			 = Game.Players[id].HandCards
+				.map( x => x.card_no )
+				.val_exists( Game.Supply.BaneCard.card_no );
+
+			// Player[id] がリアクションスキップオプションがオンで手札に災いカードがない場合
+			if ( Game.Settings.SkipReaction[id] && !has_banecard ) continue;
+
+			/* 災いカードを公開するかどうかは毎回決めてよい */
+			yield FBref_Game.child(`TurnInfo/Revealed_BaneCard/${id}`).set(false);  /* reset */
+			yield SendSignal( id, { listen_banecard : true } );
+			yield Monitor_FBref_SignalBaneCardEnd_on();
+			yield FBref_SignalRevealBaneCard.set(false);  /* reset */
+			FBref_SignalRevealBaneCard.on( 'value', function(snap) {
+				if ( snap.val() == 'waiting_for_confirmation' ) {
+					MyAsync( function*() {
+						Show_OKbtn_OtherPlayer( id, 'waiting_for_confirmation_banecard' );
+						yield new Promise( resolve => Resolve['confirm_revealed_banecard'] = resolve );
+						Hide_OKbtn_OtherPlayer( id, 'waiting_for_confirmation_banecard' );
+						yield FBref_SignalRevealBaneCard.set('confirmed');
+					} );
+				}
+			} );
+			yield new Promise( resolve => Resolve['BaneCardEnd'] = resolve );
+
+			FBref_SignalBaneCardEnd.off();
+			FBref_SignalRevealBaneCard.off();
+		}
+
+
+		// 他のプレイヤーは全員、呪いカード1枚を獲得します
+		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+			if ( Game.TurnInfo.Revealed_BaneCard[id] ) continue;  // 災いカードを公開していたらスキップ
+
+			// 呪いを獲得
+			yield FBref_MessageTo.child(id).set('呪いを獲得します。');
+			yield Game.GainCard( 'Curse', 'DiscardPile', id );
+			yield FBref_MessageTo.child(id).set('');
+		}
 	}
+
+	$('.HandCards').on( 'click', '.card.YoungWitch_Discard', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+
+		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+
+		FBref_Players.child( Game.player().id ).update( {
+			HandCards   : Game.player().HandCards,
+			DiscardPile : Game.player().DiscardPile,
+		} )
+		.then( () => Resolve['YoungWitch_Discard']() );  // 再開
+	} );
+
+	$('.OtherPlayers-wrapper').on( 'click',
+		'.OtherPlayer_Buttons .ok.waiting_for_confirmation_banecard',
+		() => Resolve['confirm_revealed_banecard']()
+	);
 
 
 
@@ -580,8 +863,67 @@ $( function() {
 
 	/* 143. 名馬 */
 	CardEffect['Trusty Steed'] = function*() {
+		yield FBref_Message.set( '次のうち異なる二つを選んでください。<br>\
+			 - +2 Card<br>\
+			 - +2 Action<br>\
+			 - +2 Coin<br>\
+			 - 銀貨を4枚獲得し山札を捨て札に置く<br>' );
 
-	}
+		$('.action_buttons')
+			.append( MakeHTML_button( 'TrustySteed 2Card'   , '+2 Card'   ) )
+			.append( MakeHTML_button( 'TrustySteed 2Action' , '+2 Action' ) )
+			.append( MakeHTML_button( 'TrustySteed 2Coin'   , '+2 Coin'   ) )
+			.append( MakeHTML_button( 'TrustySteed 4silvers', '銀貨を4枚獲得し山札を捨て札に置く' ) );
+		let first  = yield new Promise( resolve => Resolve['TrustySteed'] = resolve );
+		let second = yield new Promise( resolve => Resolve['TrustySteed'] = resolve );
+		$('.action_buttons .TrustySteed').remove();
+
+		let updates = {};
+
+		function* select_effect( btn_val ) {
+			switch ( btn_val ) {
+				case 1 : // 2Card
+					Game.player().DrawCards(2);
+					updates[`Players/${Game.player().id}`] = Game.player();
+					break;
+
+				case 2 : // 2Action
+					Game.TurnInfo.action += 2;
+					updates['TurnInfo/action'] = Game.TurnInfo.action;
+					break;
+
+				case 3 : // 2Coin
+					Game.TurnInfo.coin += 2;
+					updates['TurnInfo/coin']   = Game.TurnInfo.coin;
+					break;
+
+				case 4 : // 4silvers
+					for ( let i = 0; i < 4; ++i ) {
+						yield Game.GainCard( 'Silver' );
+					}
+					yield Game.player().PutDeckIntoDiscardPile();
+					break;
+			}
+		}
+
+		// 2Card -> 2Action -> 2Coin -> 4silvers の順に解決
+		[first, second] = [first,second].sort();
+		console.log( first );
+		console.log( second );
+		yield MyAsync( select_effect, first );
+		yield MyAsync( select_effect, second );
+
+		yield FBref_Game.update( updates );
+	};
+
+	$('.action_buttons').on( 'click', '.TrustySteed', function() {
+		if ( $(this).hasClass('selected') ) return;  // 選択済みなら反応しない
+		$(this).addClass('selected').attr('disabled', 'disabled');  // 使用したボタンを無効化
+		if ( $(this).hasClass('2Card'   ) ) Resolve['TrustySteed'](1);  // 再開
+		if ( $(this).hasClass('2Action' ) ) Resolve['TrustySteed'](2);  // 再開
+		if ( $(this).hasClass('2Coin'   ) ) Resolve['TrustySteed'](3);  // 再開
+		if ( $(this).hasClass('4silvers') ) Resolve['TrustySteed'](4);  // 再開
+	} );
 
 
 
@@ -589,7 +931,32 @@ $( function() {
 
 	/* 144. 郎党 */
 	CardEffect['Followers'] = function*() {
+		yield FBref_Message.set(
+			'屋敷1枚を獲得します。\
+			他のプレイヤーは全員、呪いカード1枚を獲得し、自分の手札が3枚になるように捨て札をしてください。' );
 
+		// 屋敷を獲得
+		yield Game.GainCard( 'Estate' );
+
+
+		// 他のプレイヤーは全員、呪いカード1枚を獲得し、自分の手札が3枚になるように捨て札をする
+		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
+			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+
+			// 呪いを獲得
+			yield FBref_MessageTo.child(id).set('呪いを獲得します。');
+			yield Game.GainCard( 'Curse', 'DiscardPile', id );
+
+			// 手札が3枚になるまで捨てる（民兵の関数を転用）
+			yield Monitor_FBref_SignalAttackEnd_on( 'Followers' );  // End受信 -> Resolve['Followers']()
+			yield SendSignal( id, {
+				Attack    : true,
+				card_name : 'Militia',
+				Message   : '手札が3枚になるまで捨てて下さい。',
+			} );
+			yield new Promise( resolve => Resolve['Followers'] = resolve );  /* 他のプレイヤー待機 */
+			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
+		}
 	}
 
 

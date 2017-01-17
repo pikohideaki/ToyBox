@@ -77,10 +77,9 @@ $( function() {
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
 			yield MyAlert( { message : '獲得できるカードがありません' } );
-			return;
+		} else {
+			yield new Promise( resolve => Resolve['Upgrade_GetCard'] = resolve );
 		}
-
-		yield new Promise( resolve => Resolve['Upgrade_GetCard'] = resolve );
 	};
 
 	$('.HandCards').on( 'click', '.card.Upgrade_Trash', function() {
@@ -373,7 +372,8 @@ $( function() {
 	};
 
 	$('.action_buttons').on( 'click', '.Pawn', function() {
-		$(this).removeClass('Pawn').attr('disabled', 'disabled');  // 使用したボタンを無効化
+		if ( $(this).hasClass('selected') ) return;  // 選択済みなら反応しない
+		$(this).addClass('selected').attr('disabled', 'disabled');  // 使用したボタンを無効化
 		if ( $(this).hasClass('1Card'  ) ) Resolve['Pawn']( '1Card'   );  // 再開
 		if ( $(this).hasClass('1Action') ) Resolve['Pawn']( '1Action' );  // 再開
 		if ( $(this).hasClass('1Buy'   ) ) Resolve['Pawn']( '1Buy'    );  // 再開
@@ -596,9 +596,9 @@ $( function() {
 		Game.player().HandCards = [];
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 
-		$('.action_buttons').append( MakeHTML_button('ShantyTown_OpenHandCards', 'OK' ) );
-		yield new Promise( resolve => Resolve['ShantyTown_OpenHandCards'] = resolve );
-		$('.action_buttons .ShantyTown_OpenHandCards').remove();
+		$('.action_buttons').append( MakeHTML_button('ShantyTown_RevealHandCards', 'OK' ) );
+		yield new Promise( resolve => Resolve['ShantyTown_RevealHandCards'] = resolve );
+		$('.action_buttons .ShantyTown_RevealHandCards').remove();
 
 		// 手札を戻す
 		Game.player().Open.forEach( card => Game.player().AddToHandCards( card ) );
@@ -609,14 +609,14 @@ $( function() {
 			= Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
 
 		if ( action_cards.length <= 0 ) {
-			FBref_Room.child('chat').push( 'アクションカードがなかったので2枚カードを引きます。' ),
+			FBref_chat.push( 'アクションカードがなかったので2枚カードを引きます。' );
 			Game.player().DrawCards(2);
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
 	};
 
-	$('.action_buttons').on( 'click', '.ShantyTown_OpenHandCards', function() {
-		Resolve['ShantyTown_OpenHandCards']();
+	$('.action_buttons').on( 'click', '.ShantyTown_RevealHandCards', function() {
+		Resolve['ShantyTown_RevealHandCards']();
 	} );
 
 
@@ -627,20 +627,20 @@ $( function() {
 	CardEffect['Wishing Well'] = function*() {
 		if ( !Game.player().Drawable() ) return;
 
-		yield FBref_Message.set( 'カード名を1つ指定してください（サプライをクリックしてください）。\
+		yield FBref_Message.set( 'カード名を1つ指定してください（サプライエリアのカードをクリックしてください）。\
 			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。' );
 
 		$('.action_buttons').append( MakeHTML_button( 'nonexistent_card_name', '存在しないカード名') );
-		$('.SupplyArea').find('.card').addClass('name_a_card pointer');
+		$('.SupplyArea,.additional-piles').find('.card').addClass('name_a_card pointer');
 
 		const named_card_no = yield new Promise( resolve => Resolve['name_a_card'] = resolve );
 
 		$('.action_buttons .nonexistent_card_name').remove();
-		$('.SupplyArea').find('.card').removeClass('name_a_card pointer');
+		$('.SupplyArea,.additional-piles').find('.card').removeClass('name_a_card pointer');
 
 		const card_name_jp = ( named_card_no == 999999 ? '存在しないカード名' : `「${Cardlist[ named_card_no ].name_jp}」` );
 		yield Promise.all( [
-			FBref_Room.child('chat').push( `${Game.player().name}が${card_name_jp}を指定しました。` ),
+			FBref_chat.push( `${Game.player().name}が${card_name_jp}を指定しました。` ),
 			FBref_Message.set( `${card_name_jp}を指定しました。` )
 		]);
 
@@ -649,7 +649,7 @@ $( function() {
 		Game.player().AddToOpen( DeckTopCard );
 		yield Promise.all( [
 			FBref_Players.child( Game.player().id ).set( Game.player() ),
-			FBref_Room.child('chat').push( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` ),
+			FBref_chat.push( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` ),
 			FBref_Message.set( `${Cardlist[ DeckTopCard.card_no ].name_jp}が公開されました。` )
 		]);
 
@@ -793,10 +793,6 @@ $( function() {
 					yield new Promise( resolve => Resolve['Torturer_Discard'] = resolve );
 					discarded_num++;
 				}
-				yield FBref_Players.child( myid ).update( {
-					HandCards   : Game.Me().HandCards,
-					DiscardPile : Game.Me().DiscardPile,
-				} );
 				return;
 
 			case 'GetCurse' :
@@ -1103,11 +1099,12 @@ $( function() {
 			} );
 		}
 
+		// 集計
 		let Masquerade_passed_card_IDs = {};
 		let done_num = 0;
 
 		FBref_Signal.child('Masquerade_gather').on( 'value', function( FBsnapshot ) {
-			let passed_val = FBsnapshot.val();
+			const passed_val = FBsnapshot.val();
 			if ( passed_val == null ) return;
 
 			// 全員分揃ったら次に
@@ -1122,6 +1119,9 @@ $( function() {
 
 		// 次のプレイヤーに渡す
 		for ( let id = 0; id < Game.Players.length; ++id ) {
+			// 手札が無かったプレイヤーの次の人は何も受け取らない
+			if ( Masquerade_passed_card_IDs[id] == 99999999 ) continue;
+
 			Game.Players[ Game.NextPlayerID(id) ]
 				.AddToHandCards( Game.GetCardByID( Masquerade_passed_card_IDs[id] ) );
 			FBref_MessageTo.child(id).set('');
@@ -1131,14 +1131,21 @@ $( function() {
 
 		// 手札を1枚廃棄できる
 		yield FBref_Message.set( '手札のカードを1枚廃棄することができます。');
-		$('.action_buttons').append( MakeHTML_button( 'Masquerade_dont_trash', '廃棄しない' ) );
-		$('.HandCards').children('.card').addClass('Masquerade_dont_trash pointer');
-		yield new Promise( resolve => Resolve['Masquerade_dont_trash'] = resolve );
-		$('.action_buttons .Masquerade_dont_trash').remove();
-		$('.HandCards').children('.card').removeClass('Masquerade_dont_trash pointer');
+
+		$('.action_buttons').append( MakeHTML_button( 'Masquerade_trash', '廃棄しない' ) );
+		$('.HandCards').children('.card').addClass('Masquerade_trash pointer');
+		yield new Promise( resolve => Resolve['Masquerade_trash'] = resolve );
+		$('.action_buttons .Masquerade_trash').remove();
+		$('.HandCards').children('.card').removeClass('Masquerade_trash pointer');
 	};
 
+	// 自分と他のプレイヤー
 	CardEffect['Masquerade_SelectPassCard'] = function* () {
+		if ( Game.Me().HandCards.length <= 0 ) {
+			yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( 99999999 );
+			return;
+		}
+
 		$('.HandCards,.MyHandCards').children('.card')
 			.addClass('Masquerade_SelectPassCard pointer');
 
@@ -1150,6 +1157,7 @@ $( function() {
 		yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( clicked_card_ID );
 	}
 
+	// 自分と他のプレイヤー
 	$('.HandCards,.MyHandCards').on( 'click', '.card.Masquerade_SelectPassCard', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		let clicked_card = Game.GetCardByID( clicked_card_ID );
@@ -1160,7 +1168,8 @@ $( function() {
 		.then( () => Resolve['Masquerade_SelectPassCard']( clicked_card_ID ) );
 	} );
 
-	$('.HandCards').on( 'click', '.card.Masquerade_dont_trash', function() {
+	// 自分
+	$('.HandCards').on( 'click', '.card.Masquerade_trash', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		Game.TrashCardByID( clicked_card_ID );
 
@@ -1168,10 +1177,11 @@ $( function() {
 			FBref_Game.child('TrashPile').set( Game.TrashPile ),
 			FBref_Players.child( `${Game.player().id}/HandCards` ).set( Game.player().HandCards )
 		])
-		.then( () => Resolve['Masquerade_dont_trash']() );
+		.then( () => Resolve['Masquerade_trash']() );
 	} );
 
-	$('.action_buttons').on( 'click', '.Masquerade_dont_trash', () => Resolve['Masquerade_dont_trash']() );
+	// 自分
+	$('.action_buttons').on( 'click', '.Masquerade_trash', () => Resolve['Masquerade_trash']() );
 
 
 

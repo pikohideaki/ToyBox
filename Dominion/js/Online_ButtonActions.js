@@ -119,7 +119,7 @@ $( function() {
 				return;
 			}
 			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
-			FBref_Room.child('chat').push( `${Game.player().name}が「${Card.name_jp}」を購入しました。` );
+			FBref_chat.push( `${Game.player().name}が「${Card.name_jp}」を購入しました。` );
 			Game.TurnInfo.buy--;
 			Game.TurnInfo.coin   -= clicked_card_cost.coin;
 			Game.TurnInfo.potion -= clicked_card_cost.potion;

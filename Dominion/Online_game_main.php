@@ -78,9 +78,21 @@ $GameRoomID = $_POST['room-id'];
 		<div class='main'>
 			<div class='Common-Area'>
 				<div class='SupplyArea-wrapper'>
-					<!-- 褒賞カード（「馬上槍試合」使用時） -->
-					<div class='Prize'> </div>
-					<div class='clear'></div>
+
+					<div class='additional-piles'>
+						<!-- 褒賞カード（「馬上槍試合」使用時） -->
+						<div class='Prize-wrapper' data-caption='褒賞カード'>
+							<div class='Prize'></div>
+						</div>
+
+						<!-- 「魔女娘」用災いカード -->
+						<div class='BaneCard-wrapper' data-caption='災いカード（魔女娘）'>
+							<div class='SupplyArea BaneCard'></div>
+							<div class='clear'></div>
+						</div>
+
+						<div class='clear'></div>
+					</div>
 
 					<!-- 基本カード -->
 					<div class='SupplyArea line1'> <!-- jsでここを書き換え -->
@@ -121,6 +133,11 @@ $GameRoomID = $_POST['room-id'];
 						<div class='clear'></div>
 					</div>
 					<div class='clear'></div>
+
+					<div>
+
+					</div>
+
 				</div>
 				<div class='clear'></div>
 			</div>
@@ -353,20 +370,24 @@ $GameRoomID = $_POST['room-id'];
 	};
 	firebase.initializeApp(config);
 
-	let FBdatabase                 = firebase.database();
-	let FBref_connected            = FBdatabase.ref(".info/connected");
-	let FBref_Room                 = FBdatabase.ref( `/Rooms/${GameRoomID}` );
-	let FBref_Game                 = FBref_Room.child( 'Game' );
-	let FBref_Players              = FBref_Room.child( 'Game/Players' );
-	let FBref_Message              = FBref_Room.child( 'Message' );
-	let FBref_MessageTo            = FBref_Room.child( 'MessageTo' );
-	let FBref_MessageToMe          = FBref_Room.child( `MessageTo/${myid}` );
-	let FBref_Signal               = FBref_Room.child( 'Signals' );
-	let FBref_SignalToMe           = FBref_Room.child( `Signals/${myid}` );
-	let FBref_SignalAttackEnd      = FBref_Room.child( 'Signals/AttackEnd' );
-	let FBref_SignalReactionEnd    = FBref_Room.child( 'Signals/ReactionEnd' );
-	let FBref_SignalRevealReaction = FBref_Room.child( 'Signals/RevealReaction' );
-	let FBref_Settings             = FBref_Room.child( 'Game/Settings' );
+	const FBdatabase                 = firebase.database();
+	const FBref_connected            = FBdatabase.ref(".info/connected");
+	const FBref_Room                 = FBdatabase.ref( `/Rooms/${GameRoomID}` );
+	const FBref_Game                 = FBref_Room.child( 'Game' );
+	const FBref_Supply               = FBref_Room.child( 'Game/Supply' );
+	const FBref_Players              = FBref_Room.child( 'Game/Players' );
+	const FBref_Message              = FBref_Room.child( 'Message' );
+	const FBref_MessageTo            = FBref_Room.child( 'MessageTo' );
+	const FBref_MessageToMe          = FBref_Room.child( `MessageTo/${myid}` );
+	const FBref_Signal               = FBref_Room.child( 'Signals' );
+	const FBref_SignalToMe           = FBref_Room.child( `Signals/${myid}` );
+	const FBref_SignalAttackEnd      = FBref_Room.child( 'Signals/AttackEnd' );
+	const FBref_SignalReactionEnd    = FBref_Room.child( 'Signals/ReactionEnd' );
+	const FBref_SignalRevealReaction = FBref_Room.child( 'Signals/RevealReaction' );
+	const FBref_SignalBaneCardEnd    = FBref_Room.child( 'Signals/BaneCardEnd' );
+	const FBref_SignalRevealBaneCard = FBref_Room.child( 'Signals/RevealBaneCard' );
+	const FBref_Settings             = FBref_Room.child( 'Game/Settings' );
+	const FBref_chat                 = FBref_Room.child('chat');
 </script>
 
 <!-- function & class -->

@@ -17,6 +17,7 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist, Game ) {
 			<div class='supply-card-wrapper' data-card_no='${card_no}'>
 				<button class="card face"
 					data-card_no='${card_no}'
+					data-card_num_of_remaining='${num}'
 					data-card-name-eng='${card_name_eng}'
 					data-card_name_jp='${card_name_jp}'>
 					<span class='card-cost-coin'>${cost_coin}</span>

@@ -86,23 +86,30 @@ class CGame {
 			played_actioncards_num : 0,  // 共謀者
 			add_copper_coin : 0,  // 銅細工師
 			cost_down_by_Bridge : 0,  // 橋によるコスト減少量
-			Revealed_Moat : new Array( PLAYER_NUM_MAX ).fill(false),  /* 堀を公開したか */
+			Revealed_Moat     : new Array( PLAYER_NUM_MAX ).fill(false),  /* 堀を公開したか */
+			Revealed_BaneCard : new Array( PLAYER_NUM_MAX ).fill(false),  /* 災いカードを公開したか */
 		};
 		this.phase = 'ActionPhase';
 	}
 
 
 	GameEnded() {
+		// 属州がなくなったら終了
 		if ( this.Supply.byName('Province').IsEmpty() ) return true;
-		if ( RoomInfo.SelectedCards.Prosperity && this.Supply.byName('Colony').IsEmpty() ) return true;
+
+		// 植民地場なら植民地がなくなったら終了
+		if ( this.Supply.byName('Colony').in_use
+			&& this.Supply.byName('Colony').IsEmpty() ) return true;
+
+		// 使用しているサプライが3山なくなったら終了
 		let empty_pile_num = 0;
-		for ( let i = 0; i < this.Supply.Basic.length; ++i ) {
-			if ( this.Supply.Basic[i].IsEmpty() ) empty_pile_num++;
-		}
-		if ( !RoomInfo.SelectedCards.Prosperity ) empty_pile_num -= 2;  // 繁栄場でないとき植民地、白金貨が空で判定される
-		for ( let i = 0; i < this.Supply.KingdomCards.length; ++i ) {
-			if ( this.Supply.KingdomCards[i].IsEmpty() ) empty_pile_num++;
-		}
+		[].concat( this.Supply.Basic )
+		  .concat( this.Supply.KingdomCards )
+		  .concat( [this.Supply.BaneCard] )
+		  .forEach( function(pile) {
+			if ( pile.in_use && pile.IsEmpty() ) empty_pile_num++;
+		});
+
 		/* [ToDo] 闇市場，廃墟などもカウント */
 		if ( empty_pile_num >= 3 ) return true;
 
@@ -140,7 +147,7 @@ class CGame {
 
 			yield Promise.all( [
 				FBref_Room.update( updates ),
-				FBref_Room.child('chat').push( `${G.player().name}のターン` ),
+				FBref_chat.push( `${G.player().name}のターン` ),
 			]);
 
 			/* アクションカードがなければスキップして購入フェーズに遷移 */
@@ -166,12 +173,17 @@ class CGame {
 		let Quarry_num_in_play
 			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Quarry' ).length;
 
+		// 王女（場にある枚数）
+		let Princess_num_in_play
+			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Princess' ).length;
+
 		// 橋の下のトロル（場にある枚数）
 		let BridgeTroll_num_in_play
 			= playarea.filter( card => Cardlist[ card.card_no ].name_eng == 'Bridge Troll' ).length;
 
-		cost = CostOp( '-', cost, new CCost( [ Highway_num_in_play ,0,0] ) );
-		cost = CostOp( '-', cost, new CCost( [ BridgeTroll_num_in_play ,0,0] ) );
+		cost = CostOp( '-', cost, new CCost( [ Highway_num_in_play     , 0, 0 ] ) );
+		cost = CostOp( '-', cost, new CCost( [ BridgeTroll_num_in_play , 0, 0 ] ) );
+		cost = CostOp( '-', cost, new CCost( [ Princess_num_in_play * 2, 0, 0 ] ) );
 
 		if ( IsActionCard( Cardlist, card_no ) ) {
 			cost = CostOp( '-', cost, new CCost( [ Quarry_num_in_play ,0,0] ) );
@@ -303,6 +315,40 @@ class CGame {
 			}
 		}
 
+		for ( let i = 0; i < this.Supply.Prize.length; ++i ) {
+			let spl = this.Supply.Prize[i].pile;
+			for ( let k = 0; k < spl.length; ++k ) {
+				if ( card_ID == spl[k].card_ID ) {
+					card = spl[k];
+					if ( remove_this_card ) {
+						spl.remove(k);
+						if ( FBsync ) {
+							FBref_Game.child(`Supply/Prize/${i}/pile`).set( spl );
+						}
+					}
+					// return card;
+					matched_num++;
+				}
+			}
+		}
+
+		{
+			const spl = this.Supply.BaneCard.pile;
+			for ( let k = 0; k < spl.length; ++k ) {
+				if ( card_ID == spl[k].card_ID ) {
+					card = spl[k];
+					if ( remove_this_card ) {
+						spl.remove(k);
+						if ( FBsync ) {
+							FBref_Game.child(`Supply/Prize/${i}/pile`).set( spl );
+						}
+					}
+					// return card;
+					matched_num++;
+				}
+			}
+		}
+
 		for ( let k = 0; k < this.TrashPile.length; ++k ) {
 			if ( card_ID == this.TrashPile[k].card_ID ) {
 				card = this.TrashPile[k];
@@ -409,6 +455,53 @@ class CGame {
 			}
 		} );
 	}
+
+
+
+	// カードをサプライから獲得する
+	GainCard(
+			card_name_eng,
+			place_to_gain = 'DiscardPile',
+			player_id = this.whose_turn_id )
+	{
+		const G = this;
+
+		const gained_card = G.Supply.byName( card_name_eng ).GetTopCard();
+		const player = G.Players[ player_id ];
+
+		let updates = {};
+		updates['Supply'] = Game.Supply;
+
+		switch ( place_to_gain ) {
+			case 'Deck' :
+				player.PutBackToDeck( gained_card );
+				updates[`Players/${player_id}/Deck`] = player.Deck;
+				break;
+
+			case 'HandCard' :
+				player.AddToHandCards( gained_card )
+				updates[`Players/${player_id}/HandCards`] = player.HandCards;
+				break;
+
+			case 'DiscardPile' :
+				player.AddToDiscardPile( gained_card );
+				updates[`Players/${player_id}/DiscardPile`] = player.DiscardPile;
+				break;
+
+			default :
+				throw new Error(`at Game.GainCard : there is no place named ${place_to_gain}`);
+				return;
+		}
+
+		return Promise.all( [
+			FBref_chat.push( `${player.name}が${Cardlist[ gained_card.card_no ].name_jp}を獲得しました。` ),
+			FBref_Game.update( updates ),
+		] );
+	}
+
+
+
+
 }
 
 

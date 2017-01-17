@@ -266,39 +266,50 @@ function PrintDiscardPile( player_id ) {
 function PrintSupply() {
 
 	/* SupplyArea line1 */
-	let $SupplyArea1 = $('.SupplyArea.line1');
+	const $SupplyArea1 = $('.SupplyArea.line1');
 	$SupplyArea1.html('');
 	Game.Supply.Basic.filter( pile => pile.in_use ).forEach( function(pile) {
 		$SupplyArea1.append( MakeHTML_SupplyPile( pile, Cardlist, Game ) );
 	} );
 
 	/* SupplyArea line2 */
-	let $SupplyArea2 = $('.SupplyArea.line2');
+	const $SupplyArea2 = $('.SupplyArea.line2');
 	$SupplyArea2.html('');
 	for ( let i = 0; i < KINGDOMCARD_SIZE / 2; ++i ) {
 		$SupplyArea2.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist, Game ) );
 	}
 
 	/* SupplyArea line3 */
-	let $SupplyArea3 = $('.SupplyArea.line3');
+	const $SupplyArea3 = $('.SupplyArea.line3');
 	$SupplyArea3.html('');
 	for ( let i = KINGDOMCARD_SIZE / 2; i < KINGDOMCARD_SIZE; ++i ) {
 		$SupplyArea3.append( MakeHTML_SupplyPile( Game.Supply.KingdomCards[i], Cardlist, Game ) );
 	}
 
-	// 購入フェーズならクリック可能に
-	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
-		$('.SupplyArea').find('.card').addClass('BuyCard pointer');
-	}
-
 	// 褒賞カード（5枚）
 	const $PrizeArea = $('.Prize');
-	$('.Prize').html('');
+	$PrizeArea.html('');
 	Game.Supply.Prize.forEach( function( prize_pile ) {
 		if ( prize_pile.in_use ) {
 			$PrizeArea.append( MakeHTML_SupplyPile( prize_pile, Cardlist, Game ) );
 		}
 	});
+	if ( Game.Supply.Prize[0].in_use ) {
+		$('.Prize-wrapper').show();
+	}
+
+	// 魔女娘 災いカード
+	if ( Game.Supply.BaneCard.in_use ) {
+		const $BaneCardArea = $('.SupplyArea.BaneCard');
+		$BaneCardArea.html( MakeHTML_SupplyPile( Game.Supply.BaneCard, Cardlist, Game ) );
+		$('.BaneCard-wrapper').show();
+	}
+
+
+	// 購入フェーズならクリック可能に（災いカードも対象）
+	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
+		$('.SupplyArea').find('.card').addClass('BuyCard pointer');
+	}
 
 
 	// 更新時アニメーション
@@ -335,7 +346,7 @@ function PrintPhase() {
 			FBref_Message.set( '財宝カードを場に出した後カードを購入してください。' );
 			$('.phase').html('購入フェーズ');
 			$('.SortHandCards'   ).show();
-			// $('.UseAllTreasures' ).hide();
+			$('.UseAllTreasures' ).show();
 			$('.MoveToBuyPhase'  ).hide();
 			$('.MoveToNextPlayer').show();
 			break;

@@ -24,29 +24,29 @@
 
 
 .card.face:hover {
-    /* 位置 */
-    position: relative;
+	/* 位置 */
+	position: relative;
 }
 .card.face:hover:after {
-    content: attr(data-card_name_jp);
+	content: attr(data-card_name_jp);
 
-    /* 位置 */
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 1;
+	/* 位置 */
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 1;
 
-    /* 文字 */
-    font-weight: normal;
-    color: black;
-    white-space: nowrap;
+	/* 文字 */
+	font-weight: normal;
+	color: black;
+	white-space: nowrap;
 
-    /* 背景 */
-    background-color: white;
-    padding: 3px;
-    border: 1px silver solid;
-    border-radius: 3px;
-    box-shadow: 1px 1px 3px silver;
+	/* 背景 */
+	background-color: white;
+	padding: 3px;
+	border: 1px silver solid;
+	border-radius: 3px;
+	box-shadow: 1px 1px 3px silver;
 }
 
 

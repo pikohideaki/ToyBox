@@ -14,15 +14,6 @@ class CCard {
 
 
 
-// function add_class( card, class_str ) {
-	// card.class_array.push( class_str );
-// }
-// function remove_class( card, class_str ) {
-	// card.class_array.remove_val( class_str );
-// }
-
-
-
 function SetSizeOfSupplyPile( card_no, PlayerNum, SelectedCards ) {
 	/* カード追加時に書き足し */
 	switch ( Number(card_no) ) {
@@ -211,22 +202,35 @@ class CSupply {
 			case 'Colony'   : return this.Basic[8];
 			case 'Curse'    : return this.Basic[9];
 
-			case Cardlist[ this.BaneCard.card_no ].name_eng : return this.BaneCard[i];
+			case Cardlist[ this.BaneCard.card_no ].name_eng : return this.BaneCard;
 			default: break;
 		}
+
 		for ( let i = 0; i < KINGDOMCARD_SIZE; ++i ) {
 			if ( name === Cardlist[ this.KingdomCards[i].card_no ].name_eng ) {
 				return this.KingdomCards[i];
 			}
 		}
+
+		for ( let i = 0; i < PRIZECARD_SIZE; ++i ) {
+			if ( name === Cardlist[ this.Prize[i].card_no ].name_eng ) {
+				return this.Prize[i];
+			}
+		}
+
 		if ( name === Cardlist[ this.BaneCard.card_no ].name_eng ) {
 			return this.BaneCard;
 		}
+
 		for ( let i = 0; i < BLACKMARKET_SIZE; ++i ) {
 			if ( name === Cardlist[ this.BlackMarket[i].card_no ].name_eng ) {
 				return this.BlackMarket[i];
 			}
 		}
+
+		// なかったとき
+		throw new Error(`at Supply.byName : there is no supply pile named "${card_name_eng}"`);
+		return undefined;
 	}
 
 

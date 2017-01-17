@@ -2,7 +2,7 @@ $( function() {
 
 	$('.chat-wrapper .chat_enter').click( function() {
 		const msg = $('.chat-wrapper .chat_textbox').val();
-		FBref_Room.child('chat').push( `<font color='red'>${myname}</font> : ${msg}` );
+		FBref_chat.push( `<font color='red'>${myname}</font> : ${msg}` );
 		$('.chat-wrapper .chat_textbox').val('');
 	});
 
@@ -12,7 +12,7 @@ $( function() {
 		} );
 		if ( yn ) {
 			const msg = `${myname}が退室しました。`;
-			FBref_Room.child('chat').push( `<font color='red'>${msg}</font>`,
+			FBref_chat.push( `<font color='red'>${msg}</font>`,
 				() => window.location.href = 'Online_room_main.php' );
 		}
 	}); });

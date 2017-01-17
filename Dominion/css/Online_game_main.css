@@ -57,6 +57,74 @@
 	float : left;
 }
 
+
+.additional-piles {
+	margin-bottom : 10px;
+}
+
+.Prize-wrapper {
+	float : left;
+	padding : 10px;
+	background-color : #EFF3B6;
+	border-radius: 10px;
+	margin-right : 10px;
+	display : none;
+	position : relative;
+}
+.Prize-wrapper:hover:after {
+	content: attr(data-caption);
+
+	/* 位置 */
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 100;
+
+	/* 文字 */
+	font-weight: normal;
+	color: black;
+	white-space: nowrap;
+
+	/* 背景 */
+	background-color: white;
+	padding: 3px;
+	border: 1px silver solid;
+	border-radius: 3px;
+	box-shadow: 1px 1px 3px silver;
+}
+
+
+.BaneCard-wrapper {
+	float : left;
+	padding : 10px;
+	background-color : #ECB6F3;
+	border-radius: 10px;
+	display : none;
+	position : relative;
+}
+.BaneCard-wrapper:hover:after {
+	content: attr(data-caption);
+
+	/* 位置 */
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 100;
+
+	/* 文字 */
+	font-weight: normal;
+	color: black;
+	white-space: nowrap;
+
+	/* 背景 */
+	background-color: white;
+	padding: 3px;
+	border: 1px silver solid;
+	border-radius: 3px;
+	box-shadow: 1px 1px 3px silver;
+}
+
+
 .SupplyArea_line23 {
 	float : left;
 }

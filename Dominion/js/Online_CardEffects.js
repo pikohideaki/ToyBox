@@ -12,14 +12,25 @@ $( function() {
 	$('.OtherPlayers-wrapper').on( 'click', '.OtherPlayer_Buttons .ok.waiting_for_confirmation',
 		() => Resolve['confirm_revealed_reaction']()
 	);
-
 });
 
 
 
 function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	const playing_Card = Cardlist[ playing_card_no ];
-	FBref_Room.child('chat').push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
+	FBref_chat.push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
+
+
+
+	let Monitor_FBref_SignalReactionEnd_on = function () {
+		return FBref_SignalReactionEnd.set(false)  /* reset */
+		.then( function() {
+			FBref_SignalReactionEnd.on( 'value', function(snap) {
+				if ( snap.val() ) Resolve['ReactionEnd']();
+			} )
+		} );
+	}
+
 
 	// アタックカードならまずリアクションカードの解決
 	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
@@ -29,15 +40,11 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 			// Player[id] がリアクションスキップオプションがオンで手札にリアクションカードがない場合
 			if ( Game.Settings.SkipReaction[id] && !Game.Players[id].HasReactionCard() ) continue;
 
-			/* 堀を公開するかどうかはアクションカード1枚ごとに決めてよい */
+			/* リアクションカードを公開するかどうかはアクションカード1枚ごとに決めてよい */
 			yield FBref_Game.child(`TurnInfo/Revealed_Moat/${id}`).set(false);  /* reset */
-
 			yield SendSignal( id, { listen_reaction : true } );
-
 			yield Monitor_FBref_SignalReactionEnd_on();
-
 			yield FBref_SignalRevealReaction.set(false);  /* reset */
-
 			FBref_SignalRevealReaction.on( 'value', function(snap) {
 				if ( snap.val() == 'waiting_for_confirmation' ) {
 					MyAsync( function*() {
@@ -50,8 +57,8 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 			} );
 			yield new Promise( resolve => Resolve['ReactionEnd'] = resolve );
 
-			Monitor_FBref_SignalReactionEnd_off();
-			Monitor_FBref_SignalRevealReaction_off();
+			FBref_SignalReactionEnd.off();
+			FBref_SignalRevealReaction.off();
 		}
 	}
 
@@ -88,27 +95,6 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 
 
-// function* GetReactionCardEffect( card_no, card_ID ) {
-// 	yield MyAsync( ReactionEffect[ Cardlist[ card_no ].name_eng ] );
-// 	yield FBref_MessageToMe.set('');
-// }
-
-
-
-// function* GetAttackCardEffect( card_name ) {
-// 	yield MyAsync( AttackEffect[ card_name ] );
-// 	yield Promise.all( [
-// 		FBref_SignalToMe.remove(),
-// 		FBref_MessageToMe.set(''),
-// 		FBref_SignalAttackEnd.set(true)  // Endシグナルを送る
-// 	] );
-// }
-
-
-
-// function EndAttackCardEffect() {
-// 	;
-// }
 
 
 
@@ -117,10 +103,23 @@ function AddAvailableToSupplyCardIf( conditions ) {
 		const card_no = $(this).attr('data-card_no');
 		// const card_ID = $(this).attr('data-top_card_ID');
 		const card = Cardlist[ card_no ];
+		if ( $(this).attr('data-card_num_of_remaining') <= 0 ) return;
 		if ( conditions( card, card_no ) ) $(this).addClass('available');
 	} );
 }
 
+
+// 確認ボタン
+function AcknowledgeButton() {
+	return MyAsync( function*() {
+		$('.action_buttons').append( MakeHTML_button( 'acknowledge', 'OK' ) );
+		yield new Promise( resolve => Resolve['acknowledge'] = resolve );
+		$('.action_buttons .acknowledge').remove();  /* 完了ボタン消す */
+	});
+}
+$( function() {
+	$('.action_buttons').on( 'click', '.acknowledge', () => Resolve['acknowledge']() );
+} );
 
 
 function Show_OKbtn_OtherPlayer( player_id, classes ) {
@@ -153,30 +152,16 @@ function Monitor_FBref_SignalAttackEnd_off() {
 
 
 
-function Monitor_FBref_SignalRevealReaction_on() {
-	return FBref_SignalRevealReaction.set(false)  /* reset */
-	.then( function() {
-		FBref_SignalRevealReaction.on( 'value', function(snap) {
-			if ( snap.val() ) Resolve['RevealedReaction']();
-		} )
-	} );
-}
-
-function Monitor_FBref_SignalRevealReaction_off() {
-	FBref_SignalRevealReaction.off();
-}
+// function Monitor_FBref_SignalRevealReaction_on() {
+// 	return FBref_SignalRevealReaction.set(false)  /* reset */
+// 	.then( function() {
+// 		FBref_SignalRevealReaction.on( 'value', function(snap) {
+// 			if ( snap.val() ) Resolve['RevealedReaction']();
+// 		} )
+// 	} );
+// }
 
 
 
-function Monitor_FBref_SignalReactionEnd_on() {
-	return FBref_SignalReactionEnd.set(false)  /* reset */
-	.then( function() {
-		FBref_SignalReactionEnd.on( 'value', function(snap) {
-			if ( snap.val() ) Resolve['ReactionEnd']();
-		} )
-	} );
-}
 
-function Monitor_FBref_SignalReactionEnd_off() {
-	FBref_SignalReactionEnd.off();
-}
+// 共通操作

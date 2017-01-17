@@ -152,6 +152,7 @@ $('#make-room-btn').click( function() {
 	SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
 	SelectedCards.KingdomCards[1] = 142;  // 魔女娘
 	SelectedCards.KingdomCards[2] = 128;  // 馬商人
+	SelectedCards.KingdomCards[3] = 92;   // 使い魔
 
 	const date = new Date();
 

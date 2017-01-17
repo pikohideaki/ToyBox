@@ -229,17 +229,12 @@ $( function() {
 			.html(
 				MakeHTML_button( 'Chancellor Discard', '捨て札におく' ) +
 				MakeHTML_button( 'Chancellor', '何もしない' ) );
-
 		const discard
 			= yield new Promise( resolve => Resolve['Chancellor'] = resolve );
-
 		$('.action_buttons .Chancellor').remove();  // reset
 
 		if ( discard ) {
-			Game.player().Deck.reverse();  /* 山札をそのままひっくり返して捨て山に置く */
-			Game.player().Deck.forEach( card => Game.player().AddToDiscardPile(card) );
-			Game.player().Deck = [];
-			yield FBref_Players.child( Game.player().id ).set( Game.player() );
+			yield Game.player().PutDeckIntoDiscardPile();  /* 山札をそのままひっくり返して捨て山に置く */
 		}
 	};
 
@@ -285,11 +280,9 @@ $( function() {
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
 
-		$('.action_buttons').append( MakeHTML_button( 'Library Done', '確認' ) );
-
 		// 脇に置いたカードを確認
+		$('.action_buttons').append( MakeHTML_button( 'Library Done', '確認' ) );
 		yield new Promise( resolve => Resolve['Library_Done'] = resolve );
-
 		$('.action_buttons .Library.Done').remove();  /* 完了ボタン消す */
 
 		/* move cards in Aside to DiscardPile */
@@ -563,8 +556,8 @@ $( function() {
 		yield FBref_Message.set( 'プレイヤーは銀貨を山札に獲得します。\
 			他のプレイヤーは手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。そうでない場合は手札を公開してください。' );
 
-		let silver = Game.Supply.byName('Silver').GetTopCard();
-		silver.face = true;
+		const silver = Game.Supply.byName('Silver').GetTopCard();
+		if ( silver != undefined ) silver.face = true;
 		Game.player().PutBackToDeck( silver );  /* 銀貨を山札の一番上に獲得 */
 
 		let updates = {};
@@ -601,7 +594,7 @@ $( function() {
 			.filter( function() { return IsVictoryCard( Cardlist, $(this).attr('data-card_no') ) } );
 
 		if ( $victory_cards.length == 0 ) {
-			Game.Me().OpenHandCards();  /* 手札を公開 */
+			Game.Me().RevealHandCards();  /* 手札を公開 */
 			yield FBref_MessageToMe.set('手札を公開します。');
 			return;
 		}
