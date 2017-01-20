@@ -175,7 +175,7 @@ class SizeOfjQueryObj {
 // yield の右に書いた文が nextの評価値になる
 // promise が resolve したら next したい
 // promise が渡されないyield文は許可しない
-//  - MyAsyncからMyAsyncを呼びたいときに困る．
+//  - MyAsyncからMyAsyncを呼びたいときに困る
 //  - ボタン操作待ちなどはPromise化してresolveをボタン操作から実行するように
 
 function MyAsync( GenFunc, ...Args ) {
@@ -213,7 +213,44 @@ function MyAsync( GenFunc, ...Args ) {
 			<div class='clear'></div>
 		</div>
 	</div>
+*/
+function MyAlert( options ) {
+	return new Promise( function( resolve, reject ) {
+		$('.alert_text').html( options.message || '' );
+		$('.alert_contents').html( options.contents || '' );
+		$('.MyAlert').fadeIn( 'normal' );
+		$('.MyAlert .buttons input[type=button]').focus();
 
+		function close_alert() {
+			$('.MyAlert').fadeOut( 'normal', function() {
+				// reset
+				$('.alert_text').html('');
+				$('.alert_contents').html('');
+				resolve();
+			} );
+		}
+
+		// ボタンで閉じる
+		$('.MyAlert .buttons input[type=button]').click( close_alert );
+
+		// キー入力で閉じる
+		$(document).keydown( function(e) {
+			switch ( e.keyCode ) {
+				case 27 :  // ESC 入力
+				case 13 :  // Enter 入力
+					close_alert;
+					break;
+
+				default :
+					break;
+			}
+		});
+
+	});
+}
+
+
+/*
 	<div class='BlackCover MyConfirm'>
 		<div class='MyConfirm-box'>
 			<div class='clear confirm_text'></div>
@@ -226,50 +263,37 @@ function MyAsync( GenFunc, ...Args ) {
 		</div>
 	</div>
 */
-function MyAlert( options ) {
-	return new Promise( function( resolve, reject ) {
-		$('.alert_text').html( options.message );
-		$('.alert_contents').html( options.contents );
-		$('.MyAlert').fadeIn( 'normal' );
-		$('.MyAlert .buttons input[type=button]').focus();
-
-		// 閉じる
-		$('.MyAlert .buttons input[type=button]').click( function() {
-			$('.MyAlert').fadeOut( 'normal', resolve );
-		} );
-		$(document).keydown( function(e) {
-			switch ( e.keyCode ) {
-				case 27 :  // ESC 入力
-				case 13 :  // Enter 入力
-					$('.MyAlert').fadeOut( 'normal', resolve );
-					break;
-				default :
-					break;
-			}
-		});
-
-	});
-}
-
 function MyConfirm( options ) {
 	return new Promise( function( resolve, reject ) {
-		$('.confirm_text').html( options.message );
-		$('.confirm_contents').html( options.contents );
+		$('.confirm_text').html( options.message || '' );
+		$('.confirm_contents').html( options.contents || '' );
 		$('.MyConfirm').fadeIn( 'normal' );
 		$('.MyConfirm .buttons input[type=button]').focus();
 
-		// 閉じる
-		$('.MyConfirm .buttons input[type=button]').click( function() {
-			$('.MyConfirm').fadeOut( 'normal', () => resolve( $(this).hasClass('yes') ) );
-		} );
+		function close_confirm( ok ) {
+			$('.MyConfirm').fadeOut( 'normal', function() {
+				// reset
+				$('.confirm_text').html('');
+				$('.confirm_contents').html('');
+				resolve( ok );
+			} );
+		}
+
+		// ボタンで閉じる
+		$('.MyConfirm .buttons input[type=button]').click( 
+			() => close_confirm( $(this).hasClass('yes') ) );
+
+		// キー入力で閉じる
 		$(document).keydown( function(e) {
 			switch ( e.keyCode ) {
 				case 27 :  // ESC 入力
-					$('.MyConfirm').fadeOut( 'normal', () => resolve( false ) );
+					close_confirm( false );
 					break;
+
 				case 13 :  // Enter 入力
-					$('.MyConfirm').fadeOut( 'normal', () => resolve( true ) );
+					close_confirm( true );
 					break;
+
 				default :
 					break;
 			}
@@ -277,6 +301,50 @@ function MyConfirm( options ) {
 
 	});
 }
+
+
+/*
+	<div class='BlackCover MyDialog'>
+		<div class='MyDialog-box'>
+			<div class='clear dialog_text'></div>
+			<div class='clear dialog_contents'></div>
+			<div class='clear buttons'>
+				<!-- added by js -->
+			</div>
+			<div class='clear'></div>
+		</div>
+	</div>
+*/
+function MyDialog( options ) {
+	return new Promise( function( resolve, reject ) {
+		$('.dialog_text').html( options.message || '' );
+		$('.dialog_contents').html( options.contents || '' );
+		$('.MyDialog').fadeIn( 'normal' );
+		$buttons = $('.MyDialog .buttons');
+
+		function close_dialog() {
+			$('.MyDialog').fadeOut( 'normal', function() {
+				// reset
+				$('.dialog_text').html('');
+				$('.dialog_contents').html('');
+				resolve();
+			} );
+		}
+
+		// ボタン入力受け付け
+		options.buttons.forEach( function( btn ) {
+			$buttons.append( MakeHTML( btn.class_str, btn.name ) );
+			$buttons.on( 'click', btn.class_str, function() {
+				close_dialog();
+				resolve( btn.return_value );
+			} );
+		} );
+	});
+}
+
+
+
+
 
 
 function sleep( sec ) {

@@ -797,8 +797,8 @@ $( function() {
 
 			case 'GetCurse' :
 				yield FBref_MessageTo.child(myid).set('呪いを獲得して手札に加えてください。');
-				let curse = Game.Supply.byName('Curse').GetTopCard();
-				curse.face = true;
+				const curse = Game.Supply.byName('Curse').GetTopCard();
+				if ( curse != undefined ) curse.face = true;
 				Game.Me().AddToHandCards( curse );
 
 				let updates = {};
@@ -906,8 +906,8 @@ $( function() {
 
 	/* 53. 破壊工作員 */
 	CardEffect['Saboteur'] = function*() {
-		yield FBref_Message.set( '他のプレイヤーは自分の山札からコストが3コイン以上のカードが出るまで\
-			公開し，そのカードを廃棄する。\
+		yield FBref_Message.set(
+			'他のプレイヤーは自分の山札からコストが3コイン以上のカードが出るまで公開し、そのカードを廃棄する。\
 			廃棄したカードよりも2コイン以上コストが低いカードを1枚獲得してもよい。\
 			公開した残りのカードは捨て札にする。' );
 
@@ -1160,7 +1160,7 @@ $( function() {
 	// 自分と他のプレイヤー
 	$('.HandCards,.MyHandCards').on( 'click', '.card.Masquerade_SelectPassCard', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		let clicked_card = Game.GetCardByID( clicked_card_ID );
+		const clicked_card = Game.GetCardByID( clicked_card_ID );
 		clicked_card.down = true;
 		Game.Me().AddToOpen( clicked_card );
 

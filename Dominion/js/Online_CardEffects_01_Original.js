@@ -256,18 +256,36 @@ $( function() {
 			if ( IsActionCard( Cardlist, deck_top_card.card_no ) ) {
 				yield FBref_Players.child( `${Game.player().id}/Deck` ).set( Game.player().Deck );
 
-				ShowDialog( {
-					message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
-					contents : MakeHTML_Card( deck_top_card, Game ),
-					buttons  :
-						MakeHTML_button( 'Library SetAside', '脇に置く' ) + 
-						MakeHTML_button( 'Library', '手札に加える' ),
-				} );
+				// ShowDialog( {
+				// 	message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
+				// 	contents : MakeHTML_Card( deck_top_card, Game ),
+				// 	buttons  :
+				// 		MakeHTML_button( 'Library SetAside', '脇に置く' ) + 
+				// 		MakeHTML_button( 'Library', '手札に加える' ),
+				// } );
+
+				// const set_aside
+				// 	= yield new Promise( resolve => Resolve['Library'] = resolve );
+
+				// HideDialog();
 
 				const set_aside
-					= yield new Promise( resolve => Resolve['Library'] = resolve );
-
-				HideDialog();
+				 = yield MyDialog( {
+					message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
+					contents : MakeHTML_Card( deck_top_card, Game ),
+					buttons  : [
+						{
+							class_str :'Library SetAside',
+							name : '脇に置く',
+							return_value : true,
+						},
+						{
+							class_str :'Library',
+							name : '手札に加える',
+							return_value : false,
+						},
+					],
+				} );
 
 				if ( set_aside ) {
 					Game.player().SetAside( deck_top_card );
@@ -280,15 +298,11 @@ $( function() {
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
 
-		// 脇に置いたカードを確認
-		$('.action_buttons').append( MakeHTML_button( 'Library Done', '確認' ) );
-		yield new Promise( resolve => Resolve['Library_Done'] = resolve );
-		$('.action_buttons .Library.Done').remove();  /* 完了ボタン消す */
+		yield AcknowledgeButton_Me();  // 脇に置いたカードを確認
 
 		/* move cards in Aside to DiscardPile */
 		Game.player().Aside.forEach( card => Game.player().AddToDiscardPile(card) );
 		Game.player().Aside = [];
-
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
@@ -297,9 +311,9 @@ $( function() {
 		Resolve['Library']( $(this).hasClass('SetAside') );  // 再開
 	} );
 
-	$('.action_buttons').on( 'click', '.Library.Done', function() {
-		Resolve['Library_Done']();  // 再開
-	} );
+	// $('.action_buttons').on( 'click', '.Library.Done', function() {
+	// 	Resolve['Library_Done']();  // 再開
+	// } );
 
 
 
@@ -317,12 +331,12 @@ $( function() {
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
 
-		$('.action_buttons').append( MakeHTML_button( 'Adventurer Done', '確認' ) );
+		yield AcknowledgeButton_Me();  // 脇に置いたカードを確認
 
 		// 公開したカードを確認
-		yield new Promise( resolve => Resolve['Adventurer'] = resolve );
-
-		$('.action_buttons .Adventurer.Done').remove();  /* 完了ボタン消す */
+		// $('.action_buttons').append( MakeHTML_button( 'Adventurer Done', '確認' ) );
+		// yield new Promise( resolve => Resolve['Adventurer'] = resolve );
+		// $('.action_buttons .Adventurer.Done').remove();  /* 完了ボタン消す */
 
 		/* 公開したカードを片づける */
 		while ( Game.player().Open.length > 0 ) {
@@ -337,7 +351,7 @@ $( function() {
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
-	$('.action_buttons').on( 'click', '.Adventurer.Done', () => Resolve['Adventurer']() );
+	// $('.action_buttons').on( 'click', '.Adventurer.Done', () => Resolve['Adventurer']() );
 
 
 
@@ -493,18 +507,14 @@ $( function() {
 	CardEffect['Witch'] = function* () {
 		yield FBref_Message.set( '呪いを獲得して下さい。' );
 
-		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
-			yield FBref_MessageTo.child(id).set('呪いを獲得します。');
-
-			Game.Players[id].AddToDiscardPile( Game.Supply.byName('Curse').GetTopCard() );
-
-			let updates = {};
-			updates['Supply'] = Game.Supply;
-			updates[`Players/${id}/DiscardPile`] = Game.Players[id].DiscardPile;
-			yield FBref_Game.update( updates );
-			yield FBref_MessageTo.child(id).set('');  /* reset */
-		}
+		yield Game.AttackAllPlayers(
+				'Witch',
+				'呪いを獲得します。',
+				false,  // don't send signals
+				function*() {
+					// 呪いを獲得
+					yield Game.GainCard( 'Curse', 'DiscardPile', id );
+				} );
 	};
 
 
@@ -515,26 +525,22 @@ $( function() {
 	CardEffect['Militia'] = function* () {
 		yield FBref_Message.set( '手札が3枚になるまで捨てて下さい。' );
 
-		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
-			yield Monitor_FBref_SignalAttackEnd_on( 'Militia' );  // End受信 -> Resolve['Militia']()
-			yield SendSignal( id, {
-				Attack    : true,
-				card_name : 'Militia',
-				Message   : '手札が3枚になるまで捨てて下さい。',
-			} );
-			yield new Promise( resolve => Resolve['Militia'] = resolve );  /* 他のプレイヤー待機 */
-			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-		}
+		yield Game.AttackAllPlayers(
+				'Militia',
+				'手札が3枚になるまで捨てて下さい。',
+				true,  // send signals
+				function*() {} );
 	};
 
-	AttackEffect['Militia'] = function*() {  /* アタックされる側 */
+	/* アタックされる側 */
+	AttackEffect['Militia'] = function*() {
 		while ( $('.MyHandCards').children('.card').length > 3 ) {
 			$('.MyHandCards').children('.card').addClass('Militia_Discard pointer');
 			yield new Promise( resolve => Resolve['Militia_Discard'] = resolve );
 		}
 	};
 
+	/* アタックされる側 */
 	$('.MyHandCards').on( 'click', '.card.Militia_Discard', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
@@ -565,30 +571,21 @@ $( function() {
 		updates['Supply'] = Game.Supply;
 		yield FBref_Game.update( updates );
 
-		/* 他のプレイヤーが終了時に送るEndシグナルを監視 */
+		yield Game.AttackAllPlayers(
+				'Bureaucrat',
+				'手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。そうでない場合は手札を公開してください。',
+				true,  // send signals
+				function*() {} );
 
-		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
+		// 全プレイヤーの山札に戻した勝利点カードか公開した手札を確認
+		yield AcknowledgeButton_Me();
 
-			yield Monitor_FBref_SignalAttackEnd_on( 'Bureaucrat' );  // End受信 -> Resolve['Bureaucrat']()
-			yield SendSignal( id, {
-				Attack    : true,
-				card_name : 'Bureaucrat',
-				Message   : '手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。そうでない場合は手札を公開してください。',
-			} );
-			yield new Promise( resolve => Resolve['Bureaucrat'] = resolve );  /* 他のプレイヤー待機 */
-			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-
-			// 山札に戻した勝利点カードか公開した手札を確認
-			Show_OKbtn_OtherPlayer( id, 'Bureaucrat' );
-			yield new Promise( resolve => Resolve['Bureaucrat_ok'] = resolve );
-			Hide_OKbtn_OtherPlayer( id, 'Bureaucrat' );
-		}
 		// 公開したカードを裏向きに戻す
 		Game.Players.forEach( player => player.ResetFaceDown() );
 		yield FBref_Players.set( Game.Players );
 	};
 
+	// アタックされる側
 	AttackEffect['Bureaucrat'] = function*() {  /* アタックされる側 */
 		const $victory_cards = $('.MyHandCards').children('.card')
 			.filter( function() { return IsVictoryCard( Cardlist, $(this).attr('data-card_no') ) } );
@@ -604,8 +601,7 @@ $( function() {
 		yield new Promise( resolve => Resolve['Bureaucrat_PutBack'] = resolve );
 	};
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Bureaucrat', () => Resolve['Bureaucrat_ok']() );  /* 確認 */
-
+	// アタックされる側
 	$('.MyHandCards').on( 'click', '.card.Bureaucrat_PutBack', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
@@ -626,112 +622,112 @@ $( function() {
 
 	/* 24. 泥棒 */
 	CardEffect['Thief'] = function* () {
-		yield FBref_Message.set( '他のプレイヤーの山札の上から2枚を公開し，その中に財宝カードがあればそのうち1枚を選んで廃棄します。\
+		yield FBref_Message.set(
+			'他のプレイヤーの山札の上から2枚を公開し、\
+			その中に財宝カードがあればそのうち1枚を選んで廃棄します。\
 			これによって廃棄されたカードのうち好きな枚数を獲得できます。' );
 
-		let trashed_card_IDs = [];
-
-		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
-			yield Monitor_FBref_SignalAttackEnd_on( 'Thief' );  // End受信 -> Resolve['Thief']()
-			yield SendSignal( id, {
-				Attack    : true,
-				card_name : 'Thief',
-				Message   : '山札の上から2枚を公開してください。財宝カードが公開された場合そのうち1枚が廃棄されます。廃棄されたカード以外は捨て札にしてください。',
+		function* attack_effects( player_id, passing_object ) {
+			const pl = Game.Players[player_id];
+			/* 山札から2枚めくり公開 */
+			pl.AddToOpen( pl.GetDeckTopCard() );
+			pl.AddToOpen( pl.GetDeckTopCard() );
+			yield FBref_Players.child( player_id ).update( {
+				Open        : pl.Open,
+				Deck        : pl.Deck,
+				DiscardPile : pl.DiscardPile,
 			} );
-			yield new Promise( resolve => Resolve['Thief'] = resolve );  /* 他のプレイヤー待機 */
-			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
 
-			let trasure_cards = 
-				$(`.OtherPlayer[data-player_id=${id}] .sOpen`)
+			const $trasure_cards
+			 = $(`.OtherPlayer[data-player_id=${player_id}] .sOpen`)
 					.children('.card')
-					.filter( function() { return IsTreasureCard( Cardlist, $(this).attr('data-card_no') ) } );
+					.filter( function() {
+						return IsTreasureCard( Cardlist, $(this).attr('data-card_no') )
+					} );
 
-			if ( trasure_cards.length > 0 ) {
-				trasure_cards.addClass('Thief_Trash pointer');
+			// 財宝カードがあれば1枚廃棄
+			if ( $trasure_cards.length > 0 ) {
+				$trasure_cards.addClass('Thief_Trash pointer');
 				const trashed_card_ID
 					= yield new Promise( resolve => Resolve['Thief_Trash'] = resolve );
-				if ( trashed_card_ID != undefined ) trashed_card_IDs.push( trashed_card_ID );
+				if ( trashed_card_ID != undefined ) {
+					passing_object.trashed_card_IDs.push( trashed_card_ID );
+				}
 			} else {
-				Show_OKbtn_OtherPlayer( id, 'Thief' );
-				yield new Promise( resolve => Resolve['Thief_ok'] = resolve );
-				Hide_OKbtn_OtherPlayer( id, 'Thief' );
+				yield AcknowledgeButton_OtherPlayer( player_id );
 			}
 
 			/* 公開したカードの残りを捨て札に */
-			let player = Game.Players[id];
-			player.Open.forEach( card => player.AddToDiscardPile( card ) );
-			player.Open = [];
+			pl.Open.forEach( card => pl.AddToDiscardPile( card ) );
+			pl.Open = [];
 			yield FBref_Players.child(id).update( {
-				DiscardPile : player.DiscardPile,
-				Open        : player.Open,
+				DiscardPile : pl.DiscardPile,
+				Open        : pl.Open,
 			} );
 		}
 
+		let passing_object = { trashed_card_IDs : [] };
 
-		if ( trashed_card_IDs.length > 0 ) {
+		yield Game.AttackAllPlayers(
+				'Thief',
+				'山札の上から2枚を公開してください。\
+				財宝カードが公開された場合そのうち1枚が廃棄されます。\
+				廃棄されたカード以外は捨て札にしてください。',
+				false,  // don't send signals
+				attack_effects, passing_object );
+
+
+		// 1枚以上廃棄したならばその中から好きな枚数獲得
+		if ( passing_object.trashed_card_IDs.length > 0 ) {
 			/* 廃棄したカードの獲得画面 */
-			ShowDialog( {
+			let trashed_cards_html;
+
+			passing_object.trashed_card_IDs.forEach( function( card_ID ) {
+				const card = Game.GetCardByID( card_ID, false );
+				card.class_str = 'Thief_GainTrashedCard pointer';
+				trashed_cards_html += MakeHTML_Card( card, Game );
+			} );
+
+			yield MyAlert( {
 				message  : '廃棄したカードから好きな枚数獲得してください。',
-				contents : '',
-				buttons  : MakeHTML_button( 'ok', 'OK' ),
+				contents : trashed_cards_html,
 			} );
 
-			trashed_card_IDs.forEach( function(id) {
-				const card = Game.GetCardByID( id, false );
-				$('.dialog_contents').append( MakeHTML_Card( card, Game ) );
+			// class_str をリセット
+			ResetClassStr( passing_object.trashed_card_IDs );
+			yield FBref_Game.update( {
+				TrashPile : Game.TrashPile,
+				Players   : Game.Players ,
 			} );
-			$('.dialog_contents').find('.card').addClass('Thief_GainTrashedCard pointer');
-
-			yield new Promise( resolve => Resolve['Thief_GainTrashedCard'] = resolve );
-			HideDialog();
 		}
 	};
 
-	AttackEffect['Thief'] = function*() {  /* アタックされる側 */
-		/* 山札から2枚めくり公開 */
-		Game.Me().AddToOpen( Game.Me().GetDeckTopCard() );
-		Game.Me().AddToOpen( Game.Me().GetDeckTopCard() );
-		yield FBref_Players.child( myid ).update( {
-			Open        : Game.Me().Open,
-			Deck        : Game.Me().Deck,
-			DiscardPile : Game.Me().DiscardPile,
-		} );
-	};
-
-	/* 廃棄 */
+	/* 廃棄するカードの選択 */
 	$('.OtherPlayers-wrapper').on( 'click', '.sOpen .Thief_Trash', function() {
 		const player_id = $(this).parents('.OtherPlayer').attr('data-player_id');
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		Game.TrashCardByID( clicked_card_ID );
 
-		let updates = {};
-		updates['TrashPile'] = Game.TrashPile;
-		updates[`Players/${player_id}/Open`] = Game.Players[ player_id ].Open;
-		FBref_Game.update( updates )
+		FBref_Game.update( {
+			TrashPile : Game.TrashPile,
+			[`Players/${player_id}/Open`] : Game.Players[ player_id ].Open,
+		} )
 		.then( () => Resolve['Thief_Trash']( clicked_card_ID ) );  // 再開
 	} );
 
-	$('.OtherPlayers-wrapper').on( 'click', '.ok.Thief', () => Resolve['Thief_ok']() );  /* 確認 */
-
 	/* 廃棄したカードの獲得 */
-	$('.dialog_contents').on( 'click', '.Thief_GainTrashedCard', function() {
-		$('.dialog_contents').find('.card').removeClass('Thief_GainTrashedCard pointer');
+	$('.MyAlert').on( 'click', '.Thief_GainTrashedCard', function() {
+		$('.MyAlert').find('.card').removeClass('Thief_GainTrashedCard pointer');
 
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
-		$(this).remove();  /* クリックしたカードを削除 */
+		$(this).remove();  /* クリックしたカードを非表示 */
 
-		let updates = {};
-		updates['TrashPile'] = Game.TrashPile;
-		updates[`Players/${myid}/DiscardPile`] = Game.player().DiscardPile;
-		FBref_Game.update( updates )
-		.then( () => $('.dialog_contents').find('.card').addClass('Thief_GainTrashedCard pointer') );
-	} );
-
-	$('.dialog_buttons').on( 'click', '.ok', function() {
-		HideDialog();
-		Resolve['Thief_GainTrashedCard']();  // 再開
+		FBref_Game.update( {
+			TrashPile : Game.TrashPile,
+			[`Players/${Game.player().id}/DiscardPile`] : Game.player().DiscardPile,
+		} )
+		// .then( () => $('.MyAlert').find('.card').addClass('Thief_GainTrashedCard pointer') );
 	} );
 
 
@@ -740,11 +736,15 @@ $( function() {
 
 	/* 28. 密偵 */
 	CardEffect['Spy'] = function* () {
-		yield FBref_Message.set( '各プレイヤー（自分を含む）の山札の上から1枚を公開し，それを捨て札にするかそのまま山札に戻すか選んでください。' );
+		yield FBref_Message.set(
+			'各プレイヤー（自分を含む）の山札の上から1枚を公開し、\
+			それを捨て札にするかそのまま山札に戻すか選んでください。' );
 
+		// 自分
 		if ( Game.player().Drawable() ) {
 			/* 山札から1枚めくり公開 */
-			Game.player().AddToOpen( Game.player().GetDeckTopCard() );
+			const revealed_card_ID = Game.player().GetDeckTopCard().card_ID;
+			Game.player().AddToOpen( Game.GetCardByID( revealed_card_ID ) );
 
 			yield FBref_Players.child( Game.player().id ).update( {
 				Open        : Game.player().Open,
@@ -753,88 +753,92 @@ $( function() {
 			} );
 
 			$('.action_buttons')
-				.append( MakeHTML_button( 'Spy Discard', '捨て札にする' ) )
+				.append( MakeHTML_button( 'Spy Discard',       '捨て札にする' ) )
 				.append( MakeHTML_button( 'Spy PutBackToDeck', 'そのまま戻す' ) );
-
-			yield new Promise( resolve => Resolve['Spy_Discard_or_PutBackToDeck_player'] = resolve );
+			const return_value = yield new Promise( resolve => Resolve['Spy_Me'] = resolve );
 			$('.action_buttons .Spy').remove();
-		}
 
+			switch ( return_value ) {
+				case 'Discard' :
+					Game.player().AddToDiscardPile( Game.GetCardByID( revealed_card_ID ) );
+					break;
 
-		let trashed_card_IDs = [];
+				case 'PutBackToDeck' :
+					const revealed_card = Game.GetCardByID( revealed_card_ID );
+					revealed_card.face = true;
+					Game.player().PutBackToDeck( revealed_card );
+					break;
 
-		for ( let id = Game.NextPlayerID(); id != Game.whose_turn_id; id = Game.NextPlayerID(id) ) {
-			if ( Game.TurnInfo.Revealed_Moat[id] ) continue;  // 堀を公開していたらスキップ
-			yield Monitor_FBref_SignalAttackEnd_on( 'Spy' );  // End受信 -> Resolve['Spy']()
-			yield SendSignal( id, {
-				Attack    : true,
-				card_name : 'Spy',
-				Message   : '山札の上から1枚を公開してください。公開されたカードは捨て札になるか山札に戻されます。',
-			} );
-			yield new Promise( resolve => Resolve['Spy'] = resolve );
-			// yield FBref_SignalAttackEnd.set(false);  /* reset */
-			Monitor_FBref_SignalAttackEnd_off();  /* 監視終了 */
-
-			if ( Game.Players[id].Open.length > 0 ) {  // 1枚以上公開できたとき（drawができないときは0に）
-				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons`)
-					.append( MakeHTML_button( 'Spy Discard', '捨て札にする' ) )
-					.append( "<div class='clear'></div>" )
-					.append( MakeHTML_button( 'Spy PutBackToDeck', 'そのまま戻す' ) );
-
-				yield new Promise( resolve => Resolve['Spy_Discard_or_PutBackToDeck'] = resolve );
-				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Spy`).remove();
+				default :
+					throw new Error( "return value of Spy must be 'Discard' or 'PutBackToDeck' ");
+					break;
 			}
+
+			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 		}
+
+
+		// 他のプレイヤー
+		function attack_effects( player_id, passing_object ) {
+			const pl = Game.Players[player_id];
+
+			if ( !pl.Drawable() ) return;
+
+			/* 山札から1枚めくり公開 */
+			const revealed_card_ID = pl.GetDeckTopCard().card_ID;
+			passing_object.revealed_card_IDs.push( revealed_card_ID );
+			pl.AddToOpen( Game.GetCardByID( revealed_card_ID ) );
+
+			yield FBref_Players.child( pl.id ).update( {
+				Open        : pl.Open,
+				Deck        : pl.Deck,
+				DiscardPile : pl.DiscardPile,
+			} );
+
+			$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons`)
+				.append( MakeHTML_button( 'Spy Discard',       '捨て札にする' ) )
+				.append( MakeHTML_button( 'Spy PutBackToDeck', 'そのまま戻す' ) );
+			const return_value = yield new Promise( resolve => Resolve['Spy_OtherPlayer'] = resolve );
+			$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .Spy`).remove();
+
+			switch ( return_value ) {
+				case 'Discard' :
+					pl.AddToDiscardPile( Game.GetCardByID( revealed_card_ID ) );
+					break;
+
+				case 'PutBackToDeck' :
+					const revealed_card = Game.GetCardByID( revealed_card_ID );
+					revealed_card.face = true;
+					pl.PutBackToDeck( revealed_card );
+					break;
+
+				default :
+					throw new Error( "return value of Spy must be 'Discard' or 'PutBackToDeck' ");
+					break;
+			}
+
+			yield FBref_Players.child( player_id ).set( pl );
+		}
+
+		yield Game.AttackAllPlayers(
+				'Spy',
+				'山札の上から1枚を公開してください。公開されたカードは捨て札になるか山札に戻されます。',
+				false,  // don't send signals
+				attack_effects, passing_object );
+
 		// 公開したカードを裏向きに戻す
-		Game.Players.forEach( player => player.ResetFaceDown() );
-		yield FBref_Players.set( Game.Players );
+		yield Game.ResetFaceDown( passing_object.revealed_card_IDs );
 	};
 
-	$('.action_buttons').on( 'click', '.Spy.Discard,.PutBackToDeck', function() {
-		let Discard_or_PutBackToDeck;
-		if ( $(this).hasClass('Discard') )       Discard_or_PutBackToDeck = 'Discard';
-		if ( $(this).hasClass('PutBackToDeck') ) Discard_or_PutBackToDeck = 'PutBackToDeck';
+	$('.action_buttons').on( 'click', '.Spy.Discard',
+		() => Resolve['Spy_Me']( 'Discard' ) );
+	$('.action_buttons').on( 'click', '.Spy.PutBackToDeck',
+		() => Resolve['Spy_Me']( 'PutBackToDeck' ) );
 
-		let card = Game.player().Open[0];
-		if ( Discard_or_PutBackToDeck == 'Discard' ) {
-			Game.player().AddToDiscardPile( card );
-		} else {
-			card.face = true;
-			Game.player().PutBackToDeck( card );
-		}
-		Game.player().Open = [];
-
-		FBref_Players.child( Game.player().id ).set( Game.player() )
-		.then( () => Resolve['Spy_Discard_or_PutBackToDeck_player']() );  // 再開
-	} );
-
-	/* 他のプレイヤー */
-	AttackEffect['Spy'] = function*() {  /* アタックされる側 */
-		/* 山札から1枚めくり公開 */
-		Game.Me().AddToOpen( Game.Me().GetDeckTopCard() );
-		yield FBref_Players.child( myid ).set( Game.Me() );  // Endシグナルを送る
-	};
-
-	$('.OtherPlayers-wrapper').on( 'click', '.Spy.Discard,.PutBackToDeck', function() {
-		let Discard_or_PutBackToDeck;
-		if ( $(this).hasClass('Discard') )       Discard_or_PutBackToDeck = 'Discard';
-		if ( $(this).hasClass('PutBackToDeck') ) Discard_or_PutBackToDeck = 'PutBackToDeck';
-
-		const player_id = $(this).parents('.OtherPlayer').attr('data-player_id');
-
-		player = Game.Players[ player_id ];
-		let card = player.Open[0];
-		if ( Discard_or_PutBackToDeck == 'Discard' ) {
-			player.AddToDiscardPile( card );
-		} else {
-			card.face = true;
-			player.PutBackToDeck( card );
-		}
-		player.Open = [];
-
-		FBref_Players.child( player_id ).set( player )
-		.then( () => Resolve['Spy_Discard_or_PutBackToDeck']() );  // 再開
-	} );
+	$('.OtherPlayers-wrapper').on( 'click', '.Spy.Discard',
+		() => Resolve['Spy_OtherPlayer']( 'Discard' ) );
+	$('.OtherPlayers-wrapper').on( 'click', '.Spy.PutBackToDeck',
+		() => Resolve['Spy_OtherPlayer']( 'PutBackToDeck' ) );
 
 
 

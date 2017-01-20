@@ -73,10 +73,15 @@ $( function() {
 			Game.player().AddToPlayArea( Game.GetCardByID( BasicTreasures[i].card_ID ) );  /* カード移動 */
 			Game.TurnInfo.coin += Cardlist[ BasicTreasures[i].card_no ].coin;
 
-			yield FBref_Game.update( {
-				[`Players/${Game.player().id}`] : Game.player(),
-				'TurnInfo/coin' : Game.TurnInfo.coin,
-			} );
+			yield Promise.all( [
+				FBref_chat.push(
+					`${Game.player().name}が「${Cardlist[ BasicTreasures[i].card_no ].name_jp}」を使用しました。` ),
+
+				FBref_Game.update( {
+					[`Players/${Game.player().id}`] : Game.player(),
+					'TurnInfo/coin' : Game.TurnInfo.coin,
+				} ),
+			]);
 		}
 		yield FBref_Game.child('phase').set( 'BuyPhase' );
 	}) );

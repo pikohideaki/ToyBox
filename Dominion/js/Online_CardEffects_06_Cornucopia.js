@@ -150,7 +150,7 @@ $( function() {
 	CardEffect['Diadem'] = function*() {
 		yield FBref_Message.set('このカードを使うとき、あなたが使用しなかったアクション1毎に +1 Coin を得ます。');
 
-		yield AcknowledgeButton();
+		yield AcknowledgeButton_Me();
 
 		Game.TurnInfo.coin += Game.TurnInfo.action;
 		yield FBref_Game.child('TurnInfo').set( Game.TurnInfo );
@@ -163,7 +163,7 @@ $( function() {
 	/* 131. 王女 */
 	CardEffect['Princess'] = function*() {
 		yield FBref_Message.set( 'このカードが場に出ているかぎり、カードのコストは2コイン少なくなります（0コイン未満にはなりません）。' );
-		yield AcknowledgeButton();
+		yield AcknowledgeButton_Me();
 	}
 
 
@@ -182,7 +182,7 @@ $( function() {
 			Supply : Game.Supply,
 		} );
 
-		yield AcknowledgeButton();  // 確認
+		yield AcknowledgeButton_Me();  // 確認
 
 		// 公開したカードを裏向きに戻す
 		Game.player().ResetFaceDown();
@@ -730,7 +730,6 @@ $( function() {
 
 		const gained_victory
 			= yield new Promise( resolve => Resolve['HornOfPlenty_GetCard'] = resolve );
-
 
 		if ( gained_victory ) {
 			// もし勝利点カードを獲得したならばこのカードを廃棄

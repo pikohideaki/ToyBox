@@ -110,45 +110,60 @@ function AddAvailableToSupplyCardIf( conditions ) {
 
 
 // 確認ボタン
-function AcknowledgeButton() {
+function AcknowledgeButton_Me() {
 	return MyAsync( function*() {
 		$('.action_buttons').append( MakeHTML_button( 'acknowledge', 'OK' ) );
 		yield new Promise( resolve => Resolve['acknowledge'] = resolve );
 		$('.action_buttons .acknowledge').remove();  /* 完了ボタン消す */
 	});
 }
+
+function AcknowledgeButton_OtherPlayer( player_id ) {
+	return MyAsync( function*() {
+		$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons`)
+			.append( MakeHTML_button( 'acknowledge_other_player', 'OK' ) );
+
+		yield new Promise( resolve => Resolve['acknowledge_other_player'] = resolve );
+
+		$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .acknowledge_other_player`)
+			.remove();  /* 完了ボタン消す */
+	});
+}
 $( function() {
-	$('.action_buttons').on( 'click', '.acknowledge', () => Resolve['acknowledge']() );
+	$('.action_buttons').on( 'click', '.acknowledge',
+		() => Resolve['acknowledge']() );
+	$('.action_buttons').on( 'click', '.acknowledge_other_player',
+		() => Resolve['acknowledge_other_player']() );
 } );
 
 
-function Show_OKbtn_OtherPlayer( player_id, classes ) {
-	let $ok_button = $(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .ok`);
-	$ok_button.show();
-	$ok_button.addClass( classes );
-}
+// function Show_OKbtn_OtherPlayer( player_id, classes ) {
+// 	let $ok_button = $(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .ok`);
+// 	$ok_button.show();
+// 	$ok_button.addClass( classes );
+// }
 
-function Hide_OKbtn_OtherPlayer( player_id, classes ) {
-	let $ok_button = $(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .ok`);
-	$ok_button.hide();
-	$ok_button.removeClass( classes );
-}
+// function Hide_OKbtn_OtherPlayer( player_id, classes ) {
+// 	let $ok_button = $(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .ok`);
+// 	$ok_button.hide();
+// 	$ok_button.removeClass( classes );
+// }
 
 
 
 /* 他のプレイヤーが終了時に送るEndシグナルを監視 */
-function Monitor_FBref_SignalAttackEnd_on( card_name ) {
-	return FBref_SignalAttackEnd.set(false)  /* reset */
-	.then( function() {
-		FBref_SignalAttackEnd.on( 'value', function(snap) {
-			if ( snap.val() ) Resolve[ card_name ]();
-		} )
-	} );
-}
+// function Monitor_FBref_SignalAttackEnd_on( card_name ) {
+// 	return FBref_SignalAttackEnd.set(false)  /* reset */
+// 	.then( function() {
+// 		FBref_SignalAttackEnd.on( 'value', function(snap) {
+// 			if ( snap.val() ) Resolve[ card_name ]();
+// 		} )
+// 	} );
+// }
 
-function Monitor_FBref_SignalAttackEnd_off() {
-	FBref_SignalAttackEnd.off();
-}
+// function Monitor_FBref_SignalAttackEnd_off() {
+// 	FBref_SignalAttackEnd.off();
+// }
 
 
 

@@ -135,7 +135,7 @@ function save_supply() {
 	for ( var i = 0; i < BLACKMARKET_SIZE; i++ ) {
 		$.cookie( 'save_blackmarket' + i, supply.blackmarket[i] );
 	}
-	alert( 'サプライを一時保存しました．' );
+	alert( 'サプライを一時保存しました。' );
 }
 
 
@@ -164,7 +164,7 @@ function restore_supply() {
 	}
 
 	print_supply();
-	alert( 'サプライを復元しました．' );
+	alert( 'サプライを復元しました。' );
 }
 
 

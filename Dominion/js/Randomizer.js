@@ -45,7 +45,7 @@ function randomizer( Setlist, UseSet_flag, Cardlist, Supply )
 
 
 	if ( supply10 < KINGDOMCARD_SIZE ) {
-		alert( 'サプライが足りません．選択中のセットに含まれるサプライの種類が少ない可能性があります．'  );
+		alert( 'サプライが足りません。選択中のセットに含まれるサプライの種類が少ない可能性があります。' );
 		return 1;
 	}
 
@@ -86,7 +86,7 @@ function select_banecard( Setlist, UseSet_flag, Cardlist, Supply )
 	}
 
 	if ( r < 0 || count < 1 ) {
-		alert('災いカード用のサプライが足りません．チェック中のセットに含まれるサプライの種類が少ないか，除外サプライが多すぎる可能性があります．');
+		alert('災いカード用のサプライが足りません。チェック中のセットに含まれるサプライの種類が少ないか、除外サプライが多すぎる可能性があります。');
 		Supply.banecard = 0;
 		return 1;
 	}
@@ -222,7 +222,7 @@ function select_blackmarket( Setlist, UseSet_flag, Cardlist, Supply )
 	}
 
 	if ( i < BLACKMARKET_SIZE || count < 1 ) {
-		alert('闇市場デッキ用のサプライが足りません．チェック中のセットに含まれるサプライの種類が少ないか，除外サプライが多すぎる可能性があります．');
+		alert('闇市場デッキ用のサプライが足りません。チェック中のセットに含まれるサプライの種類が少ないか、除外サプライが多すぎる可能性があります。');
 		return 1;
 	}
 

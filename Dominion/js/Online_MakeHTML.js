@@ -85,10 +85,10 @@ function MakeHTML_OtherPlayerDiv( player_id ) {
 				<div class='sCardArea sHandCards'>   </div>
 				<div class='sCardArea sDiscardPile'> </div>
 				<div class='OtherPlayer_Buttons'>
-					<button class='btn-blue ok'>OK</button>
 				</div>
 				<div class='clear'></div>
 			</div>
 			`;
+					// <button class='btn-blue ok'>OK</button>
 }
 

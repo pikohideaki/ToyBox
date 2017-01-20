@@ -502,6 +502,63 @@ class CGame {
 
 
 
+
+	AttackAllPlayers( card_name, message, send_signals, attack_effect, passing_object = {} ) {
+		const G = this;
+		return MyAsync( function*() {
+			for ( let player_id = G.NextPlayerID();
+					player_id != G.whose_turn_id;
+					player_id = G.NextPlayerID( player_id ) ) {
+				if ( G.TurnInfo.Revealed_Moat[ player_id ] ) continue;  // 堀を公開していたらスキップ
+
+				yield FBref_MessageTo.child( player_id ).set( message );
+
+				if ( send_signals ) {
+					yield FBref_SignalAttackEnd.set(false)  /* reset */
+					FBref_SignalAttackEnd.on( 'value', function(snap) {  // 監視開始
+						if ( snap.val() ) Resolve[ card_name ]();
+					} );
+
+					yield SendSignal( player_id, {
+						Attack    : true,
+						card_name : card_name,
+						Message   : message,
+					} );
+
+					yield new Promise( resolve => Resolve[card_name] = resolve );  /* 他のプレイヤー待機 */
+
+					FBref_SignalAttackEnd.off();  // 監視終了
+				}
+
+				yield MyAsync( attack_effect, player_id, passing_object );
+
+				yield FBref_MessageTo.child( player_id ).set('');
+			}
+		});
+	}
+
+
+	UpdateCard( card_ID ) {
+		
+	}
+
+	ResetClassStr( card_IDs ) {
+		card_IDs.forEach( function( card_ID ) {
+			Game.GetCardByID( card_ID, false ).class_str = '';
+		}
+	}
+
+
+	ResetFaceDown( card_IDs ) {
+		card_IDs.forEach( function( card_ID ) {
+			const card = Game.GetCardByID( card_ID, false );
+			card.face = false;
+			card.down = false;
+		} );
+
+	}
+
+
 }
 
 
