@@ -315,29 +315,32 @@ function MyConfirm( options ) {
 		</div>
 	</div>
 */
-function MyDialog( options ) {
+function MyDialog( options, ref ) {
 	return new Promise( function( resolve, reject ) {
 		$('.dialog_text').html( options.message || '' );
 		$('.dialog_contents').html( options.contents || '' );
 		$('.MyDialog').fadeIn( 'normal' );
 		$buttons = $('.MyDialog .buttons');
 
-		function close_dialog() {
+		function close_dialog( return_value ) {
 			$('.MyDialog').fadeOut( 'normal', function() {
 				// reset
 				$('.dialog_text').html('');
 				$('.dialog_contents').html('');
-				resolve();
+				resolve( return_value );
 			} );
+		}
+
+		/* refが渡されているとき( ref != undefined )
+		   外からこのダイアログを閉じてresolveするための参照オブジェクトrefにclose_dialogを渡す */
+		if ( ref != undefined ) {
+			ref.close_dialog = close_dialog;
 		}
 
 		// ボタン入力受け付け
 		options.buttons.forEach( function( btn ) {
 			$buttons.append( MakeHTML( btn.class_str, btn.name ) );
-			$buttons.on( 'click', btn.class_str, function() {
-				close_dialog();
-				resolve( btn.return_value );
-			} );
+			$buttons.on( 'click', btn.class_str, () => close_dialog( btn.return_value ) );
 		} );
 	});
 }

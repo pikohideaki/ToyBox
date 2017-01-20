@@ -426,10 +426,12 @@ $( function() {
 				yield FBref_MessageTo.child( id ).set( '呪いを獲得します。' );
 
 				// 確認
-				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons`)
-					.append( MakeHTML_button( 'Jester_GetCurse', '呪いを獲得させる' ) );
-				yield new Promise( resolve => Resolve['Jester_GetCurse'] = resolve );
-				$(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Jester_GetCurse`).remove();
+				// $(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons`)
+				// 	.append( MakeHTML_button( 'Jester_GetCurse', '呪いを獲得させる' ) );
+				// yield new Promise( resolve => Resolve['Jester_GetCurse'] = resolve );
+				// $(`.OtherPlayer[data-player_id=${id}] .OtherPlayer_Buttons .Jester_GetCurse`).remove();
+
+				yield AcknowledgeButton_OtherPlayer( id );
 
 				// 公開したカードを捨て札に
 				pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );
@@ -440,14 +442,22 @@ $( function() {
 			} else {
 				// 勝利点以外のカードの場合、
 				// 捨て札にしたカードと同じカードをそのプレイヤーが獲得するか、あなたが獲得するかをあなたが選びます。
-				ShowDialog( {
-					message  : `「${Cardlist[ DeckTopCard.card_no ].name_jp}」を捨て札にしました。このカードを`,
-					contents : MakeHTML_Card( DeckTopCard, Game ),
-					buttons  : MakeHTML_button( 'me',  '自分が獲得' )
-					         + MakeHTML_button( 'you', `${pl.name}が獲得` ),
-				} );
-				const who_get_card = yield new Promise( resolve => Resolve['Thief_GainTrashedCard'] = resolve );
-				HideDialog();
+				const who_get_card = yield MyDialog( {
+						message  : `「${Cardlist[ DeckTopCard.card_no ].name_jp}」を捨て札にしました。このカードを`,
+						contents : MakeHTML_Card( DeckTopCard, Game ),
+						buttons  : [
+							{
+								class_str : 'me',
+								name : '自分が獲得',
+								return_value : 'me',
+							}, {
+								class_str : 'you',
+								name : `${pl.name}が獲得`,
+								return_value : 'you',
+							},
+						],
+					} );
+
 
 				// 公開したカードを捨て札に
 				pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );
@@ -467,10 +477,10 @@ $( function() {
 		}
 	};
 
-	$('.OtherPlayers-wrapper' ).on( 'click', '.Jester_GetCurse', () => Resolve['Jester_GetCurse']() );  /* 確認 */
+	// $('.OtherPlayers-wrapper' ).on( 'click', '.Jester_GetCurse', () => Resolve['Jester_GetCurse']() );  /* 確認 */
 
-	$('.dialog_buttons').on( 'click', '.me',  () => Resolve['Thief_GainTrashedCard']('me')  );  // 再開
-	$('.dialog_buttons').on( 'click', '.you', () => Resolve['Thief_GainTrashedCard']('you') );  // 再開
+	// $('.dialog_buttons').on( 'click', '.me',  () => Resolve['Thief_GainTrashedCard']('me')  );  // 再開
+	// $('.dialog_buttons').on( 'click', '.you', () => Resolve['Thief_GainTrashedCard']('you') );  // 再開
 
 
 

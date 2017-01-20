@@ -1,20 +1,12 @@
 
-function ShowDialog( options ) {
-	$('.dialog_text'    ).html( options.message  || '' );
-	$('.dialog_contents').html( options.contents || '' );
-	$('.dialog_buttons' ).html( options.buttons  || '' );
-	$('.dialog-wrapper').fadeIn();
-}
 
-
-function HideDialog() {
-	/* リセット */
-	$('.dialog_text').html('');
-	$('.dialog_contents').html('');
-	$('.dialog_buttons').html('');
-	$('.dialog-wrapper').fadeOut();
-}
-
+// カード強調
+jQuery.fn.extend( {
+	emphasize_card : function( vars ) {
+		$(this).css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+		return this;
+	},
+} );
 
 
 
@@ -114,14 +106,17 @@ function PrintCardArea_sub( CardArea, $CardArea, face_down = 'face' ) {
 		default :
 			break;
 	}
-	/* 裏表に特別な指定があれば優先 */
+	/* 裏表に特別な指定があれば優先（両方trueは禁止） */
 	for ( let i = 0; i < CardArea.length; ++i ) {
+		if ( CardArea[i].face && CardArea[i].down ) {
+			throw new Error('both face and down are set true')
+		}
 		if ( CardArea[i].face == true ) $CardArea.children('.card').eq(i).removeClass('down').addClass('face');
 		if ( CardArea[i].down == true ) $CardArea.children('.card').eq(i).removeClass('face').addClass('down');
 	}
 
 	// $CardArea.children('.card.down').children('.card-cost-coin').remove();
-	$CardArea.children('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+	$CardArea.children('.card').emphasize_card();
 }
 
 function PrintCardAreaOfPlayer( CardAreaName, face_down, displaynone = false ) {
@@ -172,7 +167,7 @@ function PrintHandCardsOfPlayer() {
 		}
 	}
 	ChangeHeightOrShrinkWidth( $HandCards, SizeOf$Card );
-	$HandCards.children('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+	$HandCards.children('.card').emphasize_card();
 }
 
 
@@ -189,9 +184,12 @@ function PrintDeck_sub( player_id, $Deck ) {
 		/* デフォルトは裏 */
 		$Deck.find('.card').removeClass('face').addClass('down');
 		/* 裏表に特別な指定があれば優先 */
+		if ( Deck[0].face && Deck[0].down ) {
+			throw new Error('both face and down are set true')
+		}
 		if ( Deck[0].face == true ) $Deck.children('.card').removeClass('down').addClass('face');
 		if ( Deck[0].down == true ) $Deck.children('.card').removeClass('face').addClass('down');
-		$Deck.find('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+		$Deck.find('.card').emphasize_card();
 	}
 }
 
@@ -204,9 +202,12 @@ function PrintDiscardPile_sub( player_id, $DiscardPile ) {
 		/* デフォルトは表 */
 		$DiscardPile.find('.card').removeClass('down').addClass('face');
 		/* 裏表に特別な指定があれば優先 */
+		if ( DiscardPile.back().face && DiscardPile.back().down ) {
+			throw new Error('both face and down are set true')
+		}
 		if ( DiscardPile.back().face == true ) $DiscardPile.children('.card').removeClass('down').addClass('face');
 		if ( DiscardPile.back().down == true ) $DiscardPile.children('.card').removeClass('face').addClass('down');
-		$DiscardPile.find('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+		$DiscardPile.find('.card').emphasize_card();
 	}
 }
 
@@ -395,7 +396,7 @@ function PrintTrashPile() {
 	if ( Game.TrashPile.length > 0 ) {
 		$TrashPile.html( MakeHTML_Card( Game.TrashPile.back(), Game ) );
 		$TrashPile.children('.card').addClass('face');  /* デフォルトは表 */
-		$TrashPile.find('.card').css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+		$TrashPile.find('.card').emphasize_card();
 	}
 }
 

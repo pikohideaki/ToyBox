@@ -87,22 +87,19 @@ function* Reaction( signals_to_me ) {
 		yield FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards );
 
 		// 確認待ち
-		ShowDialog( {
-			message  : '公開したカードの確認を待っています。',
-			contents : MakeHTML_Card( clicked_card, Game ),
-			buttons  : '',
-		} );
+		const ref = {};
 		yield FBref_SignalRevealReaction.set('waiting_for_confirmation');
 		FBref_SignalRevealReaction.on( 'value', function(snap) {
-			if ( snap.val() == 'confirmed' ) {
-				Resolve['revealed_reaction_confirmed']();
-			}
+			if ( snap.val() == 'confirmed' ) ref.close_dialog();
 		});
 
-		yield new Promise( resolve => Resolve['revealed_reaction_confirmed'] = resolve );
+		yield MyDialog( {
+				message  : '公開したカードの確認を待っています。',
+				contents : MakeHTML_Card( clicked_card, Game ),
+				buttons  : [],
+			}, ref );
 
 		// 公開終了
-		HideDialog();
 		Game.Me().ResetFaceDown();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
@@ -156,23 +153,21 @@ function* Reveal_BaneCard( signals_to_me ) {
 		clicked_card.face = true;  // カードを表向きに
 		yield FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards );
 
+
 		// 確認待ち
-		ShowDialog( {
-			message  : '公開したカードの確認を待っています。',
-			contents : MakeHTML_Card( clicked_card, Game ),
-			buttons  : '',
-		} );
+		const ref = {};
 		yield FBref_SignalRevealBaneCard.set('waiting_for_confirmation');
 		FBref_SignalRevealBaneCard.on( 'value', function(snap) {
-			if ( snap.val() == 'confirmed' ) {
-				Resolve['revealed_banecard_confirmed']();
-			}
+			if ( snap.val() == 'confirmed' ) ref.close_dialog();
 		});
 
-		yield new Promise( resolve => Resolve['revealed_banecard_confirmed'] = resolve );
+		yield MyDialog( {
+				message  : '公開したカードの確認を待っています。',
+				contents : MakeHTML_Card( clicked_card, Game ),
+				buttons  : [],
+			}, ref );
 
 		// 公開終了
-		HideDialog();
 		Game.Me().ResetFaceDown();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),

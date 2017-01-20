@@ -73,6 +73,11 @@ $( function() {
 			Game.player().AddToPlayArea( Game.GetCardByID( BasicTreasures[i].card_ID ) );  /* カード移動 */
 			Game.TurnInfo.coin += Cardlist[ BasicTreasures[i].card_no ].coin;
 
+			// 銅細工師
+			if ( BasicTreasures[i].card_no == CardName2No['Copper'] ) {
+				Game.TurnInfo.coin += Game.TurnInfo.add_copper_coin;
+			}
+
 			yield Promise.all( [
 				FBref_chat.push(
 					`${Game.player().name}が「${Cardlist[ BasicTreasures[i].card_no ].name_jp}」を使用しました。` ),
@@ -116,7 +121,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 			const Card = Cardlist[ clicked_card_no ];
 			const clicked_card_cost = Game.GetCost( clicked_card_no );
-			if ( CostOp( '>',
+			if ( !CostOp( '<=',
 					clicked_card_cost,
 					new CCost( [ Game.TurnInfo.coin, Game.TurnInfo.potion, 10000 ] ) ) )
 			{

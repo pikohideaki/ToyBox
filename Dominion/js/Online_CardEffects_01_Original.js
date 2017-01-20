@@ -42,12 +42,11 @@ $( function() {
 
 	/* 13. 議事堂 */
 	CardEffect['Council Room'] = function* () {
-		let updates = {};
-		for ( let i = Game.NextPlayerID(); i != Game.whose_turn_id; i = Game.NextPlayerID(i) ) {
-			Game.Players[i].DrawCards(1);
-			updates[i] = Game.Players[i];
-		}
-		yield FBref_Players.update( updates );
+		// for ( let i = Game.NextPlayerID(); i != Game.whose_turn_id; i = Game.NextPlayerID(i) ) {
+		// 	Game.Players[i].DrawCards(1);
+		// }
+		Game.ForAllOtherPlayers( player_id => Game.Players[player_id].DrawCards(1) )
+		yield FBref_Players.update( Game.Players );
 	};
 
 
@@ -79,11 +78,11 @@ $( function() {
 		Game.TrashCardByID( clicked_card_ID );  /* 「金貸し」 銅貨廃棄 */
 		Game.TurnInfo.coin += 3;
 
-		let updates = {};
-		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
-		updates['TrashPile'] = Game.TrashPile;
-		updates['TurnInfo/coin'] = Game.TurnInfo.coin;
-		FBref_Game.update( updates )
+		FBref_Game.update( {
+			[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
+			TrashPile : Game.TrashPile,
+			'TurnInfo/coin' : Game.TurnInfo.coin,
+		} )
 		.then( () => Resolve['Moneylender_Trash']() );  // 再開
 	} );
 
@@ -98,6 +97,7 @@ $( function() {
 			return;
 		}
 
+		// (1) 廃棄する手札のカードの選択
 		yield FBref_Message.set( '手札のカードを1枚廃棄して下さい。' );
 
 		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
@@ -106,6 +106,7 @@ $( function() {
 		const TrashedCardCost
 			= yield new Promise( resolve => Resolve['Remodel_Trash'] = resolve );
 
+		// (2) 廃棄したカード+2コインまでのコストのカードの獲得
 		yield FBref_Message.set(
 			`コストが廃棄したカード+2(=${TrashedCardCost.coin + 2} )コインまでのカードを獲得してください。` );
 
@@ -135,6 +136,7 @@ $( function() {
 			return;
 		}
 
+		// (1) 廃棄する手札の財宝カードの選択
 		yield FBref_Message.set( '手札の財宝カードを1枚廃棄して下さい。' );
 
 		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
@@ -145,6 +147,7 @@ $( function() {
 		const TrashedCardCost
 			= yield new Promise( resolve => Resolve['Mine_Trash'] = resolve );
 
+		// (2) 廃棄したカード+3コインまでのコストの財宝カードの獲得
 		yield FBref_Message.set(
 			`コストが廃棄したカード+3(=${TrashedCardCost.coin + 3} )コインまでの財宝カードを獲得してください。` );
 
@@ -175,47 +178,46 @@ $( function() {
 
 		Game.TrashCardByID( clicked_card_ID );  /* 手札廃棄 */
 
-		let updates = {};
-		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
-		updates['TrashPile'] = Game.TrashPile;
-
-		FBref_Game.update( updates )
+		FBref_Game.update( {
+			[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
+			TrashPile : Game.TrashPile,
+		} )
 		.then( () => Resolve[Remodel_or_Mine]( Game.GetCost( clicked_card_no ) ) );
 	} );
 
-	$('.SupplyArea').on( 'click', '.card.Remodel_GetCard,.Mine_GetCard', function() {
-		let $this = $(this);
-		MyAsync( function*() {
-			let Remodel_or_Mine;
-			let DiscardPile_or_HandCards;
-			if ( $this.hasClass('Remodel_GetCard') ) {
-				Remodel_or_Mine = 'Remodel_GetCard';
-				DiscardPile_or_HandCards = 'DiscardPile';
-			}
-			if ( $this.hasClass('Mine_GetCard') ) {
-				Remodel_or_Mine = 'Mine_GetCard';
-				DiscardPile_or_HandCards = 'HandCards';
-			}
+	// $('.SupplyArea').on( 'click', '.card.Remodel_GetCard,.Mine_GetCard', function() {
+	// 	let $this = $(this);
+	// 	MyAsync( function*() {
+	// 		let Remodel_or_Mine;
+	// 		let DiscardPile_or_HandCards;
+	// 		if ( $this.hasClass('Remodel_GetCard') ) {
+	// 			Remodel_or_Mine = 'Remodel_GetCard';
+	// 			DiscardPile_or_HandCards = 'DiscardPile';
+	// 		}
+	// 		if ( $this.hasClass('Mine_GetCard') ) {
+	// 			Remodel_or_Mine = 'Mine_GetCard';
+	// 			DiscardPile_or_HandCards = 'HandCards';
+	// 		}
 
-			const clicked_card_name_eng = $this.attr('data-card-name-eng');
-			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
-			const clicked_card_ID = clicked_card.card_ID;
+	// 		const clicked_card_name_eng = $this.attr('data-card-name-eng');
+	// 		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+	// 		const clicked_card_ID = clicked_card.card_ID;
 
-			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
-				return;
-			}
+	// 		if ( !$this.hasClass('available') ) {
+	// 			yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
+	// 			return;
+	// 		}
 
-			Game.player()[`AddTo${DiscardPile_or_HandCards}`]( Game.GetCardByID( clicked_card_ID ) );
+	// 		Game.player()[`AddTo${DiscardPile_or_HandCards}`]( Game.GetCardByID( clicked_card_ID ) );
 
-			let updates = {};
-			updates[`Players/${Game.player().id}/${DiscardPile_or_HandCards}`]
-				= Game.player()[DiscardPile_or_HandCards];
-			updates['Supply'] = Game.Supply;
-			yield FBref_Game.update( updates );
-			Resolve[Remodel_or_Mine]();
-		})
-	} );
+	// 		yield FBref_Game.update( {
+	// 			[`Players/${Game.player().id}/${DiscardPile_or_HandCards}`]
+	// 				: Game.player()[DiscardPile_or_HandCards],
+	// 			Supply : Game.Supply,
+	// 		} );
+	// 		Resolve[Remodel_or_Mine]();
+	// 	})
+	// } );
 
 
 
@@ -256,36 +258,21 @@ $( function() {
 			if ( IsActionCard( Cardlist, deck_top_card.card_no ) ) {
 				yield FBref_Players.child( `${Game.player().id}/Deck` ).set( Game.player().Deck );
 
-				// ShowDialog( {
-				// 	message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
-				// 	contents : MakeHTML_Card( deck_top_card, Game ),
-				// 	buttons  :
-				// 		MakeHTML_button( 'Library SetAside', '脇に置く' ) + 
-				// 		MakeHTML_button( 'Library', '手札に加える' ),
-				// } );
-
-				// const set_aside
-				// 	= yield new Promise( resolve => Resolve['Library'] = resolve );
-
-				// HideDialog();
-
-				const set_aside
-				 = yield MyDialog( {
-					message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
-					contents : MakeHTML_Card( deck_top_card, Game ),
-					buttons  : [
-						{
-							class_str :'Library SetAside',
-							name : '脇に置く',
-							return_value : true,
-						},
-						{
-							class_str :'Library',
-							name : '手札に加える',
-							return_value : false,
-						},
-					],
-				} );
+				const set_aside = yield MyDialog( {
+						message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
+						contents : MakeHTML_Card( deck_top_card, Game ),
+						buttons  : [
+							{
+								class_str : 'Library SetAside',
+								name : '脇に置く',
+								return_value : true,
+							}, {
+								class_str : 'Library',
+								name : '手札に加える',
+								return_value : false,
+							},
+						],
+					} );
 
 				if ( set_aside ) {
 					Game.player().SetAside( deck_top_card );
@@ -306,15 +293,6 @@ $( function() {
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
-	/* 確認 */
-	$('.dialog_buttons' ).on( 'click', '.Library', function() {
-		Resolve['Library']( $(this).hasClass('SetAside') );  // 再開
-	} );
-
-	// $('.action_buttons').on( 'click', '.Library.Done', function() {
-	// 	Resolve['Library_Done']();  // 再開
-	// } );
-
 
 
 
@@ -333,11 +311,6 @@ $( function() {
 
 		yield AcknowledgeButton_Me();  // 脇に置いたカードを確認
 
-		// 公開したカードを確認
-		// $('.action_buttons').append( MakeHTML_button( 'Adventurer Done', '確認' ) );
-		// yield new Promise( resolve => Resolve['Adventurer'] = resolve );
-		// $('.action_buttons .Adventurer.Done').remove();  /* 完了ボタン消す */
-
 		/* 公開したカードを片づける */
 		while ( Game.player().Open.length > 0 ) {
 			let card = Game.player().Open.pop();
@@ -350,8 +323,6 @@ $( function() {
 
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
-
-	// $('.action_buttons').on( 'click', '.Adventurer.Done', () => Resolve['Adventurer']() );
 
 
 
@@ -490,10 +461,10 @@ $( function() {
 
 		Game.TrashCardByID( clicked_card_ID );  /* 「礼拝堂」 廃棄 */
 
-		let updates = {};
-		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
-		updates['TrashPile'] = Game.TrashPile;
-		FBref_Game.update( updates )
+		FBref_Game.update( {
+			[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
+			TrashPile : Game.TrashPile,
+		} )
 		.then( () => Resolve['Chapel_Trash'](false) );  // 再開
 	} );
 
@@ -566,10 +537,10 @@ $( function() {
 		if ( silver != undefined ) silver.face = true;
 		Game.player().PutBackToDeck( silver );  /* 銀貨を山札の一番上に獲得 */
 
-		let updates = {};
-		updates[`Players/${Game.player().id}/Deck`] = Game.player().Deck;
-		updates['Supply'] = Game.Supply;
-		yield FBref_Game.update( updates );
+		yield FBref_Game.update( {
+			[`Players/${Game.player().id}/Deck`] : Game.player().Deck,
+			Supply : Game.Supply,
+		} );
 
 		yield Game.AttackAllPlayers(
 				'Bureaucrat',
@@ -727,7 +698,6 @@ $( function() {
 			TrashPile : Game.TrashPile,
 			[`Players/${Game.player().id}/DiscardPile`] : Game.player().DiscardPile,
 		} )
-		// .then( () => $('.MyAlert').find('.card').addClass('Thief_GainTrashedCard pointer') );
 	} );
 
 
@@ -882,6 +852,7 @@ $( function() {
 
 
 	ReactionEffect['Moat'] = function*() {
+		Game.TurnInfo.Revealed_Moat[myid] = true;
 		yield FBref_Game.child(`TurnInfo/Revealed_Moat/${myid}`).set(true);
 	};
 

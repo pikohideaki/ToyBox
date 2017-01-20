@@ -467,10 +467,15 @@ class CGame {
 		const G = this;
 
 		const gained_card = G.Supply.byName( card_name_eng ).GetTopCard();
+		if ( gained_card == undefined ) {
+			MyAlert( { message : '獲得できるカードがありません。' } );
+			return;
+		}
+
 		const player = G.Players[ player_id ];
 
 		let updates = {};
-		updates['Supply'] = Game.Supply;
+		updates['Supply'] = G.Supply;
 
 		switch ( place_to_gain ) {
 			case 'Deck' :
@@ -499,6 +504,21 @@ class CGame {
 		] );
 	}
 
+
+
+
+
+	ForAllOtherPlayers( func ) {
+		const G = this;
+		return MyAsync( function*() {
+			for ( let player_id = G.NextPlayerID();
+					player_id != G.whose_turn_id;
+					player_id = G.NextPlayerID( player_id ) )
+			{
+				yield func( player_id );
+			}
+		});
+	}
 
 
 
@@ -538,14 +558,10 @@ class CGame {
 	}
 
 
-	UpdateCard( card_ID ) {
-		
-	}
-
 	ResetClassStr( card_IDs ) {
 		card_IDs.forEach( function( card_ID ) {
 			Game.GetCardByID( card_ID, false ).class_str = '';
-		}
+		} );
 	}
 
 

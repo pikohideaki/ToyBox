@@ -180,3 +180,50 @@ $( function() {
 
 
 // 共通操作
+
+
+$( function() {
+	$('.SupplyArea').on( 'click', '.card.GainSupplyCard', function() {
+		let $this = $(this);
+		MyAsync( function*() {
+			if ( !$this.hasClass('available') ) {
+				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
+				return;
+			}
+
+			let place_to_gain = 'DiscardPile';
+			if ( $this.hasClass('AddToDiscardPile') ) {
+				place_to_gain = 'DiscardPile';
+			}
+			if ( $this.hasClass('AddToHandCards') ) {
+				place_to_gain = 'HandCards';
+			}
+			if ( $this.hasClass('PutBackToDeck') ) {
+				place_to_gain = 'Deck';
+			}
+
+			const clicked_card_name_eng = $this.attr('data-card-name-eng');
+			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+			const clicked_card_ID = clicked_card.card_ID;
+
+
+			yield GainCard( card_name_eng, place_to_gain );
+
+			// Game.player()[`AddTo${place_to_gain}`]( Game.GetCardByID( clicked_card_ID ) );
+
+			// yield FBref_Game.update( {
+			// 	[`Players/${Game.player().id}/${place_to_gain}`] : Game.player()[place_to_gain],
+			// 	Supply : Game.Supply,
+			// } );
+
+			// yield 
+
+			Resolve['GainSupplyCard']();
+		})
+	} );
+});
+
+
+
+
+
