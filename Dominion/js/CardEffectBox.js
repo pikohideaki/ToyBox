@@ -17,18 +17,19 @@ function SetCardEffectBoxSize() {
 
 function ShowCardEffectBox( Cardlist, card_no ) {
 	const Card = Cardlist[card_no];
-	MyAlert( {
-		contents : `
-			<div class='card_effect_text'>
-				${Card.effect1}<br><br>
-				${Card.effect2}<br><br>
-				${Card.effect3}<br><br>
-				${Card.effect4}<br><br>
-			</div>
-			<div class='card_effect_image'>
-				${MakeHTML_CardBiggest( card_no )}
-			</div> `,
-	});
+	MyAlert( '', 
+		{
+			contents : `
+				<div class='card_effect_text'>
+					${Card.effect1}<br><br>
+					${Card.effect2}<br><br>
+					${Card.effect3}<br><br>
+					${Card.effect4}<br><br>
+				</div>
+				<div class='card_effect_image'>
+					${MakeHTML_CardBiggest( card_no )}
+				</div> `,
+		});
 
 	SetCardEffectBoxSize();
 }

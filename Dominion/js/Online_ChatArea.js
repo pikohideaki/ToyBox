@@ -7,9 +7,8 @@ $( function() {
 	});
 
 	$('.chat-wrapper .leave_a_room').click( function() { return MyAsync( function*() {
-		const yn = yield MyConfirm( {
-			message : "退室しますか？<font color='red'>（再びゲームに戻ることはできません）</font>"
-		} );
+		const yn = yield MyConfirm( 
+			"退室しますか？<font color='red'>（再びゲームに戻ることはできません）</font>" );
 		if ( yn ) {
 			const msg = `${myname}が退室しました。`;
 			FBref_chat.push( `<font color='red'>${msg}</font>`,

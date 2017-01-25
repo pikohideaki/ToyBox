@@ -200,15 +200,15 @@ $( function() {
 			yield FBref_Message.set( `手札から1枚廃棄し、そのカード+1コインのコストのカードを獲得します。（${i + 1}/2回目）` );
 
 			if ( Game.player().HandCards.length <= 0 ) {
-				yield MyAlert( { message : '手札にカードがありません。' } );
+				yield MyAlert( '手札にカードがありません。' );
 				return;
 			}
 
 			/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 			$('.HandCards').children('.card').addClass('Remake_Trash pointer');
 
-			const TrashedCardCost
-				= yield new Promise( resolve => Resolve['Remake_Trash'] = resolve );
+			const trashed_card_ID = yield WaitForTrashingHandCard();
+			const TrashedCardCost = Game.GetCost( Game.GetCardByID( trashed_card_ID ).card_no );
 
 			yield FBref_Message.set(
 				`コストがちょうど廃棄したカード+1(=${TrashedCardCost.coin + 1} )コインのカードを獲得してください。` );
@@ -222,7 +222,7 @@ $( function() {
 					CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) ) );
 
 			if ( $('.SupplyArea').find('.available').length <= 0 ) {
-				yield MyAlert( { message : '獲得できるカードがありません' } );
+				yield MyAlert( '獲得できるカードがありません' );
 				continue;
 			}
 
@@ -252,7 +252,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できません。' } );
+				yield MyAlert( '獲得できません。' );
 				return;
 			}
 
@@ -605,7 +605,7 @@ $( function() {
 				.addClass('Tournament_GetCard available pointer');
 
 			if ( $('.SupplyArea-wrapper').find('.available').length <= 0 ) {
-				yield MyAlert( { message : '獲得できるカードがありません' } );
+				yield MyAlert( '獲得できるカードがありません' );
 			} else {
 				yield new Promise( resolve => Resolve['Tournament_GetCard'] = resolve );
 
@@ -686,7 +686,7 @@ $( function() {
 		let $this = $(this);
 		MyAsync( function*() {
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できません。' } );
+				yield MyAlert( '獲得できません。' );
 				return;
 			}
 
@@ -734,7 +734,7 @@ $( function() {
 			CostOp( '<=', Game.GetCost( card_no ), new CCost( [max_cost_coin,0,0] ) ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
-			yield MyAlert( { message : '獲得できるカードがありません' } );
+			yield MyAlert( '獲得できるカードがありません' );
 			return;
 		}
 
@@ -760,7 +760,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
+				yield MyAlert( '獲得できるコスト上限を超えています。' );
 				return;
 			}
 

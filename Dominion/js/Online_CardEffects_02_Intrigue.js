@@ -52,7 +52,7 @@ $( function() {
 	/* 34. 改良 */
 	CardEffect['Upgrade'] = function* () {
 		if ( Game.player().HandCards.length <= 0 ) {
-			yield MyAlert( { message : '手札にカードがありません。' } );
+			yield MyAlert( '手札にカードがありません。' );
 			return;
 		}
 
@@ -76,7 +76,7 @@ $( function() {
 				CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
-			yield MyAlert( { message : '獲得できるカードがありません' } );
+			yield MyAlert( '獲得できるカードがありません' );
 		} else {
 			yield new Promise( resolve => Resolve['Upgrade_GetCard'] = resolve );
 		}
@@ -104,7 +104,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できません。' } );
+				yield MyAlert( '獲得できません。' );
 				return;
 			}
 
@@ -473,7 +473,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
+				yield MyAlert( '獲得できるコスト上限を超えています。' );
 				return;
 			}
 
@@ -1005,7 +1005,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
+				yield MyAlert( '獲得できるコスト上限を超えています。' );
 				return;
 			}
 
@@ -1074,7 +1074,7 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 
 			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : 'コストが異なるので選べません。' } );
+				yield MyAlert( 'コストが異なるので選べません。' );
 				return;
 			}
 			Resolve['Swindler_GetCard']( clicked_card_ID );

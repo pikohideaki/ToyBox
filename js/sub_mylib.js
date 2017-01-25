@@ -214,9 +214,9 @@ function MyAsync( GenFunc, ...Args ) {
 		</div>
 	</div>
 */
-function MyAlert( options ) {
+function MyAlert( message, options = {} ) {
 	return new Promise( function( resolve, reject ) {
-		$('.alert_text').html( options.message || '' );
+		$('.alert_text').html( message || '' );
 		$('.alert_contents').html( options.contents || '' );
 		$('.MyAlert').fadeIn( 'normal' );
 		$('.MyAlert .buttons input[type=button]').focus();
@@ -263,9 +263,9 @@ function MyAlert( options ) {
 		</div>
 	</div>
 */
-function MyConfirm( options ) {
+function MyConfirm( message, options = {} ) {
 	return new Promise( function( resolve, reject ) {
-		$('.confirm_text').html( options.message || '' );
+		$('.confirm_text').html( message || '' );
 		$('.confirm_contents').html( options.contents || '' );
 		$('.MyConfirm').fadeIn( 'normal' );
 		$('.MyConfirm .buttons input[type=button]').focus();

@@ -182,48 +182,162 @@ $( function() {
 // 共通操作
 
 
+
+
+
+
+// 手札の廃棄
+function WaitForTrashingHandCard() {
+	return new Promise( resolve => Resolve['TrashHandCard'] = resolve )
+}
+
 $( function() {
-	$('.SupplyArea').on( 'click', '.card.GainSupplyCard', function() {
-		let $this = $(this);
-		MyAsync( function*() {
-			if ( !$this.hasClass('available') ) {
-				yield MyAlert( { message : '獲得できるコスト上限を超えています。' } );
-				return;
-			}
+	$('.HandCards').on( 'click', '.card.Trash', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
 
-			let place_to_gain = 'DiscardPile';
-			if ( $this.hasClass('AddToDiscardPile') ) {
-				place_to_gain = 'DiscardPile';
-			}
-			if ( $this.hasClass('AddToHandCards') ) {
-				place_to_gain = 'HandCards';
-			}
-			if ( $this.hasClass('PutBackToDeck') ) {
-				place_to_gain = 'Deck';
-			}
+		Game.TrashCardByID( clicked_card_ID );
 
-			const clicked_card_name_eng = $this.attr('data-card-name-eng');
-			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
-			const clicked_card_ID = clicked_card.card_ID;
+		FBref_Game.update( {
+			[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
+			TrashPile : Game.TrashPile,
+		} )
+		.then( () => Resolve['TrashHandCard']( clicked_card_ID ) );  // 再開
+	} );
 
-
-			yield GainCard( card_name_eng, place_to_gain );
-
-			// Game.player()[`AddTo${place_to_gain}`]( Game.GetCardByID( clicked_card_ID ) );
-
-			// yield FBref_Game.update( {
-			// 	[`Players/${Game.player().id}/${place_to_gain}`] : Game.player()[place_to_gain],
-			// 	Supply : Game.Supply,
-			// } );
-
-			// yield 
-
-			Resolve['GainSupplyCard']();
-		})
+	$('.action_buttons').on( 'click', '.Trash_Done', function() {
+		Resolve['DiscardHandCard']( 'Trash_Done' );  // 再開
 	} );
 });
 
 
 
 
+// 手札を捨て札にする
+function WaitForDiscaringHandCard() {
+	return new Promise( resolve => Resolve['DiscardHandCard'] = resolve )
+}
+
+$( function() {
+	$('.HandCards').on( 'click', '.card.Trash', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+
+		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+
+		FBref_Players.child( Game.player().id ).update( {
+			HandCards   : Game.player().HandCards,
+			DiscardPile : Game.player().DiscardPile,
+		} )
+		.then( () => Resolve['DiscardHandCard']( clicked_card_ID ) );  // 再開
+	} );
+
+	$('.action_buttons').on( 'click', '.Discard_Done', function() {
+		Resolve['DiscardHandCard']( 'Discard_Done' );  // 再開
+	} );
+});
+
+
+
+
+
+// 手札を捨て札にする(MyArea)
+function WaitForDiscaringMyHandCard() {
+	return new Promise( resolve => Resolve['DiscardMyHandCard'] = resolve )
+}
+
+$( function() {
+	$('.MyHandCards').on( 'click', '.card.Discard', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+
+		Game.Me().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+
+		FBref_Players.child( myid ).update( {
+			HandCards   : Game.Me().HandCards,
+			DiscardPile : Game.Me().DiscardPile,
+		} )
+		.then( () => Resolve['DiscardMyHandCard']( clicked_card_ID ) );  // 再開
+	} );
+});
+
+
+
+
+
+// 手札を山札に戻す(MyArea)
+function WaitForPuttingBackMyHandCard() {
+	return new Promise( resolve => Resolve['PutBackMyHandCard'] = resolve )
+}
+$( function() {
+	$('.MyHandCards').on( 'click', '.card.PutBack', function() {
+		const clicked_card_ID = $(this).attr('data-card_ID');
+
+		let card = Game.GetCardByID( clicked_card_ID );
+		if ( $(this).hasClass('face') ) card.face = true;
+		Game.Me().PutBackToDeck( card );
+
+		FBref_Players.child( myid ).update( {
+			HandCards : Game.Me().HandCards,
+			Deck      : Game.Me().Deck,
+		} )
+		.then( () => Resolve['PutBackMyHandCard']() );  // 再開
+	} );
+});
+
+
+
+
+
+
+
+
+
+// サプライから獲得
+
+function Get$SupplyAreaWithConditions( conditions, additional_piles = false ) {
+	let $piles = $('.SupplyArea').find('.cards');
+	if ( additional_piles ) {
+		$piles = $('.SupplyArea,.additional-piles').find('.cards');
+	}
+	return $piles.filter( function() {
+		const card_no = $(this).attr('data-card_no');
+		const card = Cardlist[ card_no ];
+		if ( $(this).attr('data-card_num_of_remaining') <= 0 ) return false;
+		if ( conditions( card, card_no ) ) return true;
+	});
+}
+
+function GainSupplyCardIf( conditions ) {
+	$('.SupplyArea').find('.card').each( function() {
+		const card_no = $(this).attr('data-card_no');
+		// const card_ID = $(this).attr('data-top_card_ID');
+		const card = Cardlist[ card_no ];
+		if ( $(this).attr('data-card_num_of_remaining') <= 0 ) return;
+		if ( conditions( card, card_no ) ) $(this).addClass('available');
+	} );
+}
+
+function WaitForGainSupplyCard() {
+	return new Promise( resolve => Resolve['GainSupplyCard'] = resolve )
+}
+
+$( function() {
+	$('.SupplyArea').on( 'click', '.card.GainSupplyCard', function() {
+		let place_to_gain = 'DiscardPile';
+		if ( $(this).hasClass('AddToDiscardPile') ) {
+			place_to_gain = 'DiscardPile';
+		}
+		if ( $(this).hasClass('AddToHandCards') ) {
+			place_to_gain = 'HandCards';
+		}
+		if ( $(this).hasClass('PutBackToDeck') ) {
+			place_to_gain = 'Deck';
+		}
+
+		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
+		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
+		const clicked_card_ID = clicked_card.card_ID;
+
+		GainCard( card_name_eng, place_to_gain )
+		.then( () => Resolve['GainSupplyCard']() );
+	} );
+});
 

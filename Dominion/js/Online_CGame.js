@@ -403,15 +403,15 @@ class CGame {
 		let G = this;
 		return MyAsync( function*() {
 			if ( G.phase === 'ActionPhase' && !IsActionCard( Cardlist, playing_card_no ) ) {
-				MyAlert( { message : 'アクションカードを選んでください' } );
+				MyAlert( 'アクションカードを選んでください' );
 				return;
 			}
 			if ( G.phase === 'BuyPhase' && !IsTreasureCard( Cardlist, playing_card_no ) ) {
-				MyAlert( { message : '財宝カードを選んでください' } );
+				MyAlert( '財宝カードを選んでください' );
 				return;
 			}
 			if ( IsActionCard( Cardlist, playing_card_no ) && G.TurnInfo.action <= 0 ) {
-				MyAlert( { message : 'アクションが足りません' } );
+				MyAlert( 'アクションが足りません' );
 				return;
 			}
 
@@ -468,7 +468,7 @@ class CGame {
 
 		const gained_card = G.Supply.byName( card_name_eng ).GetTopCard();
 		if ( gained_card == undefined ) {
-			MyAlert( { message : '獲得できるカードがありません。' } );
+			MyAlert( '獲得できるカードがありません。' );
 			return;
 		}
 
@@ -510,51 +510,56 @@ class CGame {
 
 	ForAllOtherPlayers( func ) {
 		const G = this;
-		return MyAsync( function*() {
+		if ( func instanceof Promise ) {
+			return MyAsync( function*() {
+				for ( let player_id = G.NextPlayerID();
+						player_id != G.whose_turn_id;
+						player_id = G.NextPlayerID( player_id ) )
+				{
+					yield MyAsync( func, player_id );
+				}
+			});
+		} else {
 			for ( let player_id = G.NextPlayerID();
 					player_id != G.whose_turn_id;
 					player_id = G.NextPlayerID( player_id ) )
 			{
-				yield func( player_id );
+				func( player_id );
 			}
-		});
+		}
 	}
 
 
 
 
-	AttackAllPlayers( card_name, message, send_signals, attack_effect, passing_object = {} ) {
+	AttackAllOtherPlayers( card_name, message, send_signals, attack_effect, passing_object = {} ) {
 		const G = this;
-		return MyAsync( function*() {
-			for ( let player_id = G.NextPlayerID();
-					player_id != G.whose_turn_id;
-					player_id = G.NextPlayerID( player_id ) ) {
-				if ( G.TurnInfo.Revealed_Moat[ player_id ] ) continue;  // 堀を公開していたらスキップ
+		this.ForAllOtherPlayers( function*( player_id ) {
+			if ( G.TurnInfo.Revealed_Moat[ player_id ] ) return;  // 堀を公開していたらスキップ
 
-				yield FBref_MessageTo.child( player_id ).set( message );
+			yield FBref_MessageTo.child( player_id ).set( message );
 
-				if ( send_signals ) {
-					yield FBref_SignalAttackEnd.set(false)  /* reset */
-					FBref_SignalAttackEnd.on( 'value', function(snap) {  // 監視開始
-						if ( snap.val() ) Resolve[ card_name ]();
-					} );
+			if ( send_signals ) {
+				yield FBref_SignalAttackEnd.set(false)  /* reset */
+				FBref_SignalAttackEnd.on( 'value', function(snap) {  // 監視開始
+					if ( snap.val() ) Resolve[ card_name ]();
+				} );
 
-					yield SendSignal( player_id, {
-						Attack    : true,
-						card_name : card_name,
-						Message   : message,
-					} );
+				yield SendSignal( player_id, {
+					Attack    : true,
+					card_name : card_name,
+					Message   : message,
+				} );
 
-					yield new Promise( resolve => Resolve[card_name] = resolve );  /* 他のプレイヤー待機 */
+				yield new Promise( resolve => Resolve[card_name] = resolve );  /* 他のプレイヤー待機 */
 
-					FBref_SignalAttackEnd.off();  // 監視終了
-				}
-
-				yield MyAsync( attack_effect, player_id, passing_object );
-
-				yield FBref_MessageTo.child( player_id ).set('');
+				FBref_SignalAttackEnd.off();  // 監視終了
 			}
-		});
+
+			yield MyAsync( attack_effect, player_id, passing_object );
+
+			yield FBref_MessageTo.child( player_id ).set('');
+		})
 	}
 
 

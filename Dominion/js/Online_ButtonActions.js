@@ -106,12 +106,12 @@ $( function() {
 		return MyAsync( function*() {
 			const clicked_pile_num = $this.children('.card-num-of-remaining').html();
 			if ( clicked_pile_num <= 0 ) {
-				yield MyAlert( { message : 'そのサプライは空です。' } );
+				yield MyAlert( 'そのサプライは空です。' );
 				return;
 			}
 
 			if ( Game.TurnInfo.buy <= 0 ) {
-				yield MyAlert( { message : 'これ以上購入できません。' } );
+				yield MyAlert( 'これ以上購入できません。' );
 				return;
 			}
 
@@ -121,11 +121,13 @@ $( function() {
 			const clicked_card_ID = clicked_card.card_ID;
 			const Card = Cardlist[ clicked_card_no ];
 			const clicked_card_cost = Game.GetCost( clicked_card_no );
+
+			// コスト比較において '>' は not <= とは異なる
 			if ( !CostOp( '<=',
 					clicked_card_cost,
 					new CCost( [ Game.TurnInfo.coin, Game.TurnInfo.potion, 10000 ] ) ) )
 			{
-				yield MyAlert( { message : 'お金が足りません。' } );
+				yield MyAlert( 'お金が足りません。' );
 				return;
 			}
 			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
