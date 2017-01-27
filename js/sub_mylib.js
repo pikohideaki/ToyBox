@@ -170,7 +170,11 @@ class SizeOfjQueryObj {
 }
 
 
-
+/*
+	- generator function の定義 "function*( args ) { }" とそれに渡す引数 Args を引数として受け取る．
+	- GenFuncのyield式にはPromiseオブジェクトが渡されているとする．
+	- MyAsyncの解決値は GenFuncの最後のyield式に渡したPromiseの解決値となる
+*/
 
 // yield の右に書いた文が nextの評価値になる
 // promise が resolve したら next したい
@@ -187,18 +191,22 @@ function MyAsync( GenFunc, ...Args ) {
 		} else if ( n.value instanceof Promise ) {
 			return n.value.then( (val) => MyAsync_sub( g, val ) );
 		} else {
-			throw new Error('Promise or Generator constructor should be passed to MyAsync');
+			throw new Error('@MyAsync_sub : Promise should be passed to yield expression');
 		}
+	}
+
+	if ( !( GenFunc instanceof function*(){}.constructor ) ) {
+		throw new Error('@MyAsync : Generator constructor should be passed to MyAsync');
+		return;
 	}
 
 	let gfn = GenFunc( ...Args );
 	let m = gfn.next();  // start gfn
 	if ( m.done ) {
 		return Promise.resolve();
-	} else if ( m.value instanceof Promise ) {
-		return m.value.then( (val) => MyAsync_sub( gfn, val ) );
 	} else {
-		throw new Error('Promise or Generator constructor should be passed to MyAsync');
+		// m.value は yield 式に渡した Promise. resolve値がthenに渡される
+		return m.value.then( (val) => MyAsync_sub( gfn, val ) );
 	}
 }
 
@@ -238,7 +246,7 @@ function MyAlert( message, options = {} ) {
 			switch ( e.keyCode ) {
 				case 27 :  // ESC 入力
 				case 13 :  // Enter 入力
-					close_alert;
+					close_alert();
 					break;
 
 				default :
@@ -338,9 +346,11 @@ function MyDialog( options, ref ) {
 		}
 
 		// ボタン入力受け付け
+		let btn_ID = 10000;
 		options.buttons.forEach( function( btn ) {
-			$buttons.append( MakeHTML( btn.class_str, btn.name ) );
-			$buttons.on( 'click', btn.class_str, () => close_dialog( btn.return_value ) );
+			btn_ID++;
+			$buttons.append( MakeHTML( `MyDialogButton_${btn_ID}`, btn.label ) );
+			$buttons.on( 'click', `.MyDialogButton_${btn_ID}`, () => close_dialog( btn.return_value ) );
 		} );
 	});
 }

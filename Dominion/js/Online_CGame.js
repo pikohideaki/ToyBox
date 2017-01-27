@@ -364,10 +364,10 @@ class CGame {
 		}
 
 		if ( matched_num < 1 ) {
-			console.log( `ERROR: the card with ID:${card_ID} not found.` );
+			throw new Error( `the card with ID:${card_ID} not found.` );
 		}
 		if ( matched_num > 1 ) {
-			console.log( `ERROR: 2 or more cards with ID:${card_ID} found.` );
+			throw new Error( `2 or more cards with ID:${card_ID} found.` );
 		}
 		return card;
 	}
@@ -479,7 +479,7 @@ class CGame {
 
 		switch ( place_to_gain ) {
 			case 'Deck' :
-				player.PutBackToDeck( gained_card );
+				player.AddToDeck( gained_card );
 				updates[`Players/${player_id}/Deck`] = player.Deck;
 				break;
 
@@ -505,6 +505,17 @@ class CGame {
 	}
 
 
+
+	Discard( card_ID, options = {} ) {
+		const player_id = ( option.player_id || this.whose_turn_id );
+		const card = Game.GetCardByID( card_ID );
+		const player = Game.Player[ player_id ];
+		if ( option.log ) {
+			FBref_chat.push( `${player.name}が${Cardlist[ card.card_no ].name_jp}を捨て札にしました。` );
+		}
+		player.AddToDiscardPile( card );
+		return FBref_Player.child( player_id ).set( player );
+	}
 
 
 

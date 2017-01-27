@@ -1,7 +1,7 @@
 $( function() {
 
 
-	CardEffect['Great Hall']     = function* () {}  /* 33. 大広間 */
+	   CardEffect['Great Hall']     = function* () {}  /* 33. 大広間 */
 	// CardEffect['Upgrade']        = function* () {}  /* 34. 改良 */
 	// CardEffect['Masquerade']     = function* () {}  /* 35. 仮面舞踏会 */
 	// CardEffect['Nobles']         = function* () {}  /* 36. 貴族 */
@@ -20,7 +20,7 @@ $( function() {
 	// CardEffect['Coppersmith']    = function* () {}  /* 49. 銅細工師 */
 	// CardEffect['Courtyard']      = function* () {}  /* 50. 中庭 */
 	// CardEffect['Wishing Well']   = function* () {}  /* 51. 願いの井戸 */
-	CardEffect['Harem']          = function* () {}  /* 52. ハーレム */
+	   CardEffect['Harem']          = function* () {}  /* 52. ハーレム */
 	// CardEffect['Saboteur']       = function* () {}  /* 53. 破壊工作員 */
 	// CardEffect['Bridge']         = function* () {}  /* 54. 橋 */
 	// CardEffect['Secret Chamber'] = function* () {}  /* 55. 秘密の部屋 */
@@ -203,7 +203,7 @@ $( function() {
 
 	$('.HandCards').on( 'click', '.Courtyard_PutBackToDeck', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.player().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
+		Game.player().AddToDeck( Game.GetCardByID( clicked_card_ID ) );
 		FBref_Players.child( Game.player().id ).update( {
 			Deck      : Game.player().Deck,
 			HandCards : Game.player().HandCards,
@@ -389,7 +389,7 @@ $( function() {
 		yield FBref_Message.set( '山札の上から4枚のカードを公開し、勝利点カードが含まれていればそれらを全て手札に加えます。\
 			残りは好きな順番で山札に戻してください。' );
 
-		Game.player().OpenDeckTop( 4, true ); // sync
+		Game.player().RevealDeckTop( 4, true ); // sync
 
 		let victory_cards
 			= Game.player().Open.filter( card => IsVictoryCard( Cardlist, card.card_no ) );
@@ -417,7 +417,7 @@ $( function() {
 
 	$('.Open').on( 'click', '.Scout_PutBackToDeck', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.player().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
+		Game.player().AddToDeck( Game.GetCardByID( clicked_card_ID ) );
 		FBref_Players.child( Game.player().id ).update( {
 			Open : Game.player().Open,
 			Deck : Game.player().Deck,
@@ -500,7 +500,7 @@ $( function() {
 			- 勝利点カードならば +2 Cards<br>\
 			' );
 
-		Game.NextPlayer().OpenDeckTop( 2, true );  // sync
+		Game.NextPlayer().RevealDeckTop( 2, true );  // sync
 
 		Show_OKbtn_OtherPlayer( Game.NextPlayerID(), 'Tribute' );
 		yield new Promise( resolve => Resolve['Tribute_ok'] = resolve );
@@ -662,7 +662,7 @@ $( function() {
 		if ( named_card_no == DeckTopCard.card_no ) {
 			Game.player().AddToHandCards( Game.GetCardByID( DeckTopCard.card_ID ) );
 		} else {
-			Game.player().PutBackToDeck( Game.GetCardByID( DeckTopCard.card_ID ) );
+			Game.player().AddToDeck( Game.GetCardByID( DeckTopCard.card_ID ) );
 		}
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
@@ -734,7 +734,7 @@ $( function() {
 	$('.MyHandCards').on( 'click', '.card.SecretChamber_PutBackToDeck', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
-		Game.Me().PutBackToDeck( Game.GetCardByID( clicked_card_ID ) );
+		Game.Me().AddToDeck( Game.GetCardByID( clicked_card_ID ) );
 
 		FBref_Players.child( myid ).update( {
 			HandCards : Game.Me().HandCards,

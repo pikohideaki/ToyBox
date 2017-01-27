@@ -183,29 +183,65 @@ $( function() {
 
 
 
-
-
-
-// 手札の廃棄
-function WaitForTrashingHandCard() {
-	return new Promise( resolve => Resolve['TrashHandCard'] = resolve )
+// 手札の選択
+function WaitForSelectingHandCards() {
+	return MyAsync( function*() {
+		let $handcards = $('.HandCards').children('.card');
+		$handcards.addClass('SelectHandCards pointer');
+		yield AcknowledgeButton_Me();
+		$handcards.removeClass('SelectHandCards pointer');
+		const SelectedCardsID = [];
+		$handcards.hasClass('.selected')
+			.each( SelectedCardsID.push( $(this).attr('data-card_ID') ) );
+		yield SelectedCardsID;
+	});
 }
 
 $( function() {
-	$('.HandCards').on( 'click', '.card.Trash', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+	$('.HandCards').on( 'click', '.card.SelectHandCards', function() {
+		$(this).toggleClass('selected');
+	} );
+});
 
-		Game.TrashCardByID( clicked_card_ID );
 
-		FBref_Game.update( {
+// 手札の廃棄
+function WaitForTrashingHandCard( conditions = (card_no,card_ID) => true ) {
+	return MyAsync( function*() {
+		const $handcards = $('.HandCards').children('.card')
+			.filter( function() {
+				return conditions( $(this).attr('data-card_no'), $(this).attr('data-card_ID') )
+			} );
+
+		$handcards.addClass('TrashHandCard pointer');
+		const ClickedCardID_or_DoneClicked
+		  = yield new Promise( resolve => Resolve['TrashHandCard'] = resolve );
+		$handcards.removeClass('TrashHandCard pointer');
+
+		if ( ClickedCardID_or_DoneClicked === 'TrashHandCard_Done' ) return 'TrashHandCard_Done';
+
+		Game.TrashCardByID( ClickedCardID );
+
+		yield FBref_Game.update( {
 			[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
 			TrashPile : Game.TrashPile,
 		} )
-		.then( () => Resolve['TrashHandCard']( clicked_card_ID ) );  // 再開
+
+		yield ClickedCardID;
+	});
+}
+
+function ShowTrashDoneButton() {
+	$('.action_buttons').append( MakeHTML_button( 'TrashHandCard_Done', '完了' ) );
+}
+
+$( function() {
+	$('.HandCards').on( 'click', '.card.TrashHandCard', function() {
+		Resolve['TrashHandCard']( $(this).attr('data-card_ID') );  // 再開
 	} );
 
-	$('.action_buttons').on( 'click', '.Trash_Done', function() {
-		Resolve['DiscardHandCard']( 'Trash_Done' );  // 再開
+	$('.action_buttons').on( 'click', '.TrashHandCard_Done', function() {
+		Resolve['DiscardHandCard']( 'TrashHandCard_Done' );  // 再開
+		$('.action_buttons .TrashHandCard_Done').remove();  /* 完了ボタン消す */
 	} );
 });
 
@@ -272,7 +308,7 @@ $( function() {
 
 		let card = Game.GetCardByID( clicked_card_ID );
 		if ( $(this).hasClass('face') ) card.face = true;
-		Game.Me().PutBackToDeck( card );
+		Game.Me().AddToDeck( card );
 
 		FBref_Players.child( myid ).update( {
 			HandCards : Game.Me().HandCards,
@@ -305,18 +341,21 @@ function Get$SupplyAreaWithConditions( conditions, additional_piles = false ) {
 	});
 }
 
-function GainSupplyCardIf( conditions ) {
-	$('.SupplyArea').find('.card').each( function() {
-		const card_no = $(this).attr('data-card_no');
-		// const card_ID = $(this).attr('data-top_card_ID');
-		const card = Cardlist[ card_no ];
-		if ( $(this).attr('data-card_num_of_remaining') <= 0 ) return;
-		if ( conditions( card, card_no ) ) $(this).addClass('available');
-	} );
-}
+function WaitForGainingSupplyCard( conditions, AddTo ) {
+	return MyAsync( function*() {
+		const $available_piles = Get$SupplyAreaWithConditions( conditions );
+		$available_piles.addClass(`GainSupplyCard ${AddTo} pointer`);
 
-function WaitForGainSupplyCard() {
-	return new Promise( resolve => Resolve['GainSupplyCard'] = resolve )
+		if ( $available_piles.length <= 0 ) {
+			yield MyAlert( '獲得できるカードがありません' );
+			return;
+		}
+
+		const GainedCardID
+		  = new Promise( resolve => Resolve['GainSupplyCard'] = resolve );
+		$available_piles.removeClass('Trash pointer');
+		yield GainedCardID;
+	});
 }
 
 $( function() {

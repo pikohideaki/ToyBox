@@ -44,7 +44,8 @@ $( function() {
 
 
 	/* 9. 基本 - 改築 */
-	/* Trash a card from your hand. Gain a card costing up to 2 Coins more than it. */
+	/* Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.
+	   《2nd edition》 Trash a card from your hand. Gain a card costing up to 2 Coins more than it. */
 	CardEffect['Remodel'] = function* () {
 		if ( Game.player().HandCards.length <= 0 ) {
 			yield MyAlert( '手札にカードがありません。' );
@@ -54,10 +55,7 @@ $( function() {
 		// (1) 廃棄する手札のカードの選択
 		yield FBref_Message.set( '手札のカードを1枚廃棄して下さい。' );
 
-		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
-		$('.HandCards').children('.card').addClass('Trash pointer');
 		const TrashedCardID = yield WaitForTrashingHandCard();
-		// added classes are reset by Print event
 
 		const TrashedCardCost = Game.GetCost( Game.GetCardByID( TrashedCardID ).card_no );
 
@@ -65,22 +63,12 @@ $( function() {
 		yield FBref_Message.set(
 			`コストが廃棄したカード+2(=${TrashedCardCost.coin + 2} )コインまでのカードを獲得してください。` );
 
-		/* サプライのクラス書き換え */
-		const $available_piles
-			= Get$SupplyAreaWithConditions( ( card, card_no ) =>
-				CostOp( '<=',
-					Game.GetCost( card_no ),
-					CostOp( '+', TrashedCardCost, new CCost([2,0,0]) ) ) );
-
-		$available_piles.addClass('GainSupplyCard AddToDiscardPile pointer');
-
-		if ( $available_piles.length <= 0 ) {
-			yield MyAlert( '獲得できるカードがありません' );
-			return;
-		}
-
-		yield WaitForGainSupplyCard();
-		// added classes are reset by Print event
+		yield WaitForGainingSupplyCard(
+				( card, card_no ) =>
+					CostOp( '<=',
+						Game.GetCost( card_no ),
+						CostOp( '+', TrashedCardCost, new CCost([2,0,0]) ) ),
+				'AddToDiscardPile' );
 	};
 
 
@@ -90,10 +78,10 @@ $( function() {
 	/* 11. 金貸し */
 	/* Trash a Copper card from your hand. If you do, +3 Coins. */
 	CardEffect['Moneylender'] = function* () {
-		const $Coppers = $('.HandCards').children('.card')
-			.filter( function() { return $(this).attr('data-card_no') == CardName2No['Copper'] } )
+		const Coppers 
+		  = Game.player().HandCards.filter( card => CardName2No['Copper'] == card.card_no );
 
-		if ( $Coppers.length <= 0 ) {
+		if ( Coppers.length <= 0 ) {
 			yield MyAlert( '手札に銅貨がありません。' );
 			return;
 		}
@@ -101,8 +89,7 @@ $( function() {
 		yield FBref_Message.set( '手札の銅貨を1枚廃棄して下さい。' );
 
 		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
-		$Coppers.addClass('Trash pointer');
-		yield WaitForTrashingHandCard();
+		yield WaitForTrashingHandCard( card_no => card_no == CardName2No['Copper'] );
 
 		// +3 Coins
 		Game.TurnInfo.coin += 3;
@@ -114,6 +101,8 @@ $( function() {
 
 
 	/* 13. 議事堂 */
+	/* +4 Cards +1 Buy Each other player draws a card.
+	   《2nd edition》 +4 Cards +1 Buy Each other player draws a card. */
 	CardEffect['Council Room'] = function* () {
 		Game.ForAllOtherPlayers( player_id => Game.Players[player_id].DrawCards(1) )
 		yield FBref_Players.update( Game.Players );
@@ -124,10 +113,16 @@ $( function() {
 
 
 	/* 14. 玉座の間 */
+	/* Choose an Action card in your hand. Play it twice.
+	   《2nd edition》 You may play an Action card from your hand twice. */
+	/* 1st editionで実装 */
 	CardEffect['Throne Room'] = function* () {
 		const $action_cards
 			= $('.HandCards').children('.card')
 				.filter( function() { return IsActionCard( Cardlist, $(this).attr('data-card_no') ) } );
+
+		const Action
+		  = Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
 
 		if ( $action_cards.length <= 0 ) {
 			yield MyAlert( '手札にアクションカードがありません。' );
@@ -141,6 +136,7 @@ $( function() {
 		// アクションカード選択待機
 		const [clicked_card_no, clicked_card_ID]
 			= yield new Promise( resolve => Resolve['Throne_Room_UseTwice'] = resolve );
+		$action_cards.removeClass('Throne_Room_UseTwice pointer');
 
 		yield MyAsync( GetCardEffect, clicked_card_no, clicked_card_ID );  /* 1回目 */
 		yield MyAsync( GetCardEffect, clicked_card_no, clicked_card_ID );  /* 2回目 */
@@ -165,14 +161,15 @@ $( function() {
 
 
 	/* 16. 基本 - 鉱山 */
-	/* Trash a Treasure card from your hand. Gain a Treasure card costing up to 3 Coins more; put it into your hand.
-	《2nd edition》 You may trash a Treasure from your hand. Gain a Treasure to your hand costing up to 3 Coins more than it.
-	*/
+	/* Trash a Treasure card from your hand.
+	   Gain a Treasure card costing up to 3 Coins more; put it into your hand.
+	   《2nd edition》 You may trash a Treasure from your hand.
+	   Gain a Treasure to your hand costing up to 3 Coins more than it. */
 	CardEffect['Mine'] = function* () {
-		const $Treasure = $('.HandCards').children('.card')
-			.filter( function() { return IsTreasureCard( Cardlist, $(this).attr('data-card_no') ); } )
+		const Treasure
+		  = Game.player().HandCards.filter( card => IsTrasureCard( Cardlist, card.card_no ) );
 
-		if ( $Treasure.length <= 0 ) {
+		if ( Treasure.length <= 0 ) {
 			yield MyAlert( '手札に財宝カードがありません。' );
 			return;
 		}
@@ -180,10 +177,8 @@ $( function() {
 		// (1) 廃棄する手札の財宝カードの選択
 		yield FBref_Message.set( '手札の財宝カードを1枚廃棄して下さい。' );
 
-		/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
-		$Treasure.addClass('Trash pointer');
-		const TrashedCardID = yield WaitForTrashingHandCard();
-		// added classes are reset by Print event
+		const TrashedCardID
+		  = yield WaitForTrashingHandCard( card_no => IsTrasureCard( Cardlist, card_no ) );
 
 		const TrashedCardCost = Game.GetCost( Game.GetCardByID( TrashedCardID ).card_no );
 
@@ -191,23 +186,13 @@ $( function() {
 		yield FBref_Message.set(
 			`コストが廃棄したカード+3(=${TrashedCardCost.coin + 3} )コインまでの財宝カードを獲得してください。` );
 
-		/* サプライのクラス書き換え */
-		const $available_piles
-			= Get$SupplyAreaWithConditions( ( card, card_no ) =>
-				CostOp( '<=',
-					Game.GetCost( card_no ),
-					CostOp( '+', TrashedCardCost, new CCost([3,0,0]) ) )
-				&& IsTreasureCard( Cardlist, card_no ) );
-
-		$available_piles.addClass('GainSupplyCard AddToHandCards pointer');
-
-		if ( $available_piles.length <= 0 ) {
-			yield MyAlert( '獲得できるカードがありません' );
-			return;
-		}
-
-		yield WaitForGainSupplyCard();
-		// added classes are reset by Print event
+		yield WaitForGainingSupplyCard(
+				( card, card_no ) =>
+					CostOp( '<=',
+						Game.GetCost( card_no ),
+						CostOp( '+', TrashedCardCost, new CCost([3,0,0]) ) )
+					&& IsTreasureCard( Cardlist, card_no ),
+				'AddToHandCards' );
 	};
 
 
@@ -219,21 +204,10 @@ $( function() {
 	CardEffect['Workshop'] = function* () {
 		yield FBref_Message.set( 'コスト4以下のカードを獲得して下さい。' );
 
-		/* サプライのクラス書き換え */
-		const $available_piles
-			= Get$SupplyAreaWithConditions( ( card, card_no ) =>
-				CostOp( '<=',
-					Game.GetCost( card_no ), new CCost([4,0,0]) ) );
-
-		$available_piles.addClass('GainSupplyCard AddToDiscardPile pointer');
-
-		if ( $available_piles.length <= 0 ) {
-			yield MyAlert( '獲得できるカードがありません' );
-			return;
-		}
-
-		yield WaitForGainSupplyCard();
-		// added classes are reset by Print event
+		yield WaitForGainingSupplyCard(
+				( card, card_no ) =>
+					CostOp( '<=', Game.GetCost( card_no ), new CCost([4,0,0]) ),
+				'AddToDiscardPile' );
 	};
 
 
@@ -241,15 +215,15 @@ $( function() {
 
 
 	/* 18. 宰相 */
+	/* +2 Coins You may immediately put your deck into your discard pile.
+	   《2nd edition》 Removed  */
 	CardEffect['Chancellor'] = function* () {
 		yield FBref_Message.set( '山札を捨て札に置きますか？' );
 
-		$('.action_buttons')
-			.html(
+		$('.action_buttons').html(
 				MakeHTML_button( 'Chancellor Discard', '捨て札におく' ) +
 				MakeHTML_button( 'Chancellor', '何もしない' ) );
-		const discard
-			= yield new Promise( resolve => Resolve['Chancellor'] = resolve );
+		const discard = yield new Promise( resolve => Resolve['Chancellor'] = resolve );
 		$('.action_buttons .Chancellor').remove();  // reset
 
 		if ( discard ) {
@@ -266,31 +240,21 @@ $( function() {
 
 
 	/* 19. 基本 - 祝宴 */
+	/* Trash this card. Gain a card costing up to 5 Coins. 《2nd edition》 Removed */
 	CardEffect['Feast'] = function* ( playing_card_ID ) {
-		/* ゲーム未終了でコスト5以下のカードが1枚も無い状態はあり得ないのでチェック省略 */
 		yield FBref_Message.set( 'コスト5以下のカードを獲得して下さい。' );
 
+		// このカードを廃棄する
 		Game.TrashCardByID( playing_card_ID );
 		yield FBref_Game.update( {
 			TrashPile : Game.TrashPile,
 			[`Players/${Game.player().id}/PlayArea`] : Game.player().PlayArea,
 		} );
 
-		/* サプライのクラス書き換え */
-		const $available_piles
-			= Get$SupplyAreaWithConditions( ( card, card_no ) =>
-				CostOp( '<=',
-					Game.GetCost( card_no ), new CCost([4,0,0]) ) );
-
-		$available_piles.addClass('GainSupplyCard AddToDiscardPile pointer');
-
-		if ( $available_piles.length <= 0 ) {
-			yield MyAlert( '獲得できるカードがありません' );
-			return;
-		}
-
-		yield WaitForGainSupplyCard();
-		// added classes are reset by Print event
+		yield WaitForGainingSupplyCard(
+				( card, card_no ) =>
+					CostOp( '<=', Game.GetCost( card_no ), new CCost([5,0,0]) ),
+				'AddToDiscardPile' );
 	};
 
 
@@ -298,8 +262,11 @@ $( function() {
 
 
 	/* 21. 書庫 */
-	/* Draw until you have 7 cards in hand. You may set aside any Action cards drawn this way, as you draw them; discard the set aside cards after you finish drawing.
-	《2nd edition》 Draw until you have 7 cards in hand, skipping any Action cards you choose to; set those aside, discarding them afterwards. */
+	/* Draw until you have 7 cards in hand.
+	   You may set aside any Action cards drawn this way, as you draw them;
+	   discard the set aside cards after you finish drawing.
+	   《2nd edition》 Draw until you have 7 cards in hand, skipping any Action cards you choose to;
+	   set those aside, discarding them afterwards. */
 	CardEffect['Library'] = function* () {
 		yield FBref_Message.set( '手札が7枚になるまでカードを引きます。アクションカードを引いたら脇に置くことができます。' );
 
@@ -319,21 +286,13 @@ $( function() {
 						message  : `${Cardlist[ deck_top_card.card_no ].name_jp}を脇に置きますか？`,
 						contents : MakeHTML_Card( deck_top_card, Game ),
 						buttons  : [
-							{
-								class_str : 'Library SetAside',
-								name : '脇に置く',
-								return_value : true,
-							}, {
-								class_str : 'Library',
-								name : '手札に加える',
-								return_value : false,
-							},
-						],
+							{ return_value : true , label : '脇に置く', },
+							{ return_value : false, label : '手札に加える', }, ],
 					} );
 
 				if ( set_aside ) {
 					SetAsideCardsID.push( deck_top_card.card_ID );
-					Game.player().SetAside( deck_top_card );
+					Game.player().AddToAside( deck_top_card );
 				} else {
 					Game.player().AddToHandCards( deck_top_card );
 				}
@@ -360,24 +319,16 @@ $( function() {
 	CardEffect['Cellar'] = function* () {
 		yield FBref_Message.set( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけカードを引きます。' );
 
-		$('.action_buttons').append( MakeHTML_button( 'Discard_Done', '完了' ) );
+		// 手札のカードを任意枚数選択
+		const SelectedCardsID = yield WaitForSelectingHandCards();
 
-		let discarded_num = 0;
+		// 選択したカードを捨て札に
+		SelectedCardsID.forEach( card_ID => Game.Discard( card_ID, { chat : false } ) );
 
-		while (true) {
-			$('.HandCards').children('.card').addClass('Discard pointer');
-			const return_value = yield WaitForDiscaringHandCard();
-			// added classes are reset by Print event
-
-			if ( return_value === 'Discard_Done' ) break;
-			discarded_num++;
-			yield FBref_Message.set( `捨て札にした枚数 ： ${discarded_num}枚` );
-		}
-
-		$('.action_buttons .Discard_Done').remove();  /* 完了ボタン消す */
+		yield FBref_Message.set( `捨て札にした枚数 ： ${SelectedCardsID.length}枚` );
 
 		// 捨て札にした枚数カードを引く
-		Game.player().DrawCards( discarded_num );
+		Game.player().DrawCards( SelectedCardsID.length );
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
 
@@ -386,6 +337,11 @@ $( function() {
 
 
 	/* 24. 泥棒 */
+	/* Each other player reveals the top 2 cards of his deck.
+	   If they revealed any Treasure cards, they trash one of them that you choose.
+	   You may gain any or all of these trashed cards.
+	   They discard the other revealed cards.
+	   《2nd edition》 Removed */
 	CardEffect['Thief'] = function* () {
 		yield FBref_Message.set(
 			'他のプレイヤーの山札の上から2枚を公開し、\
@@ -394,9 +350,14 @@ $( function() {
 
 		function* attack_effects( player_id, passing_object ) {
 			const pl = Game.Players[player_id];
+			const RevealedCardsID = [];  // 公開したカードを記憶
+
 			/* 山札から2枚めくり公開 */
-			pl.AddToOpen( pl.GetDeckTopCard() );
-			pl.AddToOpen( pl.GetDeckTopCard() );
+			for ( let i = 0; i < 2; ++i ) {
+				revealed_card = pl.GetDeckTopCard()
+				RevealedCardsID.push( revealed_card.card_ID );
+				pl.AddToOpen( revealed_card );
+			}
 			yield FBref_Players.child( player_id ).update( {
 				Open        : pl.Open,
 				Deck        : pl.Deck,
@@ -413,25 +374,30 @@ $( function() {
 			// 財宝カードがあれば1枚廃棄
 			if ( $trasure_cards.length > 0 ) {
 				$trasure_cards.addClass('Thief_Trash pointer');
-				const trashed_card_ID
+				const clicked_card_ID
 					= yield new Promise( resolve => Resolve['Thief_Trash'] = resolve );
-				if ( trashed_card_ID != undefined ) {
-					passing_object.trashed_card_IDs.push( trashed_card_ID );
-				}
+				$trasure_cards.removeClass('Thief_Trash pointer');
+
+				Game.TrashCardByID( clicked_card_ID );
+				yield FBref_Game.update( {
+					TrashPile : Game.TrashPile,
+					[`Players/${player_id}/Open`] : Game.Players[ player_id ].Open,
+				} );
+				passing_object.TrashedCardsID.push( clicked_card_ID );
 			} else {
 				yield AcknowledgeButton_OtherPlayer( player_id );
 			}
 
 			/* 公開したカードの残りを捨て札に */
-			pl.Open.forEach( card => pl.AddToDiscardPile( card ) );
-			pl.Open = [];
-			yield FBref_Players.child(id).update( {
+			RevealedCardsID.forEach( card_ID => Game.Discard( card_ID, { player_id : player_id } ) );
+
+			yield FBref_Players.child( player_id ).update( {
 				DiscardPile : pl.DiscardPile,
 				Open        : pl.Open,
 			} );
 		}
 
-		let passing_object = { trashed_card_IDs : [] };
+		let passing_object = { TrashedCardsID : [] };
 
 		yield Game.AttackAllOtherPlayers(
 				'Thief',
@@ -443,11 +409,11 @@ $( function() {
 
 
 		// 1枚以上廃棄したならばその中から好きな枚数獲得
-		if ( passing_object.trashed_card_IDs.length > 0 ) {
+		if ( passing_object.TrashedCardsID.length > 0 ) {
 			/* 廃棄したカードの獲得画面 */
 			let trashed_cards_html;
 
-			passing_object.trashed_card_IDs.forEach( function( card_ID ) {
+			passing_object.TrashedCardsID.forEach( function( card_ID ) {
 				const card = Game.GetCardByID( card_ID, false );
 				card.class_str = 'Thief_GainTrashedCard pointer';
 				trashed_cards_html += MakeHTML_Card( card, Game );
@@ -457,7 +423,7 @@ $( function() {
 				{ contents : trashed_cards_html } );
 
 			// class_str をリセット
-			ResetClassStr( passing_object.trashed_card_IDs );
+			ResetClassStr( passing_object.TrashedCardsID );
 			yield FBref_Game.update( {
 				TrashPile : Game.TrashPile,
 				Players   : Game.Players ,
@@ -467,29 +433,20 @@ $( function() {
 
 	/* 廃棄するカードの選択 */
 	$('.OtherPlayers-wrapper').on( 'click', '.sOpen .Thief_Trash', function() {
-		const player_id = $(this).parents('.OtherPlayer').attr('data-player_id');
-		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.TrashCardByID( clicked_card_ID );
-
-		FBref_Game.update( {
-			TrashPile : Game.TrashPile,
-			[`Players/${player_id}/Open`] : Game.Players[ player_id ].Open,
-		} )
-		.then( () => Resolve['Thief_Trash']( clicked_card_ID ) );  // 再開
+		Resolve['Thief_Trash']( $(this).attr('data-card_ID') );  // 再開
 	} );
 
 	/* 廃棄したカードの獲得 */
 	$('.MyAlert').on( 'click', '.Thief_GainTrashedCard', function() {
-		$('.MyAlert').find('.card').removeClass('Thief_GainTrashedCard pointer');
-
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
 		$(this).remove();  /* クリックしたカードを非表示 */
+
+		Game.Discard( clicked_card_ID );
 
 		FBref_Game.update( {
 			TrashPile : Game.TrashPile,
 			[`Players/${Game.player().id}/DiscardPile`] : Game.player().DiscardPile,
-		} )
+		} );
 	} );
 
 
@@ -497,6 +454,9 @@ $( function() {
 
 
 	/* 25. 冒険者 */
+	/* Reveal cards from your deck until you reveal 2 Treasure cards.
+	   Put those Treasure cards in your hand and discard the other revealed cards.
+	   《2nd edition》 Removed */
 	CardEffect['Adventurer'] = function*() {
 		yield FBref_Message.set( '財宝カードが2枚公開されるまでカードを引きます。' );
 
@@ -520,6 +480,7 @@ $( function() {
 				Game.player().AddToHandCards( card );
 			} else {
 				Game.player().AddToDiscardPile( card );
+				
 			}
 		});
 
@@ -531,6 +492,16 @@ $( function() {
 
 
 	/* 26. 堀 */
+	/* +2 Cards
+	   -------------------------
+	   When another player plays an Attack card, you may reveal this from your hand.
+	   If you do, you are unaffected by that Attack.
+
+	   《2nd edition》
+	   +2 Cards
+	   -------------------------
+	   When another player plays an Attack card, you may first reveal this from your hand,
+	   to be unaffected by it. */
 	ReactionEffect['Moat'] = function*() {
 		Game.TurnInfo.Revealed_Moat[myid] = true;
 		yield FBref_Game.child(`TurnInfo/Revealed_Moat/${myid}`).set(true);
@@ -541,6 +512,8 @@ $( function() {
 
 
 	/* 27. 魔女 */
+	/* +2 Cards Each other player gains a Curse card.
+	   《2nd edition》 +2 Cards Each other player gains a Curse. */
 	CardEffect['Witch'] = function* () {
 		yield FBref_Message.set( '呪いを獲得して下さい。' );
 
@@ -559,6 +532,10 @@ $( function() {
 
 
 	/* 28. 密偵 */
+	/* +1 Card +1 Action
+	   Each player (including you) reveals the top card of his deck
+	   and either discards it or puts it back, your choice.
+	   《2nd edition》 Removed */
 	CardEffect['Spy'] = function* () {
 		yield FBref_Message.set(
 			'各プレイヤー（自分を含む）の山札の上から1枚を公開し、\
@@ -590,7 +567,7 @@ $( function() {
 				case 'PutBackToDeck' :
 					const revealed_card = Game.GetCardByID( revealed_card_ID );
 					revealed_card.face = true;
-					Game.player().PutBackToDeck( revealed_card );
+					Game.player().AddToDeck( revealed_card );
 					break;
 
 				default :
@@ -633,7 +610,7 @@ $( function() {
 				case 'PutBackToDeck' :
 					const revealed_card = Game.GetCardByID( revealed_card_ID );
 					revealed_card.face = true;
-					pl.PutBackToDeck( revealed_card );
+					pl.AddToDeck( revealed_card );
 					break;
 
 				default :
@@ -669,6 +646,8 @@ $( function() {
 
 
 	/* 29. 民兵 */
+	/* +2 Coins Each other player discards down to 3 cards in his hand.
+	   《2nd edition》 +2 Coins Each other player discards down to 3 cards in hand. */
 	CardEffect['Militia'] = function* () {
 		yield FBref_Message.set( '手札が3枚になるまで捨てて下さい。' );
 
@@ -692,13 +671,19 @@ $( function() {
 
 
 	/* 31. 役人 */
+	/* Gain a silver card; put it on top of your deck.
+	   Each other player reveals a Victory card from his hand and puts it on his deck
+	   (or reveals a hand with no Victory cards).
+	   《2nd edition》 Gain a Silver onto your deck.
+	   Each other player reveals a Victory card from their hand and puts it onto their deck
+	   (or reveals a hand with no Victory cards). */
 	CardEffect['Bureaucrat'] = function* () {
 		yield FBref_Message.set( 'プレイヤーは銀貨を山札に獲得します。\
 			他のプレイヤーは手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。そうでない場合は手札を公開してください。' );
 
 		const silver = Game.Supply.byName('Silver').GetTopCard();
 		if ( silver != undefined ) silver.face = true;
-		Game.player().PutBackToDeck( silver );  /* 銀貨を山札の一番上に獲得 */
+		Game.player().AddToDeck( silver );  /* 銀貨を山札の一番上に獲得 */
 
 		yield FBref_Game.update( {
 			[`Players/${Game.player().id}/Deck`] : Game.player().Deck,
@@ -741,25 +726,18 @@ $( function() {
 
 	/* 32. 礼拝堂 */
 	/* Trash up to 4 cards from your hand.
-	《2nd edition》 Trash up to 4 cards from your hand. */
+	   《2nd edition》 Trash up to 4 cards from your hand. */
 	CardEffect['Chapel'] = function* () {
 		yield FBref_Message.set( '手札を4枚まで廃棄して下さい。' );
 
-		$('.action_buttons').append( MakeHTML_button( 'Trash_Done', '完了' ) );
+		ShowTrashDoneButton();
 
 		let trashed_num = 0;
-
 		while ( trashed_num < 4 ) {
-			$('.HandCards').children('.card').addClass('Trash pointer');
 			const return_value = yield WaitForTrashingHandCard();
-			// added classes are reset by Print event
-
-			if ( return_value === 'Trash_Done' ) break;
+			if ( return_value === 'TrashHandCard_Done' ) break;
 			trashed_num++;
 			yield FBref_Message.set( `あと ${(4 - trashed_num)} 枚廃棄できます。` );
 		}
-
-		$('.action_buttons .Trash_Done').remove();  /* 完了ボタン消す */
 	};
-
 } );

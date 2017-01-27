@@ -81,7 +81,7 @@ $( function() {
 
 	ReactionEffect['Horse Traders'] = function*( card_no, card_ID ) {
 		yield FBref_MessageToMe.set('このカードを脇に置き、 次のターンの最初に+1カードして脇に置いていたこのカードを手札に戻します。');
-		Game.Me().SetAside( Game.GetCardByID( card_ID ) );
+		Game.Me().AddToAside( Game.GetCardByID( card_ID ) );
 		// Game.Me().DrawCards(1);
 		yield FBref_Players.child( myid ).set( Game.Me() );
 	};
@@ -122,7 +122,7 @@ $( function() {
 			// 山札の一番上に置く
 			if ( revealed ) {
 				deck_top_card.face = true;
-				pl.PutBackToDeck( Game.GetCardByID( deck_top_card.card_ID ) );
+				pl.AddToDeck( Game.GetCardByID( deck_top_card.card_ID ) );
 				yield FBref_Players.child( pl.id ).set( pl );
 			}
 
@@ -176,7 +176,7 @@ $( function() {
 
 		const gold = Game.Supply.byName('Gold').GetTopCard();
 		if ( gold != undefined ) gold.face = true;
-		Game.player().PutBackToDeck( gold );  /* 金貨を山札の一番上に獲得 */
+		Game.player().AddToDeck( gold );  /* 金貨を山札の一番上に獲得 */
 		yield FBref_Game.update( {
 			[`Players/${Game.player().id}/Deck`] : Game.player().Deck,
 			Supply : Game.Supply,
@@ -699,7 +699,7 @@ $( function() {
 				`${Game.player().name}が${Cardlist[ gotten_card.card_no ].name_jp}を獲得しました。` );
 
 			gotten_card.face = true;
-			Game.player().PutBackToDeck( gotten_card );
+			Game.player().AddToDeck( gotten_card );
 
 			let updates = {};
 			updates[`Players/${Game.player().id}/Deck`] = Game.player().Deck;

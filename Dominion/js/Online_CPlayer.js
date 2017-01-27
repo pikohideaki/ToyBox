@@ -38,11 +38,11 @@ class CPlayer {
 
 		/* get 7 Coppers from supply */
 		for ( let i = 0; i < 7; ++i ) {
-			this.PutBackToDeck( Supply.byName('Copper').GetTopCard() );
+			this.AddToDeck( Supply.byName('Copper').GetTopCard() );
 		}
 		/* get 3 Estates from supply */
 		for ( let i = 0; i < 3; ++i ) {
-			this.PutBackToDeck( Supply.byName('Estate').GetTopCard() );
+			this.AddToDeck( Supply.byName('Estate').GetTopCard() );
 		}
 
 		this.Deck.shuffle();
@@ -62,8 +62,86 @@ class CPlayer {
 
 
 
+	SortHandCards() {
+		let sorted = this.HandCards.sort( function(a,b) { return a.card_no - b.card_no; });
+		let action_cards, treasure_cards, victory_cards;
+		[ action_cards  , sorted ] = sorted.filterRemove( (elm) => IsActionCard  ( Cardlist, elm.card_no ) );
+		[ treasure_cards, sorted ] = sorted.filterRemove( (elm) => IsTreasureCard( Cardlist, elm.card_no ) );
+		[ victory_cards , sorted ] = sorted.filterRemove( (elm) => IsVictoryCard ( Cardlist, elm.card_no ) );
+		this.HandCards = [].concat( action_cards, treasure_cards, victory_cards, sorted );
+	}
 
-	/* Deck */
+	GetDeckAll() {
+		return [].concat(
+				  this.Deck
+				, this.DiscardPile
+				, this.HandCards
+				, this.PlayArea
+				, this.Aside
+			);
+	}
+
+
+
+
+	/* カード移動基本操作 */
+
+	AddToDeck( card ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return;
+		this.Deck.unshift( card );  /* 先頭に追加 */
+	}
+
+	AddToHandCards( card, FBsync = false ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return;
+		/* add and sort */
+		this.HandCards.push( card );
+		// this.SortHandCards();
+		if ( FBsync ) {
+			return FBref_Players.child( `${this.id}/HandCards` ).set( this.HandCards );
+		}
+	}
+
+	AddToDiscardPile( card, FBsync = false ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return Promise.resolve();
+		this.DiscardPile.push( card );
+		if ( FBsync ) {
+			return FBref_Players.child( `${this.id}/DiscardPile` ).set( this.DiscardPile );
+		}
+	}
+
+	AddToPlayArea( card, FBsync = false ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return Promise.resolve();
+		this.PlayArea.push( card );
+		if ( FBsync ) {
+			return FBref_Players.child( `${this.id}/PlayArea` ).set( this.PlayArea );
+		}
+	}
+
+	AddToAside( card ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return;
+		this.Aside.push( card );
+	}
+
+	AddToOpen( card, FBsync = false ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return Promise.resolve();
+		this.Open.push( card );
+		if ( FBsync ) {
+			return FBref_Players.child( `${this.id}/Open` ).set( this.Open );
+		}
+	}
+
+
+	// 山札をそのままひっくり返して捨て山に置く（宰相など）
+	PutDeckIntoDiscardPile() {
+		const pl = this;
+		return new Promise( function( resolve ) {
+			pl.Deck.reverse();  /* 山札をそのままひっくり返して捨て山に置く */
+			pl.Deck.forEach( card => pl.AddToDiscardPile(card) );
+			pl.Deck = [];
+			FBref_Players.child( pl.id ).set( pl ).then( resolve );
+		})
+	}
+
 	GetDeckTopCard( FBsync = false ) {  /* カード移動基本操作 */
 		if ( !this.Drawable() ) return undefined;
 		if ( this.Deck.length === 0 ) {
@@ -82,89 +160,15 @@ class CPlayer {
 	}
 
 
-	GetDeckTopCards( n, FBsync = false ) {  /* カード移動複合操作 */
-		let ar = new Array(n);
-		for ( let i = 0; i < n; ++i ) {
-			ar[i] = this.GetDeckTopCard();
-		}
-		if ( FBsync ) {
-			FBref_Players.child( this.id ).update( {
-				Deck        : this.Deck,
-				DiscardPile : this.DiscardPile,
-			});
-		}
+
+
+	/* カード移動複合操作 */
+	GetDeckTopCards(n) {  /* カード移動複合操作 */
+		const ar = new Array(n);
+		ar.forEach( ( val, index, array ) => array[index] = this.GetDeckTopCard() );
 		return ar;
 	}
 
-
-	PutBackToDeck( card, FBsync = false ) {  /* カード移動基本操作，山札の一番上に獲得 */
-		if ( card == undefined ) return Promise.resolve();
-		this.Deck.unshift( card );  /* 先頭に追加 */
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/Deck` ).set( this.Deck );
-		}
-	}
-
-
-	/* HandCards */
-	SortHandCards() {
-		let sorted = this.HandCards.sort( function(a,b) { return a.card_no - b.card_no; });
-		let action_cards, treasure_cards, victory_cards;
-		[ action_cards  , sorted ] = sorted.filterRemove( (elm) => IsActionCard  ( Cardlist, elm.card_no ) );
-		[ treasure_cards, sorted ] = sorted.filterRemove( (elm) => IsTreasureCard( Cardlist, elm.card_no ) );
-		[ victory_cards , sorted ] = sorted.filterRemove( (elm) => IsVictoryCard ( Cardlist, elm.card_no ) );
-		this.HandCards = [].concat( action_cards, treasure_cards, victory_cards, sorted );
-	}
-
-	AddToHandCards( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return;
-		/* add and sort */
-		this.HandCards.push( card );
-		// this.SortHandCards();
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/HandCards` ).set( this.HandCards );
-		}
-	}
-
-	/* DiscardPile*/
-	AddToDiscardPile( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
-		this.DiscardPile.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/DiscardPile` ).set( this.DiscardPile );
-		}
-	}
-
-	/* PlayArea */
-	AddToPlayArea( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
-		this.PlayArea.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/PlayArea` ).set( this.PlayArea );
-		}
-	}
-
-	/* Aside */
-	SetAside( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
-		this.Aside.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/Aside` ).set( this.Aside );
-		}
-	}
-
-	/* Open */
-	AddToOpen( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
-		this.Open.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/Open` ).set( this.Open );
-		}
-	}
-
-
-
-	/* draw */
 	Drawable() {
 		return (( this.Deck.length + this.DiscardPile.length ) > 0 );
 	}
@@ -180,7 +184,7 @@ class CPlayer {
 	}
 
 
-	OpenDeckTop( n, FBsync = false ) { /* カード移動複合操作 */
+	RevealDeckTop( n, FBsync = false ) {  /* カード移動複合操作 */
 		this.GetDeckTopCards(n).forEach( (card) => this.AddToOpen(card) );
 		if ( FBsync ) {
 			return FBref_Players.child( this.id ).update( this );
@@ -188,10 +192,8 @@ class CPlayer {
 	}
 
 
-	GetReactionCards() {
-		return this.HandCards
-			.filter( (card) => IsReactionCard( Cardlist, card.card_no ) );
-	}
+
+
 
 	HasReactionCard() {
 		for ( let i = 0; i < this.HandCards.length; i++ ) {
@@ -208,7 +210,7 @@ class CPlayer {
 	}
 
 
-	CleanUp( FBsync = true ) {
+	CleanUp( FBsync = true ) {  /* カード移動複合操作 */
 		let CardsToDiscard = [].concat(
 				  this.HandCards
 				, this.PlayArea
@@ -228,17 +230,6 @@ class CPlayer {
 	}
 
 
-	GetDeckAll() {
-		return [].concat(
-				  this.Deck
-				, this.DiscardPile
-				, this.HandCards
-				, this.PlayArea
-				, this.Aside
-			);
-	}
-
-
 	ResetFaceDown() {
 		this.GetDeckAll().forEach( function( card ) {
 			card.face = false;
@@ -248,8 +239,12 @@ class CPlayer {
 
 
 	// 手札を公開
-	RevealHandCards( FBsync = true ) {
-		this.HandCards.forEach( function( card ) {
+	RevealHandCards( CardsID = [], FBsync = true ) {
+		let hardcards = this.HandCards;
+		if ( CardsID.length != 0 ) {
+			hardcards = hardcards.filter( card => CardsID.val_exists( card.card_ID ) );
+		}
+		handcards.forEach( function( card ) {
 			card.face = true;
 			card.down = false;
 		});
@@ -257,24 +252,6 @@ class CPlayer {
 			return FBref_Players.child( `${this.id}/HandCards` ).update( this.HandCards );
 		}
 	}
-
-
-	// 山札をそのままひっくり返して捨て山に置く（宰相など）
-	PutDeckIntoDiscardPile() {
-		const pl = this;
-		return new Promise( function( resolve ) {
-			pl.Deck.reverse();  /* 山札をそのままひっくり返して捨て山に置く */
-			pl.Deck.forEach( card => pl.AddToDiscardPile(card) );
-			pl.Deck = [];
-			FBref_Players.child( pl.id ).set( pl ).then( resolve );
-		})
-	}
-
-
-
-
-
-
 
 
 	ResetClassStr( FBsync = true ) {
