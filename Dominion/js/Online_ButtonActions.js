@@ -1,6 +1,8 @@
+
+
+/* 常駐ボタン */
+
 $( function() {
-
-
 
 	/* buttons */
 	$('.SortHandCards').click( function() {
@@ -69,26 +71,28 @@ $( function() {
 				card.card_no == CardName2No['Platinum'] ||
 				card.card_no == CardName2No['Potion'  ] );
 
+		const card_names = [];
 		for( let i = 0; i < BasicTreasures.length; ++i ) {
-			Game.player().AddToPlayArea( Game.GetCardByID( BasicTreasures[i].card_ID ) );  /* カード移動 */
+			Game.Play( BasicTreasures[i].card_ID );  /* カード移動 */
 			Game.TurnInfo.coin += Cardlist[ BasicTreasures[i].card_no ].coin;
 
 			// 銅細工師
 			if ( BasicTreasures[i].card_no == CardName2No['Copper'] ) {
 				Game.TurnInfo.coin += Game.TurnInfo.add_copper_coin;
 			}
-
-			yield Promise.all( [
-				FBref_chat.push(
-					`${Game.player().name}が「${Cardlist[ BasicTreasures[i].card_no ].name_jp}」を使用しました。` ),
-
-				FBref_Game.update( {
-					[`Players/${Game.player().id}`] : Game.player(),
-					'TurnInfo/coin' : Game.TurnInfo.coin,
-				} ),
-			]);
+			card_names.push( Cardlist[ BasicTreasures[i].card_no ].name_jp );
 		}
-		yield FBref_Game.child('phase').set( 'BuyPhase' );
+
+		yield Promise.all( [
+			FBref_chat.push(
+				`${Game.player().name}が（${card_names.join('，')}）を使用しました。` ),
+
+			FBref_Game.update( {
+				[`Players/${Game.player().id}`] : Game.player(),
+				'TurnInfo/coin' : Game.TurnInfo.coin,
+				phase : 'BuyPhase',
+			} ),
+		]);
 	}) );
 
 
@@ -105,10 +109,10 @@ $( function() {
 		let $this = $(this);
 		return MyAsync( function*() {
 			const clicked_pile_num = $this.children('.card-num-of-remaining').html();
-			if ( clicked_pile_num <= 0 ) {
-				yield MyAlert( 'そのサプライは空です。' );
-				return;
-			}
+			// if ( clicked_pile_num <= 0 ) {
+			// 	yield MyAlert( 'そのサプライは空です。' );
+			// 	return;
+			// }
 
 			if ( Game.TurnInfo.buy <= 0 ) {
 				yield MyAlert( 'これ以上購入できません。' );
@@ -123,14 +127,13 @@ $( function() {
 			const clicked_card_cost = Game.GetCost( clicked_card_no );
 
 			// コスト比較において '>' は not <= とは異なる
-			if ( !CostOp( '<=',
-					clicked_card_cost,
-					new CCost( [ Game.TurnInfo.coin, Game.TurnInfo.potion, 10000 ] ) ) )
+			if ( !CostOp( '<=', clicked_card_cost,
+					[ Game.TurnInfo.coin, Game.TurnInfo.potion, 10000 ] ) )
 			{
 				yield MyAlert( 'お金が足りません。' );
 				return;
 			}
-			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );  /* カード移動 */
 			FBref_chat.push( `${Game.player().name}が「${Card.name_jp}」を購入しました。` );
 			Game.TurnInfo.buy--;
 			Game.TurnInfo.coin   -= clicked_card_cost.coin;
@@ -147,6 +150,11 @@ $( function() {
 				updates['phase'] = Game.phase;
 			}
 			yield FBref_Game.update( updates );
+
+			// buyが0なら自動でターン終了
+			if ( Game.TurnInfo.buy <= 0 ) {
+				yield Game.MoveToNextPlayer();
+			}
 		});
 	});
 

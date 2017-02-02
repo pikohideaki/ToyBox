@@ -164,19 +164,7 @@ echo "
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
-<script>
-	// Initialize Firebase
-	var config = {
-		apiKey: "AIzaSyDWW2ktQrzDX1H3CzDcgUGwIv-JAnrLa5k",
-		authDomain: "dominiononline-3e224.firebaseapp.com",
-		databaseURL: "https://dominiononline-3e224.firebaseio.com",
-		storageBucket: "",
-		messagingSenderId: "417434662660"
-	};
-	firebase.initializeApp(config);
-
-	let FBref_Rooms = firebase.database().ref( '/Rooms/' );
-</script>
+<script type='text/javascript' src='/Dominion/js/sub_InitializeFirebase.js'></script>
 
 <?php
 	PHP2JS_Cardlist_Setlist( $Cardlist, $Setlist );

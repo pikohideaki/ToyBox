@@ -3,10 +3,33 @@
 // カード強調
 jQuery.fn.extend( {
 	emphasize_card : function( vars ) {
-		$(this).css( 'box-shadow', '0 0 20px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+		$(this)
+			.css( 'box-shadow', '0 0 20px #3DAAEE' )
+			.animate({boxShadow: 'none'}, 'slow', undefined,
+				function() { $(this).css( 'box-shadow', '' ) } )
+			
 		return this;
 	},
 } );
+
+
+
+
+function FaceUpDown( face, $card ) {
+	switch ( face ) {
+		case 'default' :
+			break;
+		case 'up'   :
+			$card.removeClass('down').addClass('up');
+			break;
+		case 'down' :
+			$card.removeClass('up').addClass('down');
+			break;
+		default :
+			throw new Error(`@FaceUpDown : invalid value "${face}" for card.face`);
+			break;
+	}
+}
 
 
 
@@ -94,52 +117,42 @@ function PrintConnection( player_id ) {
 
 
 
-function PrintCardArea_sub( CardArea, $CardArea, face_down = 'face' ) {
+function PrintCardArea_sub( CardArea, $CardArea, face = 'default' ) {
 	$CardArea.html('');
 	CardArea.forEach( card => $CardArea.append( MakeHTML_Card( card, Game ) ) );
 
-	switch ( face_down ) {
-		case 'face' :  /* デフォルトは表 */
-			$CardArea.children('.card').removeClass('down').addClass('face'); break;
-		case 'down' :  /* デフォルトは裏 */
-			$CardArea.children('.card').removeClass('face').addClass('down'); break;
-		default :
-			break;
-	}
-	/* 裏表に特別な指定があれば優先（両方trueは禁止） */
+	// デフォルト値
+	FaceUpDown( face, $CardArea.children('.card') );
+	/* カード1枚ごとに裏表の指定があれば優先 */
 	for ( let i = 0; i < CardArea.length; ++i ) {
-		if ( CardArea[i].face && CardArea[i].down ) {
-			throw new Error('both face and down are set true')
-		}
-		if ( CardArea[i].face == true ) $CardArea.children('.card').eq(i).removeClass('down').addClass('face');
-		if ( CardArea[i].down == true ) $CardArea.children('.card').eq(i).removeClass('face').addClass('down');
+		FaceUpDown( CardArea[i].face, $CardArea.children('.card').eq(i) );
 	}
 
-	// $CardArea.children('.card.down').children('.card-cost-coin').remove();
+	// 更新時のアニメーション
 	$CardArea.children('.card').emphasize_card();
 }
 
-function PrintCardAreaOfPlayer( CardAreaName, face_down, displaynone = false ) {
+function PrintCardAreaOfPlayer( CardAreaName, face, displaynone = false ) {
 	let $CardArea = $(`.CardAreaOfPlayer.${CardAreaName}`);
 	let CardArea = Game.player()[CardAreaName];
-	PrintCardArea_sub( CardArea, $CardArea, face_down );
+	PrintCardArea_sub( CardArea, $CardArea, face );
 	ChangeHeightOrShrinkWidth( $CardArea, SizeOf$Card );  /* 圧縮表示 or 多段表示 */
 	if ( displaynone && CardArea.length == 0 ) { $CardArea.hide(); } else { $CardArea.show(); }
 }
 
-function PrintMyCardArea( CardAreaName, face_down, displaynone ) {
+function PrintMyCardArea( CardAreaName, face, displaynone ) {
 	let MyCardArea = Game.Players[ myid ][ CardAreaName ];
 	let $MyCardArea = $(`.My${CardAreaName}`);
-	PrintCardArea_sub( MyCardArea, $MyCardArea, face_down );
+	PrintCardArea_sub( MyCardArea, $MyCardArea, face );
 	ChangeHeightOrShrinkWidth( $MyCardArea, SizeOf$Card );  /* 圧縮表示 or 多段表示 */
 	if ( displaynone && MyCardArea.length == 0 ) { $MyCardArea.hide(); } else { $MyCardArea.show(); }
 	// ChangeHeight( $MyCardArea );
 }
 
-function PrintCardAreaSmall( player_id, CardAreaName, face_down, displaynone ) {
+function PrintCardAreaSmall( player_id, CardAreaName, face, displaynone ) {
 	let $CardArea = $(`.OtherPlayer[data-player_id='${player_id}'] .s${CardAreaName}`);
 	let CardArea = Game.Players[ player_id ][CardAreaName];
-	PrintCardArea_sub( CardArea, $CardArea, face_down );
+	PrintCardArea_sub( CardArea, $CardArea, face );
 	ShrinkWidth( $CardArea, SizeOf$ssCard );  /* 圧縮表示 or 多段表示 */
 	if ( displaynone && CardArea.length == 0 ) { $CardArea.hide(); } else { $CardArea.show(); }
 }
@@ -148,7 +161,8 @@ function PrintCardAreaSmall( player_id, CardAreaName, face_down, displaynone ) {
 function PrintHandCardsOfPlayer() {
 	let $HandCards = $('.CardAreaOfPlayer.HandCards');
 	let HandCards = Game.player().HandCards;
-	PrintCardArea_sub( HandCards, $HandCards, ( Game.whose_turn_id == myid ? 'face' : 'down' ) );
+	PrintCardArea_sub( HandCards, $HandCards, ( Game.whose_turn_id == myid ? 'up' : 'down' ) );
+	// PrintCardArea_sub( HandCards, $HandCards, 'down' );
 
 	if ( Game.whose_turn_id == myid ) {
 		switch ( Game.phase ) {
@@ -178,17 +192,13 @@ function PrintDeck_sub( player_id, $Deck ) {
 		$Deck.html( MakeHTML_Card( Deck[0], Game ) );
 		/* 山札枚数表示 */
 		$Deck.find('.card')
-			.append(`<span class='card-num-of-remaining'>${Deck.length}</span>` )
-			// .children('.card-cost-coin').remove();
+		  .append(`<span class='card-num-of-remaining'>${Deck.length}</span>` )
 
 		/* デフォルトは裏 */
-		$Deck.find('.card').removeClass('face').addClass('down');
-		/* 裏表に特別な指定があれば優先 */
-		if ( Deck[0].face && Deck[0].down ) {
-			throw new Error('both face and down are set true')
-		}
-		if ( Deck[0].face == true ) $Deck.children('.card').removeClass('down').addClass('face');
-		if ( Deck[0].down == true ) $Deck.children('.card').removeClass('face').addClass('down');
+		$Deck.find('.card').removeClass('up').addClass('down');
+		/* 裏表の指定があれば優先 */
+		FaceUpDown( Deck[0].face, $Deck.children('.card') );
+		// 更新時のアニメーション
 		$Deck.find('.card').emphasize_card();
 	}
 }
@@ -200,13 +210,10 @@ function PrintDiscardPile_sub( player_id, $DiscardPile ) {
 		$DiscardPile.html( MakeHTML_Card( DiscardPile.back(), Game ) );
 
 		/* デフォルトは表 */
-		$DiscardPile.find('.card').removeClass('down').addClass('face');
-		/* 裏表に特別な指定があれば優先 */
-		if ( DiscardPile.back().face && DiscardPile.back().down ) {
-			throw new Error('both face and down are set true')
-		}
-		if ( DiscardPile.back().face == true ) $DiscardPile.children('.card').removeClass('down').addClass('face');
-		if ( DiscardPile.back().down == true ) $DiscardPile.children('.card').removeClass('face').addClass('down');
+		$DiscardPile.find('.card').removeClass('down').addClass('up');
+		/* 裏表の指定があれば優先 */
+		FaceUpDown( DiscardPile.back().face, $DiscardPile.children('.card') );
+		// 更新時のアニメーション
 		$DiscardPile.find('.card').emphasize_card();
 	}
 }
@@ -214,28 +221,29 @@ function PrintDiscardPile_sub( player_id, $DiscardPile ) {
 
 
 function PrintPlayArea( player_id ) {
-	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'PlayArea', 'face', false );
-	if ( player_id == myid ) PrintMyCardArea( 'PlayArea', 'face', true );
-	PrintCardAreaSmall( player_id, 'PlayArea', 'face', player_id != Game.whose_turn_id );
+	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'PlayArea', 'up', false );
+	if ( player_id == myid ) PrintMyCardArea( 'PlayArea', 'up', true );
+	PrintCardAreaSmall( player_id, 'PlayArea', 'up', player_id != Game.whose_turn_id );
 	// 手番プレイヤーの小画面のプレイエリアは表示（1枚出したときに画面が動くのが嫌）
 }
 
 function PrintAside( player_id ) {
-	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'Aside', 'face', false );
-	if ( player_id == myid ) PrintMyCardArea( 'Aside', 'face', true );
-	PrintCardAreaSmall( player_id, 'Aside', 'face', true );
+	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'Aside', 'up', false );
+	if ( player_id == myid ) PrintMyCardArea( 'Aside', 'up', true );
+	PrintCardAreaSmall( player_id, 'Aside', 'up', true );
 }
 
 function PrintOpen( player_id ) {
-	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'Open', 'face', true );
-	if ( player_id == myid ) PrintMyCardArea( 'Open', 'face', true );
-	PrintCardAreaSmall( player_id, 'Open', 'face', true );
+	if ( player_id == Game.whose_turn_id ) PrintCardAreaOfPlayer( 'Open', 'up', true );
+	if ( player_id == myid ) PrintMyCardArea( 'Open', 'up', true );
+	PrintCardAreaSmall( player_id, 'Open', 'up', true );
 }
 
 function PrintHandCards( player_id ) {
 	if ( player_id == Game.whose_turn_id ) PrintHandCardsOfPlayer();
-	if ( player_id == myid ) PrintMyCardArea( 'HandCards', 'face', false );
-	PrintCardAreaSmall( player_id, 'HandCards', ( player_id == myid ? 'face' : 'down' ), false );
+	if ( player_id == myid ) PrintMyCardArea( 'HandCards', 'up', false );
+	PrintCardAreaSmall( player_id, 'HandCards', 'down', false );
+	// PrintCardAreaSmall( player_id, 'HandCards', ( player_id == myid ? 'up' : 'down' ), false );
 }
 
 function PrintDeck( player_id ) {
@@ -309,12 +317,13 @@ function PrintSupply() {
 
 	// 購入フェーズならクリック可能に（災いカードも対象）
 	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
-		$('.SupplyArea').find('.card').addClass('BuyCard pointer');
+		// $('.SupplyArea').find('.card')
+		Get$SupplyAreaWithConditions( undefined, false ).addClass('BuyCard pointer');
 	}
 
 
 	// 更新時アニメーション
-	$('.SupplyArea').find('.card').css( 'box-shadow', '0 0 30px #3DAAEE' ).animate({boxShadow: 'none'}, 'slow');
+	$('.SupplyArea').find('.card').emphasize_card();
 }
 
 
@@ -395,7 +404,7 @@ function PrintTrashPile() {
 	let $TrashPile = $('.TrashPile');
 	if ( Game.TrashPile.length > 0 ) {
 		$TrashPile.html( MakeHTML_Card( Game.TrashPile.back(), Game ) );
-		$TrashPile.children('.card').addClass('face');  /* デフォルトは表 */
+		$TrashPile.children('.card').addClass('up');  /* デフォルトは表 */
 		$TrashPile.find('.card').emphasize_card();
 	}
 }

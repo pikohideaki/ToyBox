@@ -50,26 +50,36 @@ $GameRoomID = $_POST['room-id'];
 			<div class='chat_mymsgbox'>
 				<input type='checkbox' id='auto_scroll' class='auto_scroll' checked='checked'>
 				<label for='auto_scroll' class='checkbox'>自動スクロール</label>
-				<textarea rows='3'  wrap='soft' class='chat_textbox'></textarea>
-				<button class='btn-blue chat_enter'>送信</button>
+				<div>
+					<textarea rows='3'  wrap='soft' class='chat_textbox'></textarea>
+					<button class='btn-blue chat_enter'>送信</button>
+				</div>
+			</div>
+			<div>
+				<button class='btn-blue card_view'>カード一覧</button>
 				<button class='btn-green leave_a_room'>退室</button>
+				<button class='btn-green reset_phase'>リセット</button>
 			</div>
-		</div>
-		<div class='settings'>
-			<input type='checkbox' id='chbox_multirow' class='chbox_multirow'>
-			<label for='chbox_multirow' class='checkbox'>多段表示</label>
-			<input type='checkbox' id='chbox_SkipReaction' class='chbox_SkipReaction' checked>
-			<label for='chbox_SkipReaction' class='checkbox'>リアクションカードがないときの確認をスキップ</label>
-			<div>
-				<input type='button' class='btn-blue card_view' value='カード一覧'>
-				<!-- <input type='button' class='btn-blue logallcards' value='logallcards'> -->
+
+			<div class='settings'>
+
+				<!-- <div> -->
+					<!-- <input type='button' class='btn-blue logallcards' value='logallcards'> -->
+				<!-- </div> -->
+
+				<input type='checkbox' id='chbox_multirow' class='chbox_multirow'>
+				<label for='chbox_multirow' class='checkbox'>多段表示</label>
+
+				<input type='checkbox' id='chbox_SkipReaction' class='chbox_SkipReaction' checked>
+				<label for='chbox_SkipReaction' class='checkbox'>リアクションカードがないときの確認をスキップ</label>
+
+	<!-- 
+				<div>
+					<input type='button' class='btn-blue text_disconnect' value='接続解除'>
+					<input type='button' class='btn-blue text_connect'    value='再接続'>
+				</div>
+	-->
 			</div>
-<!-- 
-			<div>
-				<input type='button' class='btn-blue text_disconnect' value='接続解除'>
-				<input type='button' class='btn-blue text_connect'    value='再接続'>
-			</div>
--->
 		</div>
 	</div>
 
@@ -308,7 +318,7 @@ $GameRoomID = $_POST['room-id'];
 	<div class='BlackCover BlackCover_rightside CardView-wrapper'>
 		<div class='CardView'>
 			<div class='CardView_zoom'>
-				<button class='card_biggest face' data-card_no='1'> </button>
+				<button class='card_biggest up' data-card_no='1'> </button>
 			</div>
 			<div class='clear'></div>
 			<div class='CardView_list'>
@@ -324,22 +334,35 @@ $GameRoomID = $_POST['room-id'];
 		<div class='MyAlert-box'>
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>
-			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear buttons'>
+				<button class='btn-blue'>OK</button>
+			</div>
 			<div class='clear'></div>
 		</div>
 	</div>
-
 	<div class='BlackCover BlackCover_rightside MyConfirm'>
 		<div class='MyConfirm-box'>
 			<div class='clear confirm_text'></div>
 			<div class='clear confirm_contents'></div>
 			<div class='clear buttons'>
-				<input type='button' class='btn-blue yes' value='はい'>
-				<input type='button' class='btn-blue no'  value='いいえ'>
+				<button class='btn-blue yes'>はい</button>
+				<button class='btn-blue no'>いいえ</button>
 			</div>
 			<div class='clear'></div>
 		</div>
 	</div>
+	<div class='BlackCover BlackCover_rightside MyDialog'>
+		<div class='MyDialog-box'>
+			<div class='clear dialog_text'></div>
+			<div class='clear dialog_contents'></div>
+			<div class='clear buttons'>
+				<!-- added by js -->
+			</div>
+			<div class='clear'></div>
+		</div>
+	</div>
+
+
 </body>
 
 
@@ -358,37 +381,32 @@ $GameRoomID = $_POST['room-id'];
 </script>
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
-<script>
-	// Initialize Firebase
-	let config = {
-		apiKey: "AIzaSyDWW2ktQrzDX1H3CzDcgUGwIv-JAnrLa5k",
-		authDomain: "dominiononline-3e224.firebaseapp.com",
-		databaseURL: "https://dominiononline-3e224.firebaseio.com",
-		storageBucket: "",
-		messagingSenderId: "417434662660"
-	};
-	firebase.initializeApp(config);
-
-	const FBdatabase                 = firebase.database();
+<script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
+<script type='text/javascript' src='/Dominion/js/sub_InitializeFirebase.js'></script>
+<script type='text/javascript'>
 	const FBref_connected            = FBdatabase.ref(".info/connected");
-	const FBref_Room                 = FBdatabase.ref( `/Rooms/${GameRoomID}` );
-	const FBref_Game                 = FBref_Room.child( 'Game' );
-	const FBref_Supply               = FBref_Room.child( 'Game/Supply' );
-	const FBref_Players              = FBref_Room.child( 'Game/Players' );
+	const FBref_Room                 = FBref_Rooms.child( GameRoomID );
+	const FBref_chat                 = FBref_Room.child('chat');
+
 	const FBref_Message              = FBref_Room.child( 'Message' );
 	const FBref_MessageTo            = FBref_Room.child( 'MessageTo' );
 	const FBref_MessageToMe          = FBref_Room.child( `MessageTo/${myid}` );
+
+	const FBref_Game                 = FBref_Room.child( 'Game' );
+	const FBref_Settings             = FBref_Game.child( 'Settings' );
+	const FBref_Supply               = FBref_Game.child( 'Supply' );
+	const FBref_Players              = FBref_Game.child( 'Players' );
+	const FBref_StackedCardIDs       = FBref_Game.child( 'StackedCardIDs' );
+
 	const FBref_Signal               = FBref_Room.child( 'Signals' );
-	const FBref_SignalToMe           = FBref_Room.child( `Signals/${myid}` );
-	const FBref_SignalAttackEnd      = FBref_Room.child( 'Signals/AttackEnd' );
-	const FBref_SignalReactionEnd    = FBref_Room.child( 'Signals/ReactionEnd' );
-	const FBref_SignalRevealReaction = FBref_Room.child( 'Signals/RevealReaction' );
-	const FBref_SignalBaneCardEnd    = FBref_Room.child( 'Signals/BaneCardEnd' );
-	const FBref_SignalRevealBaneCard = FBref_Room.child( 'Signals/RevealBaneCard' );
-	const FBref_Settings             = FBref_Room.child( 'Game/Settings' );
-	const FBref_chat                 = FBref_Room.child('chat');
+	const FBref_SignalToMe           = FBref_Signal.child( myid );
+	const FBref_SignalAttackEnd      = FBref_Signal.child( 'AttackEnd' );
+	const FBref_SignalReactionEnd    = FBref_Signal.child( 'ReactionEnd' );
+	const FBref_SignalRevealReaction = FBref_Signal.child( 'RevealReaction' );
+	const FBref_SignalBaneCardEnd    = FBref_Signal.child( 'BaneCardEnd' );
+	const FBref_SignalRevealBaneCard = FBref_Signal.child( 'RevealBaneCard' );
 </script>
+
 
 <!-- function & class -->
 <script type="text/javascript">

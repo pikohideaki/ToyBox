@@ -68,7 +68,7 @@ Initialize.then( function() {  /* 初期設定終わったら */
 
 		// 手番 アニメーション
 		$('.turn-dialog-wrapper .dialog_text').html( `${Game.player().name}のターン` );
-		$('.turn-dialog-wrapper').fadeIn().delay(300).fadeOut();
+		$('.turn-dialog-wrapper').fadeIn('slow').delay(1000).fadeOut('slow');
 
 		/* 他のプレイヤーの背景 */
 		/* 背景色リセット */
@@ -118,7 +118,10 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		$('.MessageToMe').html( MessageToMe + '&nbsp' );   // MessageToMeが''でも高さ0にならないように空白文字追加
 	});
 
-
+	// 一時オブジェクト．card_IDのメモを共有．
+	FBref_StackedCardIDs.on( 'value', function( FBsnapshot ) {
+		Game.StackedCardIDs = ( FBsnapshot.val() || '' );
+	})
 
 	FBref_Room.child('GameEnd').on('value', function( FBsnapshot ) {
 		const GameEnd = FBsnapshot.val();

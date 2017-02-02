@@ -83,7 +83,7 @@ function* Reaction( signals_to_me ) {
 		let clicked_card = Game.GetCardByID( clicked_card_ID, false );
 		let card_name_jp = Cardlist[ clicked_card.card_no ].name_jp;
 		FBref_chat.push( `${Game.Me().name}が「${card_name_jp}」を公開しました。` );
-		clicked_card.face = true;  // カードを表向きに
+		clicked_card.face = 'up';  // カードを表向きに
 		yield FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards );
 
 		// 確認待ち
@@ -100,7 +100,7 @@ function* Reaction( signals_to_me ) {
 			}, ref );
 
 		// 公開終了
-		Game.Me().ResetFaceDown();  // 公開していたカードを裏向きに
+		Game.Me().ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
 			FBref_SignalRevealReaction.set('')  // reset
@@ -150,7 +150,7 @@ function* Reveal_BaneCard( signals_to_me ) {
 		let clicked_card = Game.GetCardByID( clicked_card_ID, false );
 		let card_name_jp = Cardlist[ clicked_card.card_no ].name_jp;
 		FBref_chat.push( `${Game.Me().name}が災いカード（「${card_name_jp}」）を公開しました。` );
-		clicked_card.face = true;  // カードを表向きに
+		clicked_card.face = 'up';  // カードを表向きに
 		yield FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards );
 
 
@@ -168,7 +168,7 @@ function* Reveal_BaneCard( signals_to_me ) {
 			}, ref );
 
 		// 公開終了
-		Game.Me().ResetFaceDown();  // 公開していたカードを裏向きに
+		Game.Me().ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
 			FBref_SignalRevealBaneCard.set('')  // reset

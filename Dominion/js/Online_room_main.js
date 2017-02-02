@@ -67,12 +67,12 @@ function SetModalHTML( RoomID, RoomObj ) {
 				Game.Players[id].InitDeck( id, RoomInfo.PlayersName[i], Game.Supply );
 			}
 			/* firebase にアップロード */
-			let updates = {};
-			updates['Game/Players'] = Game.Players;
-			updates['Game/Supply'] = Game.Supply;
-			updates['RoomInfo/Status'] = '対戦中';
 			const RoomID = $('#form-new-game [name=room-id]').val();
-			FBref_Rooms.child( RoomID ).update( updates );
+			FBref_Rooms.child( RoomID ).update( {
+				'Game/Players'    : Game.Players,
+				'Game/Supply'     : Game.Supply,
+				'RoomInfo/Status' : '対戦中',
+			} );
 		}
 
 
@@ -143,16 +143,13 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	// SelectedCards.KingdomCards = [ 30,14,32,15,13,16,11,18,21,25, ];  //1-1
-	// SelectedCards.KingdomCards = [ 30,26,17,19,22,27,29,31,24,28, ];  //1-2
-	// SelectedCards.KingdomCards = [ 34,36,50,44,38, 43,47,46,48,57, ]; //2-1
-	// SelectedCards.KingdomCards = [ 39,49,45,55,41, 42,53,35,56,51, ]; //2-2
+	// SelectedCards.KingdomCards = [ 9,11,13,14,16,17,18,19,21,22, ];  //
+	SelectedCards.KingdomCards = [ 21,24,25,26, 27,28,29,31, 15,32 ];  //
 
-	// SelectedCards.KingdomCards = [ 30,14,32, 127,129,133,134, 137,140,141, ]; //
-	SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
-	SelectedCards.KingdomCards[1] = 142;  // 魔女娘
-	SelectedCards.KingdomCards[2] = 128;  // 馬商人
-	SelectedCards.KingdomCards[3] = 92;   // 使い魔
+	// SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
+	// SelectedCards.KingdomCards[1] = 142;  // 魔女娘
+	// SelectedCards.KingdomCards[2] = 128;  // 馬商人
+	// SelectedCards.KingdomCards[3] = 92;   // 使い魔
 
 	const date = new Date();
 

@@ -15,7 +15,7 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist, Game ) {
 					// data-top_card_ID='${top_card_ID}' 
 	return `
 			<div class='supply-card-wrapper' data-card_no='${card_no}'>
-				<button class="card face"
+				<button class="card up"
 					data-card_no='${card_no}'
 					data-card_num_of_remaining='${num}'
 					data-card-name-eng='${card_name_eng}'
@@ -44,11 +44,12 @@ function MakeHTML_Card( card, Game ) {
 	const cost_coin = Game.GetCost( card.card_no ).coin;
 	return `
 		<button
-			class='card face ${( card.class_str || '' )}'
+			class='card up ${( card.class_str || '' )}'
 			data-card_no='${card.card_no}'
 			data-card_ID='${card.card_ID}'
 			data-card_name_jp='${Cardlist[ card.card_no ].name_jp}'>
-			<span class='card-cost-coin'>${cost_coin}</span>
+				<span class='card-cost-coin'>${cost_coin}</span>
+				<i class='fa fa-check selected_card_check' aria-hidden='true'></i>
 		</button>
 		`;
 			// <i class="fa fa-search-plus zoom_card" aria-hidden="true"></i>
@@ -56,7 +57,7 @@ function MakeHTML_Card( card, Game ) {
 
 
 function MakeHTML_CardBiggest( card_no ) {
-	return `<button class='card_biggest face' data-card_no='${card_no}'> </button>`;
+	return `<button class='card_biggest up' data-card_no='${card_no}'> </button>`;
 }
 
 

@@ -30,5 +30,16 @@ $( function() {
 		}
 	});
 
+	$('.chat-wrapper .reset_phase').click( function() { return MyAsync( function*() {
+		const yn = yield MyConfirm( 
+			"アクションフェーズに戻しますか？<font color='red'>（不具合発生時）</font>" );
+		if ( yn ) {
+			yield FBref_Game.child('phase').set( 'ActionPhase' );
+			const msg = '【アクションフェーズに戻しました】';
+			FBref_chat.push( `<font color='red'>${msg}</font>` );
+		}
+	}); });
+
+
 
 });

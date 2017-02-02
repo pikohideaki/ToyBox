@@ -582,12 +582,16 @@ select {
 }
 
 
-.MyAlert,.MyConfirm {
+.MyAlert,
+.MyConfirm,
+.MyDialog {
 	z-index: 1000000;
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
-.MyAlert-box,.MyConfirm-box {
+.MyAlert-box,
+.MyConfirm-box,
+.MyDialog-box {
 	position: absolute;
 	top: 20%;
 
@@ -602,9 +606,18 @@ select {
 	height: auto;
 	text-align: center;
 }
-.MyAlert,.MyConfirm .buttons {
+.MyAlert,
+.MyConfirm,
+.MyDialog .buttons {
 	margin-top : 10px;
 }
-.MyAlert .alert_contents,.MyConfirm .confirm_contents {
+
+.MyAlert .alert_contents {
+	display : inline-block;
+}
+.MyConfirm .confirm_contents {
+	display : inline-block;
+}
+.MyDialog .dialog_contents {
 	display : inline-block;
 }

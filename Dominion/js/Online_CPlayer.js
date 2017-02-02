@@ -46,7 +46,7 @@ class CPlayer {
 		}
 
 		this.Deck.shuffle();
-		this.DrawCards(5);
+		this.DrawCards(5,false,false);
 
 		this.id   = myid;
 		this.name = myname;
@@ -91,30 +91,19 @@ class CPlayer {
 		this.Deck.unshift( card );  /* 先頭に追加 */
 	}
 
-	AddToHandCards( card, FBsync = false ) {  /* カード移動基本操作 */
+	AddToHandCards( card ) {  /* カード移動基本操作 */
 		if ( card == undefined ) return;
-		/* add and sort */
 		this.HandCards.push( card );
-		// this.SortHandCards();
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/HandCards` ).set( this.HandCards );
-		}
 	}
 
-	AddToDiscardPile( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
+	AddToDiscardPile( card ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return;
 		this.DiscardPile.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/DiscardPile` ).set( this.DiscardPile );
-		}
 	}
 
-	AddToPlayArea( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
+	AddToPlayArea( card ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return;
 		this.PlayArea.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/PlayArea` ).set( this.PlayArea );
-		}
 	}
 
 	AddToAside( card ) {  /* カード移動基本操作 */
@@ -122,12 +111,9 @@ class CPlayer {
 		this.Aside.push( card );
 	}
 
-	AddToOpen( card, FBsync = false ) {  /* カード移動基本操作 */
-		if ( card == undefined ) return Promise.resolve();
+	AddToOpen( card ) {  /* カード移動基本操作 */
+		if ( card == undefined ) return;
 		this.Open.push( card );
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/Open` ).set( this.Open );
-		}
 	}
 
 
@@ -142,53 +128,71 @@ class CPlayer {
 		})
 	}
 
-	GetDeckTopCard( FBsync = false ) {  /* カード移動基本操作 */
+
+
+
+	Drawable() {
+		return (( this.Deck.length + this.DiscardPile.length ) > 0 );
+	}
+
+	LookDeckTopCard() {  /* カード移動基本操作 */
 		if ( !this.Drawable() ) return undefined;
 		if ( this.Deck.length === 0 ) {
 			this.DiscardPile.shuffle();
 			this.Deck.copyfrom( this.DiscardPile );
 			this.DiscardPile = [];
 		}
-		let card = this.Deck.shift();
-		if ( FBsync ) {
-			FBref_Players.child( this.id ).update( {
-				Deck        : this.Deck,
-				DiscardPile : this.DiscardPile,
-			});
-		}
-		return card;
+		return this.Deck[0];
 	}
 
-
-
-
-	/* カード移動複合操作 */
-	GetDeckTopCards(n) {  /* カード移動複合操作 */
-		const ar = new Array(n);
-		ar.forEach( ( val, index, array ) => array[index] = this.GetDeckTopCard() );
-		return ar;
+	GetDeckTopCard() {  /* カード移動基本操作 */
+		const DeckTopCard = this.LookDeckTopCard();
+		if ( DeckTopCard == undefined ) return undefined;
+		return this.Deck.shift();
+		// if ( !this.Drawable() ) return undefined;
+		// if ( this.Deck.length === 0 ) {
+		// 	this.DiscardPile.shuffle();
+		// 	this.Deck.copyfrom( this.DiscardPile );
+		// 	this.DiscardPile = [];
+		// }
 	}
 
-	Drawable() {
-		return (( this.Deck.length + this.DiscardPile.length ) > 0 );
-	}
+	// GetDeckTopCards(n) {  /* カード移動複合操作 */
+	// 	const ar = new Array(n);
+	// 	ar.forEach( ( val, index, array ) => array[index] = this.GetDeckTopCard() );
+	// 	return ar;
+	// }
 
-	DrawCards( n, FBsync = false ) {  /* カード移動複合操作 */
+	DrawCards( n, log = true, FBsync = true ) {  /* カード移動複合操作 */
 		if ( n <= 0 ) return Promise.resolve();
 		for ( let i = 0; i < n; i++ ) {
 			this.AddToHandCards( this.GetDeckTopCard() );
 		}
+		if ( log ) {
+			FBref_chat.push( `${this.name}が${n}枚カードを引きました。` );
+		}
 		if ( FBsync ) {
-			return FBref_Players.child( this.id ).set( this );
+			return FBref_Players.child( this.id ).update( {
+					HandCards   : this.HandCards,
+					Deck        : this.Deck,
+					DiscardPile : this.DiscardPile,
+				} );
+		} else {
+			return Promise.resolve();
 		}
 	}
 
 
-	RevealDeckTop( n, FBsync = false ) {  /* カード移動複合操作 */
-		this.GetDeckTopCards(n).forEach( (card) => this.AddToOpen(card) );
-		if ( FBsync ) {
-			return FBref_Players.child( this.id ).update( this );
+	RevealDeckTop(n) {  /* カード移動複合操作 */
+		if ( n <= 0 ) return Promise.resolve();
+		for ( let i = 0; i < n; i++ ) {
+			this.AddToOpen( this.GetDeckTopCard() );
 		}
+		return FBref_Players.child( this.id ).update( {
+			Deck        : this.Deck,
+			DiscardPile : this.DiscardPile,
+			Open        : this.Open,
+		} );
 	}
 
 
@@ -210,7 +214,7 @@ class CPlayer {
 	}
 
 
-	CleanUp( FBsync = true ) {  /* カード移動複合操作 */
+	CleanUp() {  /* カード移動複合操作 */
 		let CardsToDiscard = [].concat(
 				  this.HandCards
 				, this.PlayArea
@@ -221,47 +225,39 @@ class CPlayer {
 		this.PlayArea  = [];
 		this.Aside     = [];
 
-		this.DrawCards(5);
+		this.DrawCards(5,false,false);
 		this.TurnCount++;
-
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}` ).update( this );
-		}
 	}
 
 
-	ResetFaceDown() {
-		this.GetDeckAll().forEach( function( card ) {
-			card.face = false;
-			card.down = false;
-		});
+	ResetFace() {
+		this.GetDeckAll().forEach( card => card.face = 'default' );
 	}
 
 
 	// 手札を公開
-	RevealHandCards( CardsID = [], FBsync = true ) {
-		let hardcards = this.HandCards;
+	RevealHandCards( CardsID = [] ) {
 		if ( CardsID.length != 0 ) {
-			hardcards = hardcards.filter( card => CardsID.val_exists( card.card_ID ) );
+			this.HandCards = this.HandCards.filter( card => CardsID.val_exists( card.card_ID ) );
 		}
-		handcards.forEach( function( card ) {
-			card.face = true;
-			card.down = false;
-		});
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}/HandCards` ).update( this.HandCards );
-		}
+		this.HandCards.forEach( card => card.face = 'up' );
+
+		return Promise.all( [
+			FBref_Players.child( `${this.id}/HandCards` ).update( this.HandCards ),
+			FBref_MessageToMe.set('手札を公開します。'),
+			FBref_chat.push( `${this.name}は手札を公開しました。` ),
+		]);
 	}
 
 
-	ResetClassStr( FBsync = true ) {
-		this.GetDeckAll().forEach( function( card ) {
-			card.class_str = '';
-		});
-		if ( FBsync ) {
-			return FBref_Players.child( `${this.id}` ).update( this );
-		}
-	}
+	// ResetClassStr( FBsync = true ) {
+	// 	this.GetDeckAll().forEach( function( card ) {
+	// 		card.class_str = '';
+	// 	});
+	// 	if ( FBsync ) {
+	// 		return FBref_Players.child( `${this.id}` ).update( this );
+	// 	}
+	// }
 
 
 	SumUpVP() {

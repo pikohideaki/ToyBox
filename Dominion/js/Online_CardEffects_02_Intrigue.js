@@ -86,7 +86,7 @@ $( function() {
 		const clicked_card_no = $(this).attr('data-card_no');
 		const clicked_card_ID = $(this).attr('data-card_ID');
 
-		Game.TrashCardByID( clicked_card_ID );  /* 手札廃棄 */
+		Game.Trash( clicked_card_ID );  /* 手札廃棄 */
 
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
@@ -238,7 +238,7 @@ $( function() {
 
 	$('.HandCards').on( 'click', '.TradingPost_Trash', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.TrashCardByID( clicked_card_ID );
+		Game.Trash( clicked_card_ID );
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
 		updates['TrashPile'] = Game.TrashPile;
@@ -312,7 +312,7 @@ $( function() {
 
 	$('.HandCards').on( 'click', '.Steward_Trash', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.TrashCardByID( clicked_card_ID );
+		Game.Trash( clicked_card_ID );
 
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
@@ -389,7 +389,7 @@ $( function() {
 		yield FBref_Message.set( '山札の上から4枚のカードを公開し、勝利点カードが含まれていればそれらを全て手札に加えます。\
 			残りは好きな順番で山札に戻してください。' );
 
-		Game.player().RevealDeckTop( 4, true ); // sync
+		yield Game.player().RevealDeckTop(4); // sync
 
 		let victory_cards
 			= Game.player().Open.filter( card => IsVictoryCard( Cardlist, card.card_no ) );
@@ -500,7 +500,7 @@ $( function() {
 			- 勝利点カードならば +2 Cards<br>\
 			' );
 
-		Game.NextPlayer().RevealDeckTop( 2, true );  // sync
+		yield Game.NextPlayer().RevealDeckTop(2);  // sync
 
 		Show_OKbtn_OtherPlayer( Game.NextPlayerID(), 'Tribute' );
 		yield new Promise( resolve => Resolve['Tribute_ok'] = resolve );
@@ -552,7 +552,7 @@ $( function() {
 		$('.action_buttons .MiningVillage').remove();  // reset
 
 		if ( btn_val == 'trash' ) {
-			Game.TrashCardByID( playing_card_ID );
+			Game.Trash( playing_card_ID );
 			Game.TurnInfo.coin += 2;
 			let updates = {};
 			updates[`Players/${Game.player().id}`] = Game.player();  /* 更新 */
@@ -771,7 +771,7 @@ $( function() {
 			Hide_OKbtn_OtherPlayer( id, 'Torturer' );
 		}
 		// 公開したカードを裏向きに戻す
-		Game.Players.forEach( player => player.ResetFaceDown() );
+		Game.Players.forEach( player => player.ResetFace() );
 		yield FBref_Players.set( Game.Players );
 	};
 
@@ -798,7 +798,7 @@ $( function() {
 			case 'GetCurse' :
 				yield FBref_MessageTo.child(myid).set('呪いを獲得して手札に加えてください。');
 				const curse = Game.Supply.byName('Curse').GetTopCard();
-				if ( curse != undefined ) curse.face = true;
+				if ( curse != undefined ) curse.face = 'up';
 				Game.Me().AddToHandCards( curse );
 
 				let updates = {};
@@ -953,7 +953,7 @@ $( function() {
 
 		// コスト3以上のカードが公開されたなら廃棄して-2コスト以下のカードを獲得してもよい
 		if ( TrashedCardCostCoin >= 3 ) {
-			Game.TrashCardByID( LastRevealedCard.card_ID );
+			Game.Trash( LastRevealedCard.card_ID );
 			let updates = {};
 			updates[`Players/${myid}`] = Game.Me();
 			updates['TrashPile'] = Game.TrashPile;
@@ -1056,7 +1056,7 @@ $( function() {
 				updates['Supply'] = Game.Supply;
 			}
 
-			Game.TrashCardByID( DeckTopCard.card_ID );  // 廃棄
+			Game.Trash( DeckTopCard.card_ID );  // 廃棄
 			updates[`Players/${id}`] = Game.Players[id];
 			updates['TrashPile'] = Game.TrashPile;
 			yield Promise.all( [
@@ -1126,7 +1126,7 @@ $( function() {
 				.AddToHandCards( Game.GetCardByID( Masquerade_passed_card_IDs[id] ) );
 			FBref_MessageTo.child(id).set('');
 		}
-		Game.Players.forEach( player => player.ResetFaceDown() );
+		Game.Players.forEach( player => player.ResetFace() );
 		yield FBref_Players.set( Game.Players );
 
 		// 手札を1枚廃棄できる
@@ -1161,7 +1161,7 @@ $( function() {
 	$('.HandCards,.MyHandCards').on( 'click', '.card.Masquerade_SelectPassCard', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
 		const clicked_card = Game.GetCardByID( clicked_card_ID );
-		clicked_card.down = true;
+		clicked_card.face = 'up';
 		Game.Me().AddToOpen( clicked_card );
 
 		FBref_Players.child( Game.Me().id ).set( Game.Me() )
@@ -1171,7 +1171,7 @@ $( function() {
 	// 自分
 	$('.HandCards').on( 'click', '.card.Masquerade_trash', function() {
 		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.TrashCardByID( clicked_card_ID );
+		Game.Trash( clicked_card_ID );
 
 		Promise.all( [
 			FBref_Game.child('TrashPile').set( Game.TrashPile ),

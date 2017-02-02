@@ -18,13 +18,27 @@
 	max-width: 200px;
 	max-height: 100px;
 
-	max-height : 100px ;  /*IE8以下とAndroid4.3以下用フォールバック */
-	max-height : -webkit-calc(100% - 48px) ;
-	max-height : calc(100% - 48px) ;
+	/*max-height : 100px ;  IE8以下とAndroid4.3以下用フォールバック */
+	/*max-height : -webkit-calc(100% - 48px) ;*/
+	/*max-height : calc(100% - 48px) ;*/
 	float: left;
+	margin-right : 5px;
 }
-.chat_enter,
+/*.chat_enter,
 .leave_a_room {
-	margin-left : 10px;
+	margin-left : 5px;
+	float : left;
+}
+
+.card_view,
+.reset_phase {
+	margin-right : 10px;
+	margin-bottom : 10px;
+	float : left;
+}
+*/
+.chat-wrapper button {
+	margin-right : 5px;
+	margin-bottom : 5px;
 	float : left;
 }

@@ -6,8 +6,7 @@ class CCard {
 		 * ID : ゲームに使われるカード1枚1枚を全て区別するための通し番号 */
 		this.card_no = Number( card_no );
 		this.card_ID = Number( card_ID );
-		this.face = false;  /* 表向きにするか */
-		this.down = false;  /* 裏向きにするか */
+		this.face = 'default';  /* 表向きにするか裏向きにするか { default, up, down } */
 		this.class_str = '';  /* 一時的に付加しデータとして共有するクラス文字列 */
 	}
 }

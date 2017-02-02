@@ -66,8 +66,17 @@ class CCost {
 
 
 
-/* comp_by : '<', '<=', '==', '>=', '>' */
+/* compare by : '<', '<=', '==', '>=', '>'
+ * 配列かCCostクラスのインスタンスを受け取る
+ */
 function CostOp( comp_by, CardA_Cost, CardB_Cost ) {
+	if (   ( !(CardA_Cost instanceof Array) && !(CardA_Cost instanceof CCost) )
+		|| ( !(CardB_Cost instanceof Array) && !(CardB_Cost instanceof CCost) ) ) {
+		throw new Error( '@CostOp: arguments must be an instance of Array or CCost.');
+	}
+	if ( Array.isArray( CardA_Cost ) ) CardA_Cost = new CCost( CardA_Cost );
+	if ( Array.isArray( CardB_Cost ) ) CardB_Cost = new CCost( CardB_Cost );
+
 	switch (comp_by) {
 		case '<'  :
 			return CardA_Cost.coin   < CardB_Cost.coin

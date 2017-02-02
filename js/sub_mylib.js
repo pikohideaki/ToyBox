@@ -66,19 +66,14 @@ Array.prototype.val_exists = function( val ) {
 };
 
 Array.prototype.remove_val = function( val ) {
-	let ar = this.filter( function( element ) {
-		return element != val;
-	});
-	this.length = 0;
+	let ar = this.filter( e => e != val );
+	this.length = 0;  // delete all elements
 	this.copyfrom(ar);
 	return this;
 };
-	// let ar = [1,2,3];
-	// ar.remove_val(2);
-	// console.log( ar );
-	// ar = [1,2,3];
-	// ar.remove_val(2).push(4);
-	// console.log( ar );
+// let ar = [1,2,3,2];
+// ar.remove_val(2).push(4);
+// console.log( ar );  // [1,3,4]
 
 
 Array.prototype.back = function() {
@@ -174,14 +169,13 @@ class SizeOfjQueryObj {
 	- generator function の定義 "function*( args ) { }" とそれに渡す引数 Args を引数として受け取る．
 	- GenFuncのyield式にはPromiseオブジェクトが渡されているとする．
 	- MyAsyncの解決値は GenFuncの最後のyield式に渡したPromiseの解決値となる
+
+	- yield の右に書いた文が nextの評価値になる
+	- promise が resolve したら next したい
+	- promise が渡されないyield文は許可しない
+	   - MyAsyncからMyAsyncを呼びたいときに困る
+	   - ボタン操作待ちなどはPromise化してresolveをボタン操作から実行するように
 */
-
-// yield の右に書いた文が nextの評価値になる
-// promise が resolve したら next したい
-// promise が渡されないyield文は許可しない
-//  - MyAsyncからMyAsyncを呼びたいときに困る
-//  - ボタン操作待ちなどはPromise化してresolveをボタン操作から実行するように
-
 function MyAsync( GenFunc, ...Args ) {
 
 	function MyAsync_sub( g, passed_value ) {
@@ -227,7 +221,7 @@ function MyAlert( message, options = {} ) {
 		$('.alert_text').html( message || '' );
 		$('.alert_contents').html( options.contents || '' );
 		$('.MyAlert').fadeIn( 'normal' );
-		$('.MyAlert .buttons input[type=button]').focus();
+		$('.MyAlert .buttons button').focus();
 
 		function close_alert() {
 			$('.MyAlert').fadeOut( 'normal', function() {
@@ -239,7 +233,7 @@ function MyAlert( message, options = {} ) {
 		}
 
 		// ボタンで閉じる
-		$('.MyAlert .buttons input[type=button]').click( close_alert );
+		$('.MyAlert .buttons button').click( close_alert );
 
 		// キー入力で閉じる
 		$(document).keydown( function(e) {
@@ -276,7 +270,7 @@ function MyConfirm( message, options = {} ) {
 		$('.confirm_text').html( message || '' );
 		$('.confirm_contents').html( options.contents || '' );
 		$('.MyConfirm').fadeIn( 'normal' );
-		$('.MyConfirm .buttons input[type=button]').focus();
+		$('.MyConfirm .buttons button.no').focus();
 
 		function close_confirm( ok ) {
 			$('.MyConfirm').fadeOut( 'normal', function() {
@@ -288,8 +282,8 @@ function MyConfirm( message, options = {} ) {
 		}
 
 		// ボタンで閉じる
-		$('.MyConfirm .buttons input[type=button]').click( 
-			() => close_confirm( $(this).hasClass('yes') ) );
+		$('.MyConfirm .buttons button.yes').click( () => close_confirm(true) );
+		$('.MyConfirm .buttons button.no' ).click( () => close_confirm(false) );
 
 		// キー入力で閉じる
 		$(document).keydown( function(e) {
@@ -335,6 +329,7 @@ function MyDialog( options, ref ) {
 				// reset
 				$('.dialog_text').html('');
 				$('.dialog_contents').html('');
+				$('.MyDialog .buttons').html('');
 				resolve( return_value );
 			} );
 		}
@@ -349,7 +344,7 @@ function MyDialog( options, ref ) {
 		let btn_ID = 10000;
 		options.buttons.forEach( function( btn ) {
 			btn_ID++;
-			$buttons.append( MakeHTML( `MyDialogButton_${btn_ID}`, btn.label ) );
+			$buttons.append( MakeHTML_button( `MyDialogButton_${btn_ID}`, btn.label ) );
 			$buttons.on( 'click', `.MyDialogButton_${btn_ID}`, () => close_dialog( btn.return_value ) );
 		} );
 	});

@@ -10,6 +10,7 @@ class CGame {
 			this.Supply        = new CSupply();
 			this.Players       = [];
 			this.Settings      = {};
+			this.StackedCardIDs  = [];
 		} else {
 			this.TrashPile     = ( FBobj_Game.TrashPile || [] );
 			this.whose_turn_id = FBobj_Game.whose_turn_id;
@@ -22,6 +23,7 @@ class CGame {
 				this.Players[i] = new CPlayer( FBobj_Game.Players[i] );
 			}
 			this.Settings      = ( FBobj_Game.Settings || {} );
+			this.StackedCardIDs  = ( FBobj_Game.StackedCardIDs || [] );
 		}
 	}
 
@@ -58,22 +60,27 @@ class CGame {
 
 
 	MovePhase( phase ) {
-		this.phase = phase;
-		FBref_Game.child('phase').set( this.phase );
+		let G = this;
+		return MyAsync( function*() {
+			G.phase = phase;
+			yield FBref_Game.child('phase').set( G.phase );
 
-		let phase_jp;
-		switch ( this.phase ) {
-			case 'ActionPhase' :
-				phase_jp = 'アクションフェーズ';
-				break;
+			let phase_jp;
+			switch ( G.phase ) {
+				case 'ActionPhase' :
+					phase_jp = 'アクションフェーズ';
+					break;
 
-			case 'BuyPhase' :
-				$('.UseAllTreasures' ).show();  // 1度だけ表示
-				phase_jp = '購入フェーズ';
-				break;
-		}
-		$('.phase-dialog-wrapper .dialog_text').html( phase_jp );
-		$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut();
+				case 'BuyPhase' :
+					$('.UseAllTreasures' ).show();  // 1度だけ表示
+					phase_jp = '購入フェーズ';
+					break;
+			}
+			$('.phase-dialog-wrapper .dialog_text').html( phase_jp );
+			yield new Promise( function( resolve ) {
+				$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut('normal', resolve );
+			});
+		})
 	}
 
 
@@ -123,7 +130,7 @@ class CGame {
 		return MyAsync( function*() {
 			let updates = {};
 
-			G.player().CleanUp( false );
+			G.player().CleanUp();
 			updates[ `Game/Players/${G.whose_turn_id}` ] = G.player();
 
 			if ( G.GameEnded() ) {
@@ -151,7 +158,9 @@ class CGame {
 			]);
 
 			/* アクションカードがなければスキップして購入フェーズに遷移 */
-			if ( !G.player().HasActionCard() ) G.MovePhase( 'BuyPhase' );
+			if ( !G.player().HasActionCard() ) {
+				yield G.MovePhase( 'BuyPhase' );
+			}
 		});
 	}
 
@@ -192,6 +201,14 @@ class CGame {
 		if ( cost.coin < 0 ) cost.coin = 0;  // 0未満にはならない
 		return cost;
 	}
+
+
+
+	StackCardID( card_ID ) {
+		this.StackedCardIDs.push( card_ID );
+		return FBref_StackedCardIDs.set( this.StackedCardIDs );
+	}
+
 
 
 
@@ -385,19 +402,6 @@ class CGame {
 
 
 
-	/* カード移動基本操作 */
-	AddToTrashPile( card, FBsync = false ) {
-		this.TrashPile.push( card );
-		if ( FBsync ) {
-			FBref_Game.child('TrashPile').set( this.TrashPile );
-		}
-	}
-
-	/* カード移動複合操作 */
-	TrashCardByID( card_ID, FBsync = false ) {
-		this.AddToTrashPile( this.GetCardByID( card_ID ), FBsync );
-	}
-
 
 	UseCard( playing_card_no, playing_card_ID ) {
 		let G = this;
@@ -442,16 +446,24 @@ class CGame {
 			yield MyAsync( GetCardEffect, playing_card_no, playing_card_ID );
 
 			// 終了
+
 			switch ( G.phase ) {
 				case 'ActionPhase*' :
-					yield FBref_Game.child('phase').set( 'ActionPhase' );
+					G.phase = 'ActionPhase';
 					break;
 				case 'BuyPhase*' :
-					yield FBref_Game.child('phase').set( 'BuyPhase' );
+					G.phase = 'BuyPhase';
 					break;
 				default :
-					throw new Error('GetCardEffect should finish in ActionPhase* or BuyPhase*' );
+					throw new Error('GetCardEffect should be called in ActionPhase or BuyPhase' );
 					break;
+			}
+
+			// actionが0なら自動でアクションフェーズ終了
+			if ( G.phase == 'ActionPhase' && G.TurnInfo.action <= 0 ) {
+				G.MovePhase( 'BuyPhase' );
+			} else {
+				yield FBref_Game.child('phase').set( G.phase );
 			}
 		} );
 	}
@@ -459,10 +471,11 @@ class CGame {
 
 
 	// カードをサプライから獲得する
-	GainCard(
-			card_name_eng,
-			place_to_gain = 'DiscardPile',
-			player_id = this.whose_turn_id )
+	GainCardByName(
+				card_name_eng,
+				place_to_gain = 'DiscardPile',
+				player_id     = this.whose_turn_id,
+				face = 'default' )
 	{
 		const G = this;
 
@@ -470,6 +483,10 @@ class CGame {
 		if ( gained_card == undefined ) {
 			MyAlert( '獲得できるカードがありません。' );
 			return;
+		}
+		if ( face != 'default' ) {
+			gained_card.face = face;
+			this.StackedCardIDs.push( gained_card.card_ID );
 		}
 
 		const player = G.Players[ player_id ];
@@ -479,11 +496,12 @@ class CGame {
 
 		switch ( place_to_gain ) {
 			case 'Deck' :
+
 				player.AddToDeck( gained_card );
 				updates[`Players/${player_id}/Deck`] = player.Deck;
 				break;
 
-			case 'HandCard' :
+			case 'HandCards' :
 				player.AddToHandCards( gained_card )
 				updates[`Players/${player_id}/HandCards`] = player.HandCards;
 				break;
@@ -506,22 +524,105 @@ class CGame {
 
 
 
-	Discard( card_ID, options = {} ) {
-		const player_id = ( option.player_id || this.whose_turn_id );
-		const card = Game.GetCardByID( card_ID );
-		const player = Game.Player[ player_id ];
-		if ( option.log ) {
-			FBref_chat.push( `${player.name}が${Cardlist[ card.card_no ].name_jp}を捨て札にしました。` );
-		}
-		player.AddToDiscardPile( card );
-		return FBref_Player.child( player_id ).set( player );
+
+
+	/* カード移動基本操作 */
+	AddToTrashPile( card ) {
+		if ( card == undefined ) return;
+		this.TrashPile.push( card );
+	}
+
+	/* カード移動複合操作 */
+	Trash( card_ID ) {
+		this.AddToTrashPile( this.GetCardByID( card_ID ) );
 	}
 
 
 
+	MoveHandCardTo( place, card_ID, player_id, log, face ) {
+		const player = this.Players[ player_id ];
+		if ( !player.HandCards.map( card => Number( card.card_ID ) ).val_exists( Number(card_ID) ) ) {
+			throw new Error(`@Game.MoveHandCardTo: given card is not in HandCards. (card_ID = ${card_ID})`);
+			return Promise.reject();
+		}
+
+		const card = this.GetCardByID( card_ID );
+		if ( log ) {
+			let msg = `${player.name}が${Cardlist[ card.card_no ].name_jp}を`;
+			switch (place) {
+				case 'PlayArea'    : msg += "場に出しました。"; break;
+				case 'Aside'       : msg += "脇に置きました。"; break;
+				case 'DiscardPile' : msg += "捨て札にしました。"; break;
+				case 'Deck'        : msg += "山札に戻しました。"; break;
+				default : break;
+			}
+			FBref_chat.push( msg );
+		}
+		if ( face == 'up' ) {
+			card.face = 'up';
+			this.StackedCardIDs.push( card_ID );
+		}
+		player[`AddTo${place}`]( card );
+		return FBref_Players.child( player_id ).update( {
+			HandCards : player.HandCards,
+			[place]   : player[place],
+		} );
+	}
+
+
+	/* カード移動複合操作 （手札から場に出す） */
+	Play         ( card_ID, player_id = this.whose_turn_id, log = false, face = 'default' ) {
+		this.MoveHandCardTo( 'PlayArea'   , card_ID, player_id, log, face );
+	}
+
+	/* カード移動複合操作 （手札から脇に置く） */
+	SetAside     ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
+		this.MoveHandCardTo( 'Aside'      , card_ID, player_id, log, face );
+	}
+
+	/* カード移動複合操作 （手札から捨て札にする） */
+	Discard      ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
+		this.MoveHandCardTo( 'DiscardPile', card_ID, player_id, log, face );
+	}
+
+	/* カード移動複合操作 （手札から山札に戻す） */
+	PutBackToDeck( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
+		this.MoveHandCardTo( 'Deck'       , card_ID, player_id, log, face );
+	}
+
+
+
+
+
+
+
+	ForAllPlayers( func ) {
+		const G = this;
+		if ( func instanceof function*(){yield;}.constructor ) {
+			return MyAsync( function*() {
+				yield MyAsync( func, G.whose_turn_id );   // 自分
+				for ( let player_id = G.NextPlayerID();
+						player_id != G.whose_turn_id;
+						player_id = G.NextPlayerID( player_id ) )
+				{
+					yield MyAsync( func, player_id );
+				}
+			});
+		} else {
+			func( G.whose_turn_id );
+			for ( let player_id = G.NextPlayerID();
+					player_id != G.whose_turn_id;
+					player_id = G.NextPlayerID( player_id ) )
+			{
+				func( player_id );
+			}
+		}
+	}
+
+
 	ForAllOtherPlayers( func ) {
 		const G = this;
-		if ( func instanceof Promise ) {
+		if ( func instanceof function*(){yield;}.constructor ) {
 			return MyAsync( function*() {
 				for ( let player_id = G.NextPlayerID();
 						player_id != G.whose_turn_id;
@@ -542,16 +643,21 @@ class CGame {
 
 
 
-
-	AttackAllOtherPlayers( card_name, message, send_signals, attack_effect, passing_object = {} ) {
+	AttackAllOtherPlayers(
+				card_name,
+				message,
+				send_signals,
+				attack_effect = function*() {},
+				passing_object = {} )
+	{
 		const G = this;
-		this.ForAllOtherPlayers( function*( player_id ) {
+		return this.ForAllOtherPlayers( function*( player_id ) {
 			if ( G.TurnInfo.Revealed_Moat[ player_id ] ) return;  // 堀を公開していたらスキップ
 
 			yield FBref_MessageTo.child( player_id ).set( message );
 
 			if ( send_signals ) {
-				yield FBref_SignalAttackEnd.set(false)  /* reset */
+				yield FBref_SignalAttackEnd.set(false);  /* reset */
 				FBref_SignalAttackEnd.on( 'value', function(snap) {  // 監視開始
 					if ( snap.val() ) Resolve[ card_name ]();
 				} );
@@ -574,20 +680,15 @@ class CGame {
 	}
 
 
-	ResetClassStr( card_IDs ) {
-		card_IDs.forEach( function( card_ID ) {
-			Game.GetCardByID( card_ID, false ).class_str = '';
-		} );
+	ResetClassStr( card_IDs = this.StackedCardIDs ) {
+		card_IDs.forEach( card_ID => Game.GetCardByID( card_ID, false ).class_str = '' );
+		card_IDs = [];  // reset
 	}
 
 
-	ResetFaceDown( card_IDs ) {
-		card_IDs.forEach( function( card_ID ) {
-			const card = Game.GetCardByID( card_ID, false );
-			card.face = false;
-			card.down = false;
-		} );
-
+	ResetFace( card_IDs = this.StackedCardIDs ) {
+		card_IDs.forEach( card_ID => Game.GetCardByID( card_ID, false ).face = 'default' );
+		card_IDs = [];  // reset
 	}
 
 
