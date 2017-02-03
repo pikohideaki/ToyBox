@@ -3,14 +3,14 @@
 class CGame {
 	constructor( FBobj_Game ) {
 		if ( FBobj_Game == undefined ) {
-			this.TrashPile     = [];
-			this.whose_turn_id = 0;
-			this.TurnInfo      = {};
-			this.phase         = '';
-			this.Supply        = new CSupply();
-			this.Players       = [];
-			this.Settings      = {};
-			this.StackedCardIDs  = [];
+			this.TrashPile      = [];
+			this.whose_turn_id  = 0;
+			this.TurnInfo       = {};
+			this.phase          = '';
+			this.Supply         = new CSupply();
+			this.Players        = [];
+			this.Settings       = {};
+			this.StackedCardIDs = [];
 		} else {
 			this.TrashPile     = ( FBobj_Game.TrashPile || [] );
 			this.whose_turn_id = FBobj_Game.whose_turn_id;
@@ -23,7 +23,7 @@ class CGame {
 				this.Players[i] = new CPlayer( FBobj_Game.Players[i] );
 			}
 			this.Settings      = ( FBobj_Game.Settings || {} );
-			this.StackedCardIDs  = ( FBobj_Game.StackedCardIDs || [] );
+			this.StackedCardIDs = ( FBobj_Game.StackedCardIDs || [] );
 		}
 	}
 
@@ -213,12 +213,13 @@ class CGame {
 
 
 	/* カード移動基本操作 */
-	GetCardByID( card_ID, remove_this_card = true, FBsync = false ) {
+	GetCardWithID( card_ID, remove_this_card = true, FBsync = false ) {
 		let card = new CCard();
 		let matched_num = 0;
+		const G = this;
 
-		for ( let i = 0; i < this.Players.length; ++i ) {
-			let pl = this.Players[i];
+		for ( let i = 0; i < G.Players.length; ++i ) {
+			let pl = G.Players[i];
 			for ( let k = 0; k < pl.Deck.length; ++k ) {
 				if ( card_ID == pl.Deck[k].card_ID ) {
 					card = pl.Deck[k];
@@ -299,8 +300,8 @@ class CGame {
 			}
 		}
 
-		for ( let i = 0; i < this.Supply.Basic.length; ++i ) {
-			let spl = this.Supply.Basic[i].pile;
+		for ( let i = 0; i < G.Supply.Basic.length; ++i ) {
+			let spl = G.Supply.Basic[i].pile;
 			for ( let k = 0; k < spl.length; ++k ) {
 				if ( card_ID == spl[k].card_ID ) {
 					card = spl[k];
@@ -315,8 +316,8 @@ class CGame {
 				}
 			}
 		}
-		for ( let i = 0; i < this.Supply.KingdomCards.length; ++i ) {
-			let spl = this.Supply.KingdomCards[i].pile;
+		for ( let i = 0; i < G.Supply.KingdomCards.length; ++i ) {
+			let spl = G.Supply.KingdomCards[i].pile;
 			for ( let k = 0; k < spl.length; ++k ) {
 				if ( card_ID == spl[k].card_ID ) {
 					card = spl[k];
@@ -332,8 +333,8 @@ class CGame {
 			}
 		}
 
-		for ( let i = 0; i < this.Supply.Prize.length; ++i ) {
-			let spl = this.Supply.Prize[i].pile;
+		for ( let i = 0; i < G.Supply.Prize.length; ++i ) {
+			let spl = G.Supply.Prize[i].pile;
 			for ( let k = 0; k < spl.length; ++k ) {
 				if ( card_ID == spl[k].card_ID ) {
 					card = spl[k];
@@ -350,7 +351,7 @@ class CGame {
 		}
 
 		{
-			const spl = this.Supply.BaneCard.pile;
+			const spl = G.Supply.BaneCard.pile;
 			for ( let k = 0; k < spl.length; ++k ) {
 				if ( card_ID == spl[k].card_ID ) {
 					card = spl[k];
@@ -366,13 +367,13 @@ class CGame {
 			}
 		}
 
-		for ( let k = 0; k < this.TrashPile.length; ++k ) {
-			if ( card_ID == this.TrashPile[k].card_ID ) {
-				card = this.TrashPile[k];
+		for ( let k = 0; k < G.TrashPile.length; ++k ) {
+			if ( card_ID == G.TrashPile[k].card_ID ) {
+				card = G.TrashPile[k];
 				if ( remove_this_card ) {
-					this.TrashPile.remove(k);
+					G.TrashPile.remove(k);
 					if ( FBsync ) {
-						FBref_Game.child('TrashPile').set( this.TrashPile );
+						FBref_Game.child('TrashPile').set( G.TrashPile );
 					}
 				}
 				// return card;
@@ -390,10 +391,16 @@ class CGame {
 	}
 
 
+	LookCardWithID( card_ID ) {
+		return this.GetCardWithID( card_ID, false, false );
+	}
+
+
+
 	GetAllCards() {
 		let AllCards = [];
 		this.Players.forEach( function( player ) {
-			AllCards = AllCards.concat( player.GetDeckAll() );
+			AllCards = AllCards.concat( player.GetCopyOfPlayersAllCards() );
 		});
 		AllCards = AllCards.concat( this.Supply.GetAllCards() );
 		AllCards = AllCards.concat( this.TrashPile );
@@ -431,17 +438,17 @@ class CGame {
 					break;
 			}
 
-			G.player().AddToPlayArea( G.GetCardByID( playing_card_ID ) );  /* カード移動 */
+			G.Play( playing_card_ID );  /* カード移動 */
 
 			// アクションを1消費
 			if ( IsActionCard( Cardlist, playing_card_no ) ) G.TurnInfo.action--;
 
-			let updates = {};
-			updates['phase'] = G.phase;
-			updates[`Players/${G.whose_turn_id}/PlayArea`]  = G.player().PlayArea;
-			updates[`Players/${G.whose_turn_id}/HandCards`] = G.player().HandCards;
-			updates['TurnInfo/action'] = G.TurnInfo.action;
-			yield FBref_Game.update( updates );
+			yield FBref_Game.update( {
+				phase : G.phase,
+				[`Players/${G.whose_turn_id}/PlayArea`]  : G.player().PlayArea,
+				[`Players/${G.whose_turn_id}/HandCards`] : G.player().HandCards,
+				'TurnInfo/action' : G.TurnInfo.action
+			} );
 
 			yield MyAsync( GetCardEffect, playing_card_no, playing_card_ID );
 
@@ -470,56 +477,113 @@ class CGame {
 
 
 
+
+	// カードを獲得する
+	GainCard(
+				card_ID,
+				place_to_gain = 'DiscardPile',
+				player_id = this.whose_turn_id,
+				face = 'default',
+				buy = false )
+	{
+		const player = Game.Players[ player_id ];
+		const card_no = Game.LookCardWithID( card_ID ).card_no;
+
+		const G = this;
+
+		return MyAsync( function*() {
+			if ( face == 'up'   )  G.FaceUpCard  ( card_ID );
+			if ( face == 'down' )  G.FaceDownCard( card_ID );
+
+			const player = G.Players[ player_id ];
+
+			let updates = {};
+			updates['Supply'] = G.Supply;
+
+			switch ( place_to_gain ) {
+				case 'Deck' :
+					player.AddToDeck( G.GetCardWithID( card_ID ) );
+					updates[`Players/${player_id}/Deck`] = player.Deck;
+					break;
+
+				case 'HandCards' :
+					player.AddToHandCards( G.GetCardWithID( card_ID ) )
+					updates[`Players/${player_id}/HandCards`] = player.HandCards;
+					break;
+
+				case 'DiscardPile' :
+					player.AddToDiscardPile( G.GetCardWithID( card_ID ) );
+					updates[`Players/${player_id}/DiscardPile`] = player.DiscardPile;
+					break;
+
+				default :
+					throw new Error(`at Game.GainCard : there is no place named ${place_to_gain}`);
+					return;
+			}
+
+			FBref_chat.push( `${player.name}が「${Cardlist[ card_no ].name_jp}」を${(buy ? '購入' : '獲得')}しました。` );
+			yield FBref_Game.update( updates );
+		});
+	}
+
+
+
+	// サプライからカードを獲得する
+	GainCardFromSupply(
+				card_ID,
+				place_to_gain = 'DiscardPile',
+				player_id = this.whose_turn_id,
+				face = 'default',
+				buy = false )
+	{
+		this.GainCard( card_ID, place_to_gain, player_id, face, buy );
+		return FBref_Game.update( {
+			[`Players/${player_id}/${place_to_gain}`] : Game.Players[player_id][place_to_gain],
+			Supply : Game.Supply,
+		});
+	}
+
+
+	// カードを購入する
+	BuyCard(
+				card_ID,
+				place_to_gain = 'DiscardPile',
+				player_id = this.whose_turn_id,
+				face = 'default' )
+	{
+		this.GainCard( card_ID, place_to_gain, player_id, face, true );
+
+	}
+
+
+	// サプライからカードを購入する
+	BuyCardFromSupply(
+				card_ID,
+				place_to_gain = 'DiscardPile',
+				player_id = this.whose_turn_id,
+				face = 'default' )
+	{
+		return this.GainCardFromSupply( card_ID, place_to_gain, player_id, face, true );
+	}
+
+
 	// カードをサプライから獲得する
-	GainCardByName(
+	GainCardFromSupplyByName(
 				card_name_eng,
 				place_to_gain = 'DiscardPile',
-				player_id     = this.whose_turn_id,
+				player_id = this.whose_turn_id,
 				face = 'default' )
 	{
 		const G = this;
 
-		const gained_card = G.Supply.byName( card_name_eng ).GetTopCard();
-		if ( gained_card == undefined ) {
-			MyAlert( '獲得できるカードがありません。' );
-			return;
-		}
-		if ( face != 'default' ) {
-			gained_card.face = face;
-			this.StackedCardIDs.push( gained_card.card_ID );
-		}
-
-		const player = G.Players[ player_id ];
-
-		let updates = {};
-		updates['Supply'] = G.Supply;
-
-		switch ( place_to_gain ) {
-			case 'Deck' :
-
-				player.AddToDeck( gained_card );
-				updates[`Players/${player_id}/Deck`] = player.Deck;
-				break;
-
-			case 'HandCards' :
-				player.AddToHandCards( gained_card )
-				updates[`Players/${player_id}/HandCards`] = player.HandCards;
-				break;
-
-			case 'DiscardPile' :
-				player.AddToDiscardPile( gained_card );
-				updates[`Players/${player_id}/DiscardPile`] = player.DiscardPile;
-				break;
-
-			default :
-				throw new Error(`at Game.GainCard : there is no place named ${place_to_gain}`);
+		return MyAsync( function*() {
+			const SupplyTopCard = G.Supply.byName( card_name_eng ).LookTopCard();
+			if ( SupplyTopCard == undefined ) {
+				yield MyAlert( '獲得できるカードがありません。' );
 				return;
-		}
-
-		return Promise.all( [
-			FBref_chat.push( `${player.name}が${Cardlist[ gained_card.card_no ].name_jp}を獲得しました。` ),
-			FBref_Game.update( updates ),
-		] );
+			}
+			yield G.GainCardFromSupply( SupplyTopCard.card_ID, place_to_gain, player_id, face );
+		});
 	}
 
 
@@ -534,19 +598,22 @@ class CGame {
 
 	/* カード移動複合操作 */
 	Trash( card_ID ) {
-		this.AddToTrashPile( this.GetCardByID( card_ID ) );
+		this.AddToTrashPile( this.GetCardWithID( card_ID ) );
 	}
 
 
 
 	MoveHandCardTo( place, card_ID, player_id, log, face ) {
 		const player = this.Players[ player_id ];
-		if ( !player.HandCards.map( card => Number( card.card_ID ) ).val_exists( Number(card_ID) ) ) {
-			throw new Error(`@Game.MoveHandCardTo: given card is not in HandCards. (card_ID = ${card_ID})`);
+		if ( !player.GetCopyOfPlayersAllCards()
+				.map( card => Number( card.card_ID ) )
+				.val_exists( Number(card_ID) ) )
+		{
+			throw new Error(`@Game.MoveHandCardTo: the card is not ${player.name}'s card. (card_ID = ${card_ID})`);
 			return Promise.reject();
 		}
 
-		const card = this.GetCardByID( card_ID );
+		const card = this.LookCardWithID( card_ID );
 		if ( log ) {
 			let msg = `${player.name}が${Cardlist[ card.card_no ].name_jp}を`;
 			switch (place) {
@@ -554,44 +621,70 @@ class CGame {
 				case 'Aside'       : msg += "脇に置きました。"; break;
 				case 'DiscardPile' : msg += "捨て札にしました。"; break;
 				case 'Deck'        : msg += "山札に戻しました。"; break;
+				case 'HandCards'   : msg += "手札に加えました。"; break;
 				default : break;
 			}
 			FBref_chat.push( msg );
 		}
-		if ( face == 'up' ) {
-			card.face = 'up';
-			this.StackedCardIDs.push( card_ID );
-		}
-		player[`AddTo${place}`]( card );
-		return FBref_Players.child( player_id ).update( {
-			HandCards : player.HandCards,
-			[place]   : player[place],
-		} );
+
+		if ( face == 'up' )  this.FaceUpCard( card_ID );
+
+		player[`AddTo${place}`]( this.GetCardWithID( card_ID ) );
+		return FBref_Players.child( player_id ).set( player );
 	}
 
 
-	/* カード移動複合操作 （手札から場に出す） */
+	/* カード移動複合操作 （場に出す） */
 	Play         ( card_ID, player_id = this.whose_turn_id, log = false, face = 'default' ) {
-		this.MoveHandCardTo( 'PlayArea'   , card_ID, player_id, log, face );
+		return this.MoveHandCardTo( 'PlayArea'   , card_ID, player_id, log, face );
 	}
 
-	/* カード移動複合操作 （手札から脇に置く） */
+	/* カード移動複合操作 （脇に置く） */
 	SetAside     ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		this.MoveHandCardTo( 'Aside'      , card_ID, player_id, log, face );
+		return this.MoveHandCardTo( 'Aside'      , card_ID, player_id, log, face );
 	}
 
-	/* カード移動複合操作 （手札から捨て札にする） */
+	/* カード移動複合操作 （捨て札にする） */
 	Discard      ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		this.MoveHandCardTo( 'DiscardPile', card_ID, player_id, log, face );
+		return this.MoveHandCardTo( 'DiscardPile', card_ID, player_id, log, face );
 	}
 
-	/* カード移動複合操作 （手札から山札に戻す） */
+	/* カード移動複合操作 （山札に戻す） */
 	PutBackToDeck( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		this.MoveHandCardTo( 'Deck'       , card_ID, player_id, log, face );
+		return this.MoveHandCardTo( 'Deck'       , card_ID, player_id, log, face );
+	}
+
+	/* カード移動複合操作 （山札に戻す） */
+	PutIntoHand  ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
+		return this.MoveHandCardTo( 'HandCards'  , card_ID, player_id, log, face );
 	}
 
 
 
+	FaceUpCard( card_ID ) {
+		this.LookCardWithID( card_ID ).face = 'up';
+		return this.StackCardID( card_ID );
+	}
+
+	FaceDownCard( card_ID ) {
+		this.LookCardWithID( card_ID ).face = 'down';
+		return this.StackCardID( card_ID );
+	}
+
+
+	// 手札を公開
+	RevealHandCards( player_id = this.whose_turn_id, CardsID ) {
+		const G = this;
+		const pl = G.Players[ player_id ];
+		CardsID = ( CardsID || pl.HandCards.map( card => card.card_ID ) );
+		CardsID.forEach( card_ID => G.FaceUpCard( card_ID ) );
+
+		return Promise.all( [
+			FBref_Players.child( `${player_id}/HandCards` ).update( pl.HandCards ),
+			FBref_MessageToMe.set('手札を公開します。'),
+			FBref_chat.push( `${pl.name}は手札を公開しました。` ),
+		]);
+	}
 
 
 
@@ -647,8 +740,7 @@ class CGame {
 				card_name,
 				message,
 				send_signals,
-				attack_effect = function*() {},
-				passing_object = {} )
+				attack_effect = function*() {} )
 	{
 		const G = this;
 		return this.ForAllOtherPlayers( function*( player_id ) {
@@ -673,7 +765,7 @@ class CGame {
 				FBref_SignalAttackEnd.off();  // 監視終了
 			}
 
-			yield MyAsync( attack_effect, player_id, passing_object );
+			yield MyAsync( attack_effect, player_id );
 
 			yield FBref_MessageTo.child( player_id ).set('');
 		})
@@ -681,16 +773,23 @@ class CGame {
 
 
 	ResetClassStr( card_IDs = this.StackedCardIDs ) {
-		card_IDs.forEach( card_ID => Game.GetCardByID( card_ID, false ).class_str = '' );
+		const G = this;
+		card_IDs.forEach( card_ID => G.LookCardWithID( card_ID ).class_str = '' );
 		card_IDs = [];  // reset
 	}
 
 
 	ResetFace( card_IDs = this.StackedCardIDs ) {
-		card_IDs.forEach( card_ID => Game.GetCardByID( card_ID, false ).face = 'default' );
+		const G = this;
+		card_IDs.forEach( card_ID => G.LookCardWithID( card_ID ).face = 'default' );
 		card_IDs = [];  // reset
 	}
 
+
+	ResetStackedCardIDs() {
+		this.StackedCardIDs = [];
+		return FBref_StackedCardIDs.set( [] );
+	}
 
 }
 

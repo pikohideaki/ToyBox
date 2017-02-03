@@ -83,8 +83,8 @@ $( function() {
 	};
 
 	$('.HandCards').on( 'click', '.card.Upgrade_Trash', function() {
-		const clicked_card_no = $(this).attr('data-card_no');
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_no = Number( $(this).attr('data-card_no') );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
 		Game.Trash( clicked_card_ID );  /* 手札廃棄 */
 
@@ -108,7 +108,7 @@ $( function() {
 				return;
 			}
 
-			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 			let updates = {};
 			updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
@@ -157,7 +157,7 @@ $( function() {
 
 		$('.action_buttons').html( MakeHTML_button( 'Baron get_estate', '屋敷を獲得' ) );
 		$('.HandCards').children('.card')
-			.filter( function() { return $(this).attr('data-card_no') == CardName2No['Estate'] } )
+			.filter( function() { return Number( $(this).attr('data-card_no') ) == CardName2No['Estate'] } )
 			.addClass('Baron_Discard pointer');  /* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 
 		yield new Promise( resolve => Resolve['Baron'] = resolve );
@@ -165,8 +165,8 @@ $( function() {
 	};
 
 	$('.HandCards').on( 'click', '.Baron_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
+		Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 		Game.TurnInfo.coin += 4;
 
 		let updates = {};
@@ -202,8 +202,8 @@ $( function() {
 	};
 
 	$('.HandCards').on( 'click', '.Courtyard_PutBackToDeck', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.player().AddToDeck( Game.GetCardByID( clicked_card_ID ) );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
+		Game.player().AddToDeck( Game.GetCardWithID( clicked_card_ID ) );
 		FBref_Players.child( Game.player().id ).update( {
 			Deck      : Game.player().Deck,
 			HandCards : Game.player().HandCards,
@@ -237,7 +237,7 @@ $( function() {
 	};
 
 	$('.HandCards').on( 'click', '.TradingPost_Trash', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 		Game.Trash( clicked_card_ID );
 		let updates = {};
 		updates[`Players/${Game.player().id}/HandCards`] = Game.player().HandCards;
@@ -311,7 +311,7 @@ $( function() {
 	});
 
 	$('.HandCards').on( 'click', '.Steward_Trash', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 		Game.Trash( clicked_card_ID );
 
 		let updates = {};
@@ -398,7 +398,7 @@ $( function() {
 			$('.action_buttons').html( MakeHTML_button( 'Scout_VictoryCards', '勝利点カードを手札に加える' ) );
 			yield new Promise( resolve => Resolve['Scout_VictoryCards'] = resolve );
 			$('.action_buttons .Scout_VictoryCards').remove();
-			victory_cards.forEach( card => Game.player().AddToHandCards( Game.GetCardByID(card.card_ID) ) );
+			victory_cards.forEach( card => Game.player().AddToHandCards( Game.GetCardWithID(card.card_ID) ) );
 
 			yield FBref_Players.child( Game.player().id ).update( {
 				Open      : Game.player().Open,
@@ -416,8 +416,8 @@ $( function() {
 	$('.action_buttons').on( 'click', '.Scout_VictoryCards', () => Resolve['Scout_VictoryCards']() );
 
 	$('.Open').on( 'click', '.Scout_PutBackToDeck', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.player().AddToDeck( Game.GetCardByID( clicked_card_ID ) );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
+		Game.player().AddToDeck( Game.GetCardWithID( clicked_card_ID ) );
 		FBref_Players.child( Game.player().id ).update( {
 			Open : Game.player().Open,
 			Deck : Game.player().Deck,
@@ -477,7 +477,7 @@ $( function() {
 				return;
 			}
 
-			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 			let updates = {};
 			updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
@@ -660,9 +660,9 @@ $( function() {
 
 		// 指定したカード名と一致したなら手札に加える。そうでなければ山札に戻す。
 		if ( named_card_no == DeckTopCard.card_no ) {
-			Game.player().AddToHandCards( Game.GetCardByID( DeckTopCard.card_ID ) );
+			Game.player().AddToHandCards( Game.GetCardWithID( DeckTopCard.card_ID ) );
 		} else {
-			Game.player().AddToDeck( Game.GetCardByID( DeckTopCard.card_ID ) );
+			Game.player().AddToDeck( Game.GetCardWithID( DeckTopCard.card_ID ) );
 		}
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 	};
@@ -672,7 +672,7 @@ $( function() {
 	} );
 
 	$('.SupplyArea').on( 'click', '.card.name_a_card', function() {
-		Resolve['name_a_card']( $(this).attr('data-card_no') );
+		Resolve['name_a_card']( Number( $(this).attr('data-card_no') ) );
 	} );
 
 	$('.action_buttons').on( 'click', '.WishingWell_ok', () => Resolve['WishingWell_ok']() );
@@ -702,9 +702,9 @@ $( function() {
 	};
 
 	$('.HandCards').on( 'click', '.card.SecretChamber_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );  /* 「地下貯蔵庫」 捨て札 */
+		Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );  /* 「地下貯蔵庫」 捨て札 */
 
 		FBref_Players.child( Game.player().id ).update( {
 			HandCards   : Game.player().HandCards,
@@ -732,9 +732,9 @@ $( function() {
 	};
 
 	$('.MyHandCards').on( 'click', '.card.SecretChamber_PutBackToDeck', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		Game.Me().AddToDeck( Game.GetCardByID( clicked_card_ID ) );
+		Game.Me().AddToDeck( Game.GetCardWithID( clicked_card_ID ) );
 
 		FBref_Players.child( myid ).update( {
 			HandCards : Game.Me().HandCards,
@@ -820,9 +820,9 @@ $( function() {
 	});
 
 	$('.MyHandCards').on( 'click', '.card.Torturer_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		Game.Me().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+		Game.Me().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 		FBref_Players.child( myid ).update( {
 			HandCards   : Game.Me().HandCards,
@@ -1009,7 +1009,7 @@ $( function() {
 				return;
 			}
 
-			Game.Me().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.Me().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 			let updates = {};
 			updates[`Players/${Game.Me().id}/DiscardPile`] = Game.Me().DiscardPile;
@@ -1052,7 +1052,7 @@ $( function() {
 			if ( $('.SupplyArea').find('.available').length > 0 ) {
 				const clicked_card_ID
 					= yield new Promise( resolve => Resolve['Swindler_GetCard'] = resolve );
-				pl.AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+				pl.AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 				updates['Supply'] = Game.Supply;
 			}
 
@@ -1123,7 +1123,7 @@ $( function() {
 			if ( Masquerade_passed_card_IDs[id] == 99999999 ) continue;
 
 			Game.Players[ Game.NextPlayerID(id) ]
-				.AddToHandCards( Game.GetCardByID( Masquerade_passed_card_IDs[id] ) );
+				.AddToHandCards( Game.GetCardWithID( Masquerade_passed_card_IDs[id] ) );
 			FBref_MessageTo.child(id).set('');
 		}
 		Game.Players.forEach( player => player.ResetFace() );
@@ -1159,8 +1159,8 @@ $( function() {
 
 	// 自分と他のプレイヤー
 	$('.HandCards,.MyHandCards').on( 'click', '.card.Masquerade_SelectPassCard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-		const clicked_card = Game.GetCardByID( clicked_card_ID );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
+		const clicked_card = Game.GetCardWithID( clicked_card_ID );
 		clicked_card.face = 'up';
 		Game.Me().AddToOpen( clicked_card );
 
@@ -1170,7 +1170,7 @@ $( function() {
 
 	// 自分
 	$('.HandCards').on( 'click', '.card.Masquerade_trash', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 		Game.Trash( clicked_card_ID );
 
 		Promise.all( [

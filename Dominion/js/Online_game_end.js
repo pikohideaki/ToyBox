@@ -6,7 +6,7 @@ $( function() {
 		let Players = FBsnapshot.val().Players;
 		for ( let i = 0; i < Players.length; ++i ) {
 			Players[i] = new CPlayer( Players[i] );
-			Players[i].HandCards = Players[i].GetDeckAll();
+			Players[i].HandCards = Players[i].GetCopyOfPlayersAllCards();
 			Players[i].SortHandCards();
 			const DeckAll = Players[i].HandCards;
 
@@ -28,7 +28,7 @@ $( function() {
 	// CardEffectBox
 
 	$('.card_effect').click( function() {
-		const card_no = $(this).attr('data-card_no');
+		const card_no = Number( $(this).attr('data-card_no') );
 		ShowCardEffectBox( Cardlist, card_no );
 	});
 

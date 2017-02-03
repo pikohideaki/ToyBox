@@ -87,15 +87,15 @@ Initialize.then( function() {  /* 初期設定終わったら */
 
 
 	for ( let player_id = 0; player_id < Game.Players.length; ++player_id ) {
-		let FBref_pl = FBref_Game.child(`Players/${player_id}`);
-		FBref_pl.child('TurnCount'  ).on('value', (snap) => SetAndPrintTurnCount  ( player_id, snap ) );
-		FBref_pl.child('Connection' ).on('value', (snap) => SetAndPrintConnection ( player_id, snap ) );
-		FBref_pl.child('Open'       ).on('value', (snap) => SetAndPrintOpen       ( player_id, snap ) );
-		FBref_pl.child('PlayArea'   ).on('value', (snap) => SetAndPrintPlayArea   ( player_id, snap ) );
-		FBref_pl.child('Aside'      ).on('value', (snap) => SetAndPrintAside      ( player_id, snap ) );
-		FBref_pl.child('Deck'       ).on('value', (snap) => SetAndPrintDeck       ( player_id, snap ) );
-		FBref_pl.child('HandCards'  ).on('value', (snap) => SetAndPrintHandCards  ( player_id, snap ) );
-		FBref_pl.child('DiscardPile').on('value', (snap) => SetAndPrintDiscardPile( player_id, snap ) );
+		let FBref_pl = FBref_Players.child( player_id );
+		FBref_pl.child('TurnCount'  ).on('value', snap => SetAndPrintTurnCount  ( player_id, snap ) );
+		FBref_pl.child('Connection' ).on('value', snap => SetAndPrintConnection ( player_id, snap ) );
+		FBref_pl.child('Open'       ).on('value', snap => SetAndPrintOpen       ( player_id, snap ) );
+		FBref_pl.child('PlayArea'   ).on('value', snap => SetAndPrintPlayArea   ( player_id, snap ) );
+		FBref_pl.child('Aside'      ).on('value', snap => SetAndPrintAside      ( player_id, snap ) );
+		FBref_pl.child('Deck'       ).on('value', snap => SetAndPrintDeck       ( player_id, snap ) );
+		FBref_pl.child('HandCards'  ).on('value', snap => SetAndPrintHandCards  ( player_id, snap ) );
+		FBref_pl.child('DiscardPile').on('value', snap => SetAndPrintDiscardPile( player_id, snap ) );
 	}
 
 	FBref_Game.child('TurnInfo' ).on('value', SetAndPrintTurnInfo  );
@@ -103,13 +103,13 @@ Initialize.then( function() {  /* 初期設定終わったら */
 	FBref_Game.child('TrashPile').on('value', SetAndPrintTrashPile );
 	FBref_Game.child('phase'    ).on('value', SetAndPrintPhase     );
 
-	/* TrashPile は消えたときに親階層から監視しておかないと反応しない */
-	FBref_Game.on( 'child_removed', function( FBsnapshot ) {
-		if ( !FBsnapshot.hasChild('TrashPile') ) {
-			Game.TrashPile = [];
-			$('.TrashPile').html('');
-		}
-	});
+	/* TrashPile は消えたときに親階層から監視しておかないと反応しない -> 削除ちゃんと反応するようになった */
+	// FBref_Game.on( 'child_removed', function( FBsnapshot ) {
+	// 	if ( !FBsnapshot.hasChild('TrashPile') ) {
+	// 		Game.TrashPile = [];
+	// 		PrintTrashPile();
+	// 	}
+	// });
 
 	FBref_Message.on( 'value', ( FBsnapshot ) => $('.Message').html( FBsnapshot.val() ) );
 
@@ -120,8 +120,8 @@ Initialize.then( function() {  /* 初期設定終わったら */
 
 	// 一時オブジェクト．card_IDのメモを共有．
 	FBref_StackedCardIDs.on( 'value', function( FBsnapshot ) {
-		Game.StackedCardIDs = ( FBsnapshot.val() || '' );
-	})
+		Game.StackedCardIDs = ( FBsnapshot.val() || [] );
+	});
 
 	FBref_Room.child('GameEnd').on('value', function( FBsnapshot ) {
 		const GameEnd = FBsnapshot.val();

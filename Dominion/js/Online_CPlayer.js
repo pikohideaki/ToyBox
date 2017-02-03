@@ -71,13 +71,14 @@ class CPlayer {
 		this.HandCards = [].concat( action_cards, treasure_cards, victory_cards, sorted );
 	}
 
-	GetDeckAll() {
+	GetCopyOfPlayersAllCards() {
 		return [].concat(
 				  this.Deck
 				, this.DiscardPile
 				, this.HandCards
 				, this.PlayArea
 				, this.Aside
+				, this.Open
 			);
 	}
 
@@ -231,27 +232,12 @@ class CPlayer {
 
 
 	ResetFace() {
-		this.GetDeckAll().forEach( card => card.face = 'default' );
-	}
-
-
-	// 手札を公開
-	RevealHandCards( CardsID = [] ) {
-		if ( CardsID.length != 0 ) {
-			this.HandCards = this.HandCards.filter( card => CardsID.val_exists( card.card_ID ) );
-		}
-		this.HandCards.forEach( card => card.face = 'up' );
-
-		return Promise.all( [
-			FBref_Players.child( `${this.id}/HandCards` ).update( this.HandCards ),
-			FBref_MessageToMe.set('手札を公開します。'),
-			FBref_chat.push( `${this.name}は手札を公開しました。` ),
-		]);
+		this.GetCopyOfPlayersAllCards().forEach( card => card.face = 'default' );
 	}
 
 
 	// ResetClassStr( FBsync = true ) {
-	// 	this.GetDeckAll().forEach( function( card ) {
+	// 	this.GetCopyOfPlayersAllCards().forEach( function( card ) {
 	// 		card.class_str = '';
 	// 	});
 	// 	if ( FBsync ) {
@@ -261,7 +247,7 @@ class CPlayer {
 
 
 	SumUpVP() {
-		const DeckAll = this.GetDeckAll();
+		const DeckAll = this.GetCopyOfPlayersAllCards();
 		const VictoryCards = 
 			DeckAll.filter( (card) => IsVictoryCard( Cardlist, card.card_no ) );
 

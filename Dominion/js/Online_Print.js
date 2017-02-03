@@ -168,12 +168,12 @@ function PrintHandCardsOfPlayer() {
 		switch ( Game.phase ) {
 			case 'ActionPhase' :
 				$HandCards.children('.card')
-					.filter( function() { return IsActionCard( Cardlist, $(this).attr('data-card_no') ); } )
+					.filter( function() { return IsActionCard( Cardlist, Number( $(this).attr('data-card_no') ) ); } )
 					.addClass('use-this pointer');
 				break;
 			case 'BuyPhase' :
 				$HandCards.children('.card')
-					.filter( function() { return IsTreasureCard( Cardlist, $(this).attr('data-card_no') ); } )
+					.filter( function() { return IsTreasureCard( Cardlist, Number( $(this).attr('data-card_no') ) ); } )
 					.addClass('use-this pointer');
 				break;
 			default :
@@ -401,8 +401,11 @@ function PrintTurnInfo() {
 
 
 function PrintTrashPile() {
-	let $TrashPile = $('.TrashPile');
-	if ( Game.TrashPile.length > 0 ) {
+	const $TrashPile = $('.TrashPile');
+
+	if ( Game.TrashPile.length == 0 ) {
+		$TrashPile.html('');
+	} else {
 		$TrashPile.html( MakeHTML_Card( Game.TrashPile.back(), Game ) );
 		$TrashPile.children('.card').addClass('up');  /* デフォルトは表 */
 		$TrashPile.find('.card').emphasize_card();

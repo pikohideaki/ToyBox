@@ -513,7 +513,7 @@ function blackmarket_rearrange( rearrange_num ) {
 	var bottom = [];
 	var i = 0;
 	$('#blackmarket_sortable tbody tr').map( function() {
-		var num = $(this).attr('data-card_no');
+		var num = Number( $(this).attr('data-card_no') );
 		// var num = $(this).find(':nth-child(6)').children('font').text();
 		if ( num > 0 ) {
 			bottom[i] = Number( num );

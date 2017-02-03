@@ -98,7 +98,7 @@ $( function() {
 
 
 	$('.CardAreaOfPlayer.HandCards').on( 'click', '.card.use-this', function() {
-		Game.UseCard( $(this).attr('data-card_no'), $(this).attr('data-card_ID') );
+		Game.UseCard( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) );
 	});
 
 
@@ -109,10 +109,6 @@ $( function() {
 		let $this = $(this);
 		return MyAsync( function*() {
 			const clicked_pile_num = $this.children('.card-num-of-remaining').html();
-			// if ( clicked_pile_num <= 0 ) {
-			// 	yield MyAlert( 'そのサプライは空です。' );
-			// 	return;
-			// }
 
 			if ( Game.TurnInfo.buy <= 0 ) {
 				yield MyAlert( 'これ以上購入できません。' );
@@ -123,33 +119,28 @@ $( function() {
 			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
 			const clicked_card_no = clicked_card.card_no;
 			const clicked_card_ID = clicked_card.card_ID;
-			const Card = Cardlist[ clicked_card_no ];
 			const clicked_card_cost = Game.GetCost( clicked_card_no );
 
-			// コスト比較において '>' は not <= とは異なる
+			// [memo] コスト比較において '>' は not <= とは異なる
 			if ( !CostOp( '<=', clicked_card_cost,
 					[ Game.TurnInfo.coin, Game.TurnInfo.potion, 10000 ] ) )
 			{
 				yield MyAlert( 'お金が足りません。' );
 				return;
 			}
-			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );  /* カード移動 */
-			FBref_chat.push( `${Game.player().name}が「${Card.name_jp}」を購入しました。` );
+			yield Game.BuyCardFromSupply( clicked_card_ID )   /* カード移動 */
 			Game.TurnInfo.buy--;
 			Game.TurnInfo.coin   -= clicked_card_cost.coin;
 			Game.TurnInfo.potion -= clicked_card_cost.potion;
 
-			let updates = {};
-			updates[ `Players/${Game.whose_turn_id}/DiscardPile` ] = Game.player().DiscardPile;
-			updates['Supply'] = Game.Supply;
-			updates['TurnInfo/buy' ] = Game.TurnInfo.buy;
-			updates['TurnInfo/coin'] = Game.TurnInfo.coin;
-			updates['TurnInfo/potion'] = Game.TurnInfo.potion;
-			if ( Game.phase == 'BuyPhase' ) {  // 一度購入を始めたら以降財宝カードを追加で使用することはできない
-				Game.phase = 'BuyPhase_GetCard';
-				updates['phase'] = Game.phase;
+			if ( Game.phase == 'BuyPhase' ) {
+				Game.phase = 'BuyPhase_GetCard';  // 一度購入を始めたら以降財宝カードを追加で使用することはできない
 			}
-			yield FBref_Game.update( updates );
+
+			yield FBref_Game.update( {
+				TurnInfo : Game.TurnInfo,
+				phase : Game.phase,
+			} );
 
 			// buyが0なら自動でターン終了
 			if ( Game.TurnInfo.buy <= 0 ) {
@@ -162,14 +153,20 @@ $( function() {
 
 
 	$('.CardView_list').on( {
-		mouseenter : function(){ $('.CardView_zoom .card_biggest').attr('data-card_no', $(this).attr('data-card_no') ) },
-		click      : function(){ $('.CardView_zoom .card_biggest').attr('data-card_no', $(this).attr('data-card_no') ) },
+		mouseenter : function(){
+			$('.CardView_zoom .card_biggest')
+			  .attr('data-card_no', Number( $(this).attr('data-card_no') ) )
+		},
+		click      : function(){
+			$('.CardView_zoom .card_biggest')
+			  .attr('data-card_no', Number( $(this).attr('data-card_no') ) )
+		},
 		// mouseleave : function(){  },
 	}, '.card_biggest' );
 
 	$('.chbox_SkipReaction').change( function() {
 		FBref_Settings.child(`SkipReaction/${myid}`).set( $(this).prop('checked') );
-	})
+	});
 
 
 });

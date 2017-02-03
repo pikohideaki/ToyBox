@@ -67,9 +67,9 @@ $( function() {
 	}
 
 	$('.HandCards').on( 'click', '.card.HorseTraders_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+		Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 		FBref_Players.child( Game.player().id ).update( {
 			HandCards   : Game.player().HandCards,
@@ -81,7 +81,7 @@ $( function() {
 
 	ReactionEffect['Horse Traders'] = function*( card_no, card_ID ) {
 		yield FBref_MessageToMe.set('このカードを脇に置き、 次のターンの最初に+1カードして脇に置いていたこのカードを手札に戻します。');
-		Game.Me().AddToAside( Game.GetCardByID( card_ID ) );
+		Game.Me().AddToAside( Game.GetCardWithID( card_ID ) );
 		// Game.Me().DrawCards(1);
 		yield FBref_Players.child( myid ).set( Game.Me() );
 	};
@@ -122,7 +122,7 @@ $( function() {
 			// 山札の一番上に置く
 			if ( revealed ) {
 				deck_top_card.face = 'up';
-				pl.AddToDeck( Game.GetCardByID( deck_top_card.card_ID ) );
+				pl.AddToDeck( Game.GetCardWithID( deck_top_card.card_ID ) );
 				yield FBref_Players.child( pl.id ).set( pl );
 			}
 
@@ -208,7 +208,7 @@ $( function() {
 			$('.HandCards').children('.card').addClass('Remake_Trash pointer');
 
 			const trashed_card_ID = yield WaitForTrashingHandCard();
-			const TrashedCardCost = Game.GetCost( Game.GetCardByID( trashed_card_ID ).card_no );
+			const TrashedCardCost = Game.GetCost( Game.GetCardWithID( trashed_card_ID ).card_no );
 
 			yield FBref_Message.set(
 				`コストがちょうど廃棄したカード+1(=${TrashedCardCost.coin + 1} )コインのカードを獲得してください。` );
@@ -231,8 +231,8 @@ $( function() {
 	}
 
 	$('.HandCards').on( 'click', '.card.Remake_Trash', function() {
-		const clicked_card_no = $(this).attr('data-card_no');
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_no = Number( $(this).attr('data-card_no') );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
 		Game.Trash( clicked_card_ID );  /* 手札廃棄 */
 
@@ -256,7 +256,7 @@ $( function() {
 				return;
 			}
 
-			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 			let updates = {};
 			updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
@@ -336,7 +336,7 @@ $( function() {
 
 		// 手札に加える
 		if ( revealed ) {
-			pl.AddToHandCards( Game.GetCardByID( deck_top_card.card_ID ) );
+			pl.AddToHandCards( Game.GetCardWithID( deck_top_card.card_ID ) );
 			yield FBref_Players.child( pl.id ).set( pl );
 		}
 
@@ -387,9 +387,9 @@ $( function() {
 	$('.action_buttons').on( 'click', '.Hamlet_Discard', () => Resolve['Hamlet_Discard']( false ) );
 
 	$('.HandCards').on( 'click', '.card.Hamlet_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );  /* 捨てにする */
+		Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );  /* 捨てにする */
 
 		FBref_Players.child( Game.player().id ).update( {
 			HandCards   : Game.player().HandCards,
@@ -434,7 +434,7 @@ $( function() {
 				yield AcknowledgeButton_OtherPlayer( id );
 
 				// 公開したカードを捨て札に
-				pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );
+				pl.AddToDiscardPile( Game.GetCardWithID( DeckTopCard.card_ID ) );
 				yield FBref_Players.child( id ).set( pl );
 
 				// 呪いを獲得
@@ -460,7 +460,7 @@ $( function() {
 
 
 				// 公開したカードを捨て札に
-				pl.AddToDiscardPile( Game.GetCardByID( DeckTopCard.card_ID ) );
+				pl.AddToDiscardPile( Game.GetCardWithID( DeckTopCard.card_ID ) );
 				yield FBref_Players.child( id ).set( pl );
 
 				// 同じ名前のカード獲得
@@ -514,7 +514,7 @@ $( function() {
 
 		// 手札に加える
 		if ( revealed ) {
-			pl.AddToHandCards( Game.GetCardByID( deck_top_card.card_ID ) );
+			pl.AddToHandCards( Game.GetCardWithID( deck_top_card.card_ID ) );
 			yield FBref_Players.child( pl.id ).set( pl );
 		}
 
@@ -577,7 +577,7 @@ $( function() {
 		for ( let id = 0; id < Game.Players.length; ++id ) {
 			if ( Tournament_Revealed_card_IDs[id] == 99999999 ) continue;
 			if ( id == Game.player().id ) continue; // 自分は飛ばす
-			Game.Players[id].AddToHandCards( Game.GetCardByID( Tournament_Revealed_card_IDs[id] ) );
+			Game.Players[id].AddToHandCards( Game.GetCardWithID( Tournament_Revealed_card_IDs[id] ) );
 		}
 		yield FBref_Players.set( Game.Players );
 
@@ -589,7 +589,7 @@ $( function() {
 
 			// 公開した属州を捨て札に
 			const MyProvince_card_ID = Tournament_Revealed_card_IDs[ Game.player().id ];
-			Game.player().AddToDiscardPile( Game.GetCardByID( MyProvince_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardWithID( MyProvince_card_ID ) );
 			yield FBref_Players.child( Game.player().id ).set( Game.player() );
 
 			// 褒賞または公領を獲得し山札の一番上に置く
@@ -597,7 +597,7 @@ $( function() {
 			/* サプライと褒賞カードのクラス書き換え */
 			$('.SupplyArea').find('.card')
 				.filter( function() { return $(this).attr('data-card_num_of_remaining') > 0; } )
-				.filter( function() { return $(this).attr('data-card_no') == CardName2No['Duchy'] } )
+				.filter( function() { return Number( $(this).attr('data-card_no') ) == CardName2No['Duchy'] } )
 				.addClass('Tournament_GetCard available pointer');
 
 			$('.Prize').find('.card')
@@ -642,7 +642,7 @@ $( function() {
 	CardEffect['Tournament_RevealProivince'] = function* () {
 		// 属州を公開できる
 		$('.HandCards,.MyHandCards').children('.card')
-			.filter( function() { return $(this).attr('data-card_no') == CardName2No['Province'] } )
+			.filter( function() { return Number( $(this).attr('data-card_no') ) == CardName2No['Province'] } )
 			.addClass('Tournament_RevealProivince pointer');
 
 		// 公開したかどうか
@@ -671,8 +671,8 @@ $( function() {
 
 	// 自分と他のプレイヤー
 	$('.HandCards,.MyHandCards').on( 'click', '.card.Tournament_RevealProivince', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
-		Game.Me().AddToOpen( Game.GetCardByID( clicked_card_ID ) );
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
+		Game.Me().AddToOpen( Game.GetCardWithID( clicked_card_ID ) );
 		FBref_Players.child( `${Game.Me().id}` ).set( Game.Me() )
 		.then( () => Resolve['Tournament_RevealProivince']( clicked_card_ID ) );
 	} );
@@ -694,7 +694,7 @@ $( function() {
 			const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
 			const clicked_card_ID = clicked_card.card_ID;
 
-			const gotten_card = Game.GetCardByID( clicked_card_ID );
+			const gotten_card = Game.GetCardWithID( clicked_card_ID );
 			FBref_chat.push(
 				`${Game.player().name}が${Cardlist[ gotten_card.card_no ].name_jp}を獲得しました。` );
 
@@ -764,7 +764,7 @@ $( function() {
 				return;
 			}
 
-			Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+			Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 			let updates = {};
 			updates[`Players/${Game.player().id}/DiscardPile`] = Game.player().DiscardPile;
@@ -844,15 +844,15 @@ $( function() {
 
 			// 呪いを獲得
 			yield FBref_MessageTo.child(id).set('呪いを獲得します。');
-			yield Game.GainCardByName( 'Curse', undefined, id );
+			yield Game.GainCardFromSupplyByName( 'Curse', undefined, id );
 			yield FBref_MessageTo.child(id).set('');
 		}
 	}
 
 	$('.HandCards').on( 'click', '.card.YoungWitch_Discard', function() {
-		const clicked_card_ID = $(this).attr('data-card_ID');
+		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		Game.player().AddToDiscardPile( Game.GetCardByID( clicked_card_ID ) );
+		Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
 		FBref_Players.child( Game.player().id ).update( {
 			HandCards   : Game.player().HandCards,
@@ -908,7 +908,7 @@ $( function() {
 
 				case 4 : // 4silvers
 					for ( let i = 0; i < 4; ++i ) {
-						yield Game.GainCardByName( 'Silver' );
+						yield Game.GainCardFromSupplyByName( 'Silver' );
 					}
 					yield Game.player().PutDeckIntoDiscardPile();
 					break;
@@ -945,7 +945,7 @@ $( function() {
 			他のプレイヤーは全員、呪いカード1枚を獲得し、自分の手札が3枚になるように捨て札をしてください。' );
 
 		// 屋敷を獲得
-		yield Game.GainCardByName( 'Estate' );
+		yield Game.GainCardFromSupplyByName( 'Estate' );
 
 
 		// 他のプレイヤーは全員、呪いカード1枚を獲得し、自分の手札が3枚になるように捨て札をする
@@ -954,7 +954,7 @@ $( function() {
 
 			// 呪いを獲得
 			yield FBref_MessageTo.child(id).set('呪いを獲得します。');
-			yield Game.GainCardByName( 'Curse', undefined, id );
+			yield Game.GainCardFromSupplyByName( 'Curse', undefined, id );
 
 			// 手札が3枚になるまで捨てる（民兵の関数を転用）
 			yield Monitor_FBref_SignalAttackEnd_on( 'Followers' );  // End受信 -> Resolve['Followers']()

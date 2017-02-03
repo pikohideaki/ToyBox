@@ -218,7 +218,7 @@ $( function() {
 	// CardEffectBox
 
 	$('#tbody_cardlist').on( 'click', '.card_effect', function() {
-		const card_no = $(this).attr('data-card_no');
+		const card_no = Number( $(this).attr('data-card_no') );
 		ShowCardEffectBox( Cardlist, card_no );
 	});
 

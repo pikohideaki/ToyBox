@@ -606,8 +606,8 @@ select {
 	height: auto;
 	text-align: center;
 }
-.MyAlert,
-.MyConfirm,
+.MyAlert .buttons,
+.MyConfirm .buttons,
 .MyDialog .buttons {
 	margin-top : 10px;
 }

@@ -14,17 +14,6 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 	FBref_chat.push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
 
 
-
-	let Monitor_FBref_SignalReactionEnd_on = function () {
-		return FBref_SignalReactionEnd.set(false)  /* reset */
-		.then( function() {
-			FBref_SignalReactionEnd.on( 'value', function(snap) {
-				if ( snap.val() ) Resolve['ReactionEnd']();
-			} )
-		} );
-	}
-
-
 	// アタックカードならまずリアクションカードの解決
 	if ( IsAttackCard( Cardlist, playing_card_no ) ) {
 		yield FBref_Message.set( 'リアクションカードを公開するプレイヤーがいないか待っています。' );
@@ -36,14 +25,17 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 			/* リアクションカードを公開するかどうかはアクションカード1枚ごとに決めてよい */
 			yield FBref_Game.child(`TurnInfo/Revealed_Moat/${id}`).set(false);  /* reset */
 			yield SendSignal( id, { listen_reaction : true } );
-			yield Monitor_FBref_SignalReactionEnd_on();
+
+			yield FBref_SignalReactionEnd.set(false);  /* reset */
+			FBref_SignalReactionEnd.on( 'value', function(snap) {
+				if ( snap.val() ) Resolve['ReactionEnd']();
+			} )
+
 			yield FBref_SignalRevealReaction.set(false);  /* reset */
 			FBref_SignalRevealReaction.on( 'value', function(snap) {
 				if ( snap.val() == 'waiting_for_confirmation' ) {
-					MyAsync( function*() {
-						yield AcknowledgeButton_OtherPlayer(id);
-						yield FBref_SignalRevealReaction.set('confirmed');
-					} );
+					AcknowledgeButton_OtherPlayer(id)
+					.then( () => FBref_SignalRevealReaction.set('confirmed') );
 				}
 			} );
 			yield new Promise( resolve => Resolve['ReactionEnd'] = resolve );
@@ -91,7 +83,7 @@ function* GetCardEffect( playing_card_no, playing_card_ID ) {
 
 function AddAvailableToSupplyCardIf( conditions ) {
 	$('.SupplyArea').find('.card').each( function() {
-		const card_no = $(this).attr('data-card_no');
+		const card_no = Number( $(this).attr('data-card_no') );
 		// const card_ID = $(this).attr('data-top_card_ID');
 		const card = Cardlist[ card_no ];
 		if ( $(this).attr('data-card_num_of_remaining') <= 0 ) return;
@@ -112,19 +104,18 @@ function AcknowledgeButton_Me() {
 function AcknowledgeButton_OtherPlayer( player_id ) {
 	return MyAsync( function*() {
 		$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons`)
-			.append( MakeHTML_button( 'acknowledge_other_player', 'OK' ) );
+			.append( MakeHTML_button( 'acknowledge_others', 'OK' ) );
 
-		yield new Promise( resolve => Resolve['acknowledge_other_player'] = resolve );
+		yield new Promise( resolve => Resolve['acknowledge_others'] = resolve );
 
-		$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .acknowledge_other_player`)
+		$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons .acknowledge_others`)
 			.remove();  /* 完了ボタン消す */
 	});
 }
 $( function() {
-	$('.action_buttons').on( 'click', '.acknowledge',
-		() => Resolve['acknowledge']() );
-	$('.action_buttons').on( 'click', '.acknowledge_other_player',
-		() => Resolve['acknowledge_other_player']() );
+	$('.action_buttons').on( 'click', '.acknowledge', () => Resolve['acknowledge']() );
+	$('.OtherPlayers-wrapper')
+	  .on( 'click', '.OtherPlayer_Buttons .acknowledge_others', () => Resolve['acknowledge_others']() );
 } );
 
 
@@ -144,7 +135,7 @@ function WaitForSelectingHandCards() {
 
 		const SelectedCardsID = [];
 		$('.HandCards').children('.card.selected')
-			.each( function() { SelectedCardsID.push( $(this).attr('data-card_ID') ) } );
+			.each( function() { SelectedCardsID.push( Number( $(this).attr('data-card_ID') ) ) } );
 
 		yield Promise.resolve( SelectedCardsID );
 	});
@@ -167,7 +158,7 @@ function WaitForTrashingHandCard( conditions = (card_no,card_ID) => true ) {
 		const $handcards
 		  = $('.HandCards').children('.card')
 			.filter( function() {
-				return conditions( $(this).attr('data-card_no'), $(this).attr('data-card_ID') )
+				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
 			} );
 
 		$handcards.addClass('TrashHandCard pointer');
@@ -197,7 +188,7 @@ function HideTrashDoneButton() {
 
 $( function() {
 	$('.HandCards').on( 'click', '.card.TrashHandCard', function() {
-		Resolve['TrashHandCard']( $(this).attr('data-card_ID') );  // 再開
+		Resolve['TrashHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.TrashHandCard_Done', function() {
@@ -216,7 +207,7 @@ function WaitForDiscaringHandCard( conditions = (card_no,card_ID) => true ) {
 		const $handcards
 		  = $('.HandCards').children('.card')
 			.filter( function() {
-				return conditions( $(this).attr('data-card_no'), $(this).attr('data-card_ID') )
+				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
 			} );
 
 		$handcards.addClass('DiscardHandCard pointer');
@@ -246,7 +237,7 @@ function HideDiscardDoneButton() {
 
 $( function() {
 	$('.HandCards').on( 'click', '.card.DiscardHandCard', function() {
-		Resolve['DiscardHandCard']( $(this).attr('data-card_ID') );  // 再開
+		Resolve['DiscardHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.DiscardHandCard_Done', function() {
@@ -265,7 +256,7 @@ function WaitForDiscaringMyHandCard( conditions = (card_no,card_ID) => true ) {
 		const $handcards
 		  = $('.MyHandCards').children('.card')
 			.filter( function() {
-				return conditions( $(this).attr('data-card_no'), $(this).attr('data-card_ID') )
+				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
 			} );
 
 		$handcards.addClass('DiscardMyHandCard pointer');
@@ -297,7 +288,7 @@ function HideDiscardDoneButton_MyArea() {
 
 $( function() {
 	$('.MyHandCards').on( 'click', '.card.DiscardMyHandCard', function() {
-		Resolve['DiscardMyHandCard']( $(this).attr('data-card_ID') );  // 再開
+		Resolve['DiscardMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
 	} );
 
 	$('.MyArea .buttons').on( 'click', '.DiscardMyHandCards_Done', function() {
@@ -319,7 +310,7 @@ function WaitForPuttingBackHandCard(
 		const $handcards
 		  = $('.HandCards').children('.card')
 			.filter( function() {
-				return conditions( $(this).attr('data-card_no'), $(this).attr('data-card_ID') )
+				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
 			} );
 
 		$handcards.addClass('PutBackToDeckHandCard pointer');
@@ -349,7 +340,7 @@ function HidePutBackToDeckDoneButton() {
 
 $( function() {
 	$('.HandCards').on( 'click', '.card.PutBackToDeckHandCard', function() {
-		Resolve['PutBackToDeckHandCard']( $(this).attr('data-card_ID') );  // 再開
+		Resolve['PutBackToDeckHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
 	} );
 
 	$('.action_buttons').on( 'click', '.PutBackToDeckHandCards_Done', function() {
@@ -371,7 +362,7 @@ function WaitForPuttingBackMyHandCard(
 		const $handcards
 		  = $('.MyHandCards').children('.card')
 			.filter( function() {
-				return conditions( $(this).attr('data-card_no'), $(this).attr('data-card_ID') )
+				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
 			} );
 
 		$handcards.addClass('PutBackToDeckMyHandCard pointer');
@@ -403,7 +394,7 @@ function HidePutBackToDeckDoneButton_MyArea() {
 
 $( function() {
 	$('.MyHandCards').on( 'click', '.card.PutBackToDeckMyHandCard', function() {
-		Resolve['PutBackToDeckMyHandCard']( $(this).attr('data-card_ID') );  // 再開
+		Resolve['PutBackToDeckMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
 	} );
 
 	$('.MyArea .buttons').on( 'click', '.PutBackToDeckMyHandCards_Done', function() {
@@ -422,7 +413,7 @@ function Get$SupplyAreaWithConditions( conditions = (card,card_no) => true, addi
 		$piles = $('.SupplyArea,.additional-piles').find('.card');
 	}
 	return $piles.filter( function() {
-		const card_no = $(this).attr('data-card_no');
+		const card_no = Number( $(this).attr('data-card_no') );
 		const card = Cardlist[ card_no ];
 		if ( $(this).attr('data-card_num_of_remaining') <= 0 ) return false;
 		if ( conditions( card, card_no ) ) return true;
@@ -480,7 +471,7 @@ $( function() {
 		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();
 		const clicked_card_ID = clicked_card.card_ID;
 
-		Game.GainCardByName( clicked_card_name_eng, place_to_gain, undefined, face )
+		Game.GainCardFromSupplyByName( clicked_card_name_eng, place_to_gain, undefined, face )
 		.then( () => Resolve['GainSupplyCard']() );
 	} );
 });

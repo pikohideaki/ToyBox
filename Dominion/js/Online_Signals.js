@@ -66,7 +66,7 @@ function* Reaction( signals_to_me ) {
 
 		// リアクションカードをクリック可能に
 		$('.MyHandCards .card')
-			.filter( function() { return IsReactionCard( Cardlist, $(this).attr('data-card_no') ); } )
+			.filter( function() { return IsReactionCard( Cardlist, Number( $(this).attr('data-card_no') ) ); } )
 			.addClass('Reveal_ReactionCard pointer');
 
 		// リアクションカードか終了ボタンのクリック待ち
@@ -80,11 +80,13 @@ function* Reaction( signals_to_me ) {
 
 		// リアクションカードを選択した場合
 		// そのカードの公開
-		let clicked_card = Game.GetCardByID( clicked_card_ID, false );
+		let clicked_card = Game.LookCardWithID( clicked_card_ID );
 		let card_name_jp = Cardlist[ clicked_card.card_no ].name_jp;
 		FBref_chat.push( `${Game.Me().name}が「${card_name_jp}」を公開しました。` );
-		clicked_card.face = 'up';  // カードを表向きに
-		yield FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards );
+		yield Promise.all( [
+			Game.FaceUpCard( clicked_card_ID ),  // カードを表向きに
+			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
+		]);
 
 		// 確認待ち
 		const ref = {};
@@ -103,7 +105,8 @@ function* Reaction( signals_to_me ) {
 		Game.Me().ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
-			FBref_SignalRevealReaction.set('')  // reset
+			FBref_SignalRevealReaction.set(''),  // reset
+			Game.ResetStackedCardIDs(),
 		]);
 
 		// リアクション効果
@@ -133,7 +136,7 @@ function* Reveal_BaneCard( signals_to_me ) {
 
 		// 災いカードをクリック可能に
 		$('.MyHandCards .card')
-			.filter( function() { return $(this).attr('data-card_no') == Game.Supply.BaneCard.card_no; } )
+			.filter( function() { return Number( $(this).attr('data-card_no') ) == Game.Supply.BaneCard.card_no; } )
 			.addClass('Reveal_BaneCard pointer');
 
 		// 災いカードか終了ボタンのクリック待ち
@@ -147,12 +150,13 @@ function* Reveal_BaneCard( signals_to_me ) {
 
 		// 災いカードカードを選択した場合
 		// そのカードの公開
-		let clicked_card = Game.GetCardByID( clicked_card_ID, false );
+		let clicked_card = Game.LookCardWithID( clicked_card_ID );
 		let card_name_jp = Cardlist[ clicked_card.card_no ].name_jp;
 		FBref_chat.push( `${Game.Me().name}が災いカード（「${card_name_jp}」）を公開しました。` );
-		clicked_card.face = 'up';  // カードを表向きに
-		yield FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards );
-
+		yield Promise.all( [
+			Game.FaceUpCard( clicked_card_ID ),  // カードを表向きに
+			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
+		]);
 
 		// 確認待ち
 		const ref = {};
@@ -171,7 +175,8 @@ function* Reveal_BaneCard( signals_to_me ) {
 		Game.Me().ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
-			FBref_SignalRevealBaneCard.set('')  // reset
+			FBref_SignalRevealBaneCard.set(''),  // reset
+			Game.ResetStackedCardIDs(),
 		]);
 
 		yield FBref_Game.child(`TurnInfo/Revealed_BaneCard/${myid}`).set(true);
@@ -192,7 +197,7 @@ $( function() {
 	Initialize.then( function() {
 		// リアクションカード
 		$('.MyHandCards').on( 'click', '.card.Reveal_ReactionCard', function() {
-			Resolve['SelectReactionCard']( [ $(this).attr('data-card_ID'), false ] );
+			Resolve['SelectReactionCard']( [ Number( $(this).attr('data-card_ID') ), false ] );
 		});
 
 		$('.MyArea').on( 'click', '.buttons .end_reaction', function() {
@@ -201,7 +206,7 @@ $( function() {
 
 		// 災いカード
 		$('.MyHandCards').on( 'click', '.card.Reveal_BaneCard', function() {
-			Resolve['SelectBaneCard']( [ $(this).attr('data-card_ID'), false ] );
+			Resolve['SelectBaneCard']( [ Number( $(this).attr('data-card_ID') ), false ] );
 		});
 
 		$('.MyArea').on( 'click', '.buttons .end_banecard', function() {

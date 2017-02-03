@@ -34,7 +34,12 @@ $( function() {
 		const yn = yield MyConfirm( 
 			"アクションフェーズに戻しますか？<font color='red'>（不具合発生時）</font>" );
 		if ( yn ) {
-			yield FBref_Game.child('phase').set( 'ActionPhase' );
+			Game.phase = 'ActionPhase';
+			Game.TurnInfo.action++;  // アクション1回復
+			yield FBref_Game.update( {
+				phase : Game.phase,
+				'TurnInfo/action' : Game.TurnInfo.action,
+			});
 			const msg = '【アクションフェーズに戻しました】';
 			FBref_chat.push( `<font color='red'>${msg}</font>` );
 		}
