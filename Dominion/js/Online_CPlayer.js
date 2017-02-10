@@ -71,7 +71,7 @@ class CPlayer {
 		this.HandCards = [].concat( action_cards, treasure_cards, victory_cards, sorted );
 	}
 
-	GetCopyOfPlayersAllCards() {
+	GetCopyOfAllCards() {
 		return [].concat(
 				  this.Deck
 				, this.DiscardPile
@@ -232,12 +232,12 @@ class CPlayer {
 
 
 	ResetFace() {
-		this.GetCopyOfPlayersAllCards().forEach( card => card.face = 'default' );
+		this.GetCopyOfAllCards().forEach( card => card.face = 'default' );
 	}
 
 
 	// ResetClassStr( FBsync = true ) {
-	// 	this.GetCopyOfPlayersAllCards().forEach( function( card ) {
+	// 	this.GetCopyOfAllCards().forEach( function( card ) {
 	// 		card.class_str = '';
 	// 	});
 	// 	if ( FBsync ) {
@@ -247,7 +247,7 @@ class CPlayer {
 
 
 	SumUpVP() {
-		const DeckAll = this.GetCopyOfPlayersAllCards();
+		const DeckAll = this.GetCopyOfAllCards();
 		const VictoryCards = 
 			DeckAll.filter( (card) => IsVictoryCard( Cardlist, card.card_no ) );
 

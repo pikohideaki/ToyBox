@@ -400,7 +400,7 @@ class CGame {
 	GetAllCards() {
 		let AllCards = [];
 		this.Players.forEach( function( player ) {
-			AllCards = AllCards.concat( player.GetCopyOfPlayersAllCards() );
+			AllCards = AllCards.concat( player.GetCopyOfAllCards() );
 		});
 		AllCards = AllCards.concat( this.Supply.GetAllCards() );
 		AllCards = AllCards.concat( this.TrashPile );
@@ -450,7 +450,7 @@ class CGame {
 				'TurnInfo/action' : G.TurnInfo.action
 			} );
 
-			yield MyAsync( GetCardEffect, playing_card_no, playing_card_ID );
+			yield MyAsync( GetCardEffect, playing_card_ID );
 
 			// 終了
 
@@ -497,23 +497,23 @@ class CGame {
 
 			const player = G.Players[ player_id ];
 
-			let updates = {};
-			updates['Supply'] = G.Supply;
+			let Game_updates = {};
+			Game_updates['Supply'] = G.Supply;
 
 			switch ( place_to_gain ) {
 				case 'Deck' :
 					player.AddToDeck( G.GetCardWithID( card_ID ) );
-					updates[`Players/${player_id}/Deck`] = player.Deck;
+					Game_updates[`Players/${player_id}/Deck`] = player.Deck;
 					break;
 
 				case 'HandCards' :
 					player.AddToHandCards( G.GetCardWithID( card_ID ) )
-					updates[`Players/${player_id}/HandCards`] = player.HandCards;
+					Game_updates[`Players/${player_id}/HandCards`] = player.HandCards;
 					break;
 
 				case 'DiscardPile' :
 					player.AddToDiscardPile( G.GetCardWithID( card_ID ) );
-					updates[`Players/${player_id}/DiscardPile`] = player.DiscardPile;
+					Game_updates[`Players/${player_id}/DiscardPile`] = player.DiscardPile;
 					break;
 
 				default :
@@ -522,7 +522,7 @@ class CGame {
 			}
 
 			FBref_chat.push( `${player.name}が「${Cardlist[ card_no ].name_jp}」を${(buy ? '購入' : '獲得')}しました。` );
-			yield FBref_Game.update( updates );
+			yield FBref_Game.update( Game_updates );
 		});
 	}
 
@@ -605,7 +605,7 @@ class CGame {
 
 	MoveHandCardTo( place, card_ID, player_id, log, face ) {
 		const player = this.Players[ player_id ];
-		if ( !player.GetCopyOfPlayersAllCards()
+		if ( !player.GetCopyOfAllCards()
 				.map( card => Number( card.card_ID ) )
 				.val_exists( Number(card_ID) ) )
 		{

@@ -9,7 +9,8 @@ let GenFuncs       = {};
 
 
 
-function* GetCardEffect( playing_card_no, playing_card_ID ) {
+function* GetCardEffect( playing_card_ID ) {
+	const playing_card_no = Game.LookCardWithID( playing_card_ID ).card_no;
 	const playing_Card = Cardlist[ playing_card_no ];
 	FBref_chat.push( `${Game.player().name}が「${playing_Card.name_jp}」を使用しました。` );
 
@@ -152,256 +153,460 @@ $( function() {
 
 
 
+
+
+
+
+
+
 // 手札の廃棄
-function WaitForTrashingHandCard( conditions = (card_no,card_ID) => true ) {
+function WaitForMovingHandCard( operation, MyArea, conditions = (card_no,card_ID) => true, face = 'default' ) {
+	const OnesHandCard = ( MyArea ? 'MyHandCard' : 'HandCard' );
+	const player = ( MyArea ? Game.Me() : Game.player() );
+
 	return MyAsync( function*() {
 		const $handcards
-		  = $('.HandCards').children('.card')
+		  = $( `.${OnesHandCard}s` ).children('.card')
 			.filter( function() {
 				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
 			} );
-
-		$handcards.addClass('TrashHandCard pointer');
+		$handcards.addClass( `Move${OnesHandCard} pointer` );
 		const ClickedCardID_or_Done
-		  = yield new Promise( resolve => Resolve['TrashHandCard'] = resolve );
-		$handcards.removeClass('TrashHandCard pointer');
+		  = yield new Promise( resolve => Resolve[`Move${OnesHandCard}`] = resolve );
+		$handcards.removeClass( `Move${OnesHandCard} pointer` );
 
-		if ( ClickedCardID_or_Done === 'TrashHandCard_Done' ) return 'TrashHandCard_Done';
+		if ( ClickedCardID_or_Done === `Move${OnesHandCard}s_Done` ) return `Move${OnesHandCard}s_Done`;
 
-		Game.Trash( ClickedCardID_or_Done );
+		let Game_updates = {};
 
-		yield FBref_Game.update( {
-			[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
-			TrashPile : Game.TrashPile,
-		} );
+		switch ( operation ) {
+			case 'Trash' :
+				Game.Trash( ClickedCardID_or_Done );
+				Game_updates['TrashPile'] = Game.TrashPile;
+				break;
+
+			case 'Discard' :
+				Game.Discard( ClickedCardID_or_Done, player.id );
+				Game_updates[`Players/${player.id}/DiscardPile`] = player.DiscardPile;
+				break;
+
+			case 'Play' :
+				Game.Play( ClickedCardID_or_Done, player.id );
+				Game_updates[`Players/${player.id}/PlayArea`] = player.PlayArea;
+				break;
+
+			case 'PutBackToDeck' :
+				Game.PutBackToDeck( ClickedCardID_or_Done, player.id, true, face );
+				Game_updates[`Players/${player.id}/Deck`] = player.Deck;
+				break;
+		}
+
+		Game_updates[`Players/${player.id}/HandCards`] = player.HandCards;
+		yield FBref_Game.update( Game_updates );
 
 		yield Promise.resolve( ClickedCardID_or_Done );
 	});
 }
 
-function ShowTrashDoneButton() {
-	$('.action_buttons').append( MakeHTML_button( 'TrashHandCard_Done', '完了' ) );
+// HandCards of Game.player()
+function ShowDoneButton() {
+	$('.action_buttons').append( MakeHTML_button( 'MoveHandCards_Done', '完了' ) );
 }
-function HideTrashDoneButton() {
-	$('.action_buttons .TrashHandCard_Done').remove();
+function HideDoneButton() {
+	$('.action_buttons .MoveHandCards_Done').remove();
 }
+
+
+// MyHandCards
+function ShowDoneButton_MyArea() {
+	$('.MyArea .buttons').append( MakeHTML_button( 'MoveMyHandCards_Done', '完了' ) );
+}
+function HideDoneButton_MyArea() {
+	$('.MyArea .buttons .MoveMyHandCards_Done').remove();
+}
+
 
 $( function() {
-	$('.HandCards').on( 'click', '.card.TrashHandCard', function() {
-		Resolve['TrashHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+	// HandCards of Game.player()
+	$('.HandCards').on( 'click', '.card.MoveHandCard', function() {
+		Resolve['MoveHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
 	} );
 
-	$('.action_buttons').on( 'click', '.TrashHandCard_Done', function() {
-		Resolve['TrashHandCard']( 'TrashHandCard_Done' );  // 再開
-		$('.action_buttons .TrashHandCard_Done').remove();  /* 完了ボタン消す */
+	$('.action_buttons').on( 'click', '.MoveHandCards_Done', function() {
+		Resolve['MoveHandCard']( 'MoveHandCards_Done' );  // 再開
+		$('.action_buttons .MoveHandCards_Done').remove();  /* 完了ボタン消す */
+	} );
+
+	// MyHandCards
+	$('.MyHandCards').on( 'click', '.card.MoveMyHandCard', function() {
+		Resolve['MoveMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+	} );
+
+	$('.MyArea .buttons').on( 'click', '.MoveMyHandCards_Done', function() {
+		Resolve['MoveMyHandCard']( 'MoveMyHandCards_Done' );  // 再開
+		$('.MyArea .buttons .MoveMyHandCards_Done').remove();  /* 完了ボタン消す */
 	} );
 });
+
+
+
+
+
+
+// 手札の廃棄
+function WaitForTrashingHandCard( conditions = (card_no,card_ID) => true ) {
+	return WaitForMovingHandCard( 'Trash', false, conditions );
+	// return MyAsync( function*() {
+	// 	const $handcards
+	// 	  = $('.HandCards').children('.card')
+	// 		.filter( function() {
+	// 			return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+	// 		} );
+
+	// 	$handcards.addClass('TrashHandCard pointer');
+	// 	const ClickedCardID_or_Done
+	// 	  = yield new Promise( resolve => Resolve['TrashHandCard'] = resolve );
+	// 	$handcards.removeClass('TrashHandCard pointer');
+
+	// 	if ( ClickedCardID_or_Done === 'TrashHandCard_Done' ) return 'TrashHandCard_Done';
+
+	// 	Game.Trash( ClickedCardID_or_Done );
+
+	// 	yield FBref_Game.update( {
+	// 		[`Players/${Game.player().id}/HandCards`] : Game.player().HandCards,
+	// 		TrashPile : Game.TrashPile,
+	// 	} );
+
+	// 	yield Promise.resolve( ClickedCardID_or_Done );
+	// });
+}
+
+// function ShowTrashDoneButton() {
+// 	$('.action_buttons').append( MakeHTML_button( 'TrashHandCard_Done', '完了' ) );
+// }
+// function HideTrashDoneButton() {
+// 	$('.action_buttons .TrashHandCard_Done').remove();
+// }
+
+// $( function() {
+// 	$('.HandCards').on( 'click', '.card.TrashHandCard', function() {
+// 		Resolve['TrashHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
+
+// 	$('.action_buttons').on( 'click', '.TrashHandCard_Done', function() {
+// 		Resolve['TrashHandCard']( 'TrashHandCard_Done' );  // 再開
+// 		$('.action_buttons .TrashHandCard_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
 
 
 
 
 
 // 手札を捨て札にする
-function WaitForDiscaringHandCard( conditions = (card_no,card_ID) => true ) {
-	return MyAsync( function*() {
-		const $handcards
-		  = $('.HandCards').children('.card')
-			.filter( function() {
-				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
-			} );
+function WaitForDiscardingHandCard( conditions = (card_no,card_ID) => true ) {
+	return WaitForMovingHandCard( 'Discard', false, conditions );
+// 	return MyAsync( function*() {
+// 		const $handcards
+// 		  = $('.HandCards').children('.card')
+// 			.filter( function() {
+// 				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+// 			} );
 
-		$handcards.addClass('DiscardHandCard pointer');
-		const ClickedCardID_or_Done
-		  = yield new Promise( resolve => Resolve['DiscardHandCard'] = resolve );
-		$handcards.removeClass('DiscardHandCard pointer');
+// 		$handcards.addClass('DiscardHandCard pointer');
+// 		const ClickedCardID_or_Done
+// 		  = yield new Promise( resolve => Resolve['DiscardHandCard'] = resolve );
+// 		$handcards.removeClass('DiscardHandCard pointer');
 
-		if ( ClickedCardID_or_Done === 'DiscardHandCard_Done' ) return 'DiscardHandCard_Done';
+// 		if ( ClickedCardID_or_Done === 'DiscardHandCard_Done' ) return 'DiscardHandCard_Done';
 
-		Game.Discard( ClickedCardID_or_Done );
+// 		Game.Discard( ClickedCardID_or_Done );
 
-		yield FBref_Players.child( Game.player().id ).update( {
-			HandCards   : Game.player().HandCards,
-			DiscardPile : Game.player().DiscardPile,
-		} );
+// 		yield FBref_Players.child( Game.player().id ).update( {
+// 			HandCards   : Game.player().HandCards,
+// 			DiscardPile : Game.player().DiscardPile,
+// 		} );
 
-		yield Promise.resolve( ClickedCardID_or_Done );
-	});
+// 		yield Promise.resolve( ClickedCardID_or_Done );
+// 	});
 }
 
-function ShowDiscardDoneButton() {
-	$('.action_buttons').append( MakeHTML_button( 'DiscardHandCard_Done', '完了' ) );
-}
-function HideDiscardDoneButton() {
-	$('.action_buttons .DiscardHandCard_Done').remove();
-}
+// function ShowDiscardDoneButton() {
+// 	$('.action_buttons').append( MakeHTML_button( 'DiscardHandCard_Done', '完了' ) );
+// }
+// function HideDiscardDoneButton() {
+// 	$('.action_buttons .DiscardHandCard_Done').remove();
+// }
 
-$( function() {
-	$('.HandCards').on( 'click', '.card.DiscardHandCard', function() {
-		Resolve['DiscardHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
-	} );
+// $( function() {
+// 	$('.HandCards').on( 'click', '.card.DiscardHandCard', function() {
+// 		Resolve['DiscardHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
 
-	$('.action_buttons').on( 'click', '.DiscardHandCard_Done', function() {
-		Resolve['DiscardHandCard']( 'DiscardHandCard_Done' );  // 再開
-		$('.action_buttons .DiscardHandCard_Done').remove();  /* 完了ボタン消す */
-	} );
-});
+// 	$('.action_buttons').on( 'click', '.DiscardHandCard_Done', function() {
+// 		Resolve['DiscardHandCard']( 'DiscardHandCard_Done' );  // 再開
+// 		$('.action_buttons .DiscardHandCard_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
 
 
 
 
 
 // 手札を捨て札にする(MyArea)
-function WaitForDiscaringMyHandCard( conditions = (card_no,card_ID) => true ) {
-	return MyAsync( function*() {
-		const $handcards
-		  = $('.MyHandCards').children('.card')
-			.filter( function() {
-				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
-			} );
+function WaitForDiscardingMyHandCard( conditions = (card_no,card_ID) => true ) {
+	return WaitForMovingHandCard( 'Discard', true, conditions );
+	// return MyAsync( function*() {
+	// 	const $handcards
+	// 	  = $('.MyHandCards').children('.card')
+	// 		.filter( function() {
+	// 			return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+	// 		} );
 
-		$handcards.addClass('DiscardMyHandCard pointer');
-		const ClickedCardID_or_Done
-		  = yield new Promise( resolve => Resolve['DiscardMyHandCard'] = resolve );
-		$handcards.removeClass('DiscardMyHandCard pointer');
+	// 	$handcards.addClass('DiscardMyHandCard pointer');
+	// 	const ClickedCardID_or_Done
+	// 	  = yield new Promise( resolve => Resolve['DiscardMyHandCard'] = resolve );
+	// 	$handcards.removeClass('DiscardMyHandCard pointer');
 
-		if ( ClickedCardID_or_Done === 'DiscardMyHandCards_Done' ) {
-			return 'DiscardMyHandCards_Done';
-		}
+	// 	if ( ClickedCardID_or_Done === 'DiscardMyHandCards_Done' ) {
+	// 		return 'DiscardMyHandCards_Done';
+	// 	}
 
-		Game.Discard( ClickedCardID_or_Done, Game.Me().id );
+	// 	Game.Discard( ClickedCardID_or_Done, Game.Me().id );
 
-		yield FBref_Players.child( Game.Me().id ).update( {
-			HandCards   : Game.Me().HandCards,
-			DiscardPile : Game.Me().DiscardPile,
-		} );
+	// 	yield FBref_Players.child( Game.Me().id ).update( {
+	// 		HandCards   : Game.Me().HandCards,
+	// 		DiscardPile : Game.Me().DiscardPile,
+	// 	} );
 
-		yield Promise.resolve( ClickedCardID_or_Done );  // return value
-	});
+	// 	yield Promise.resolve( ClickedCardID_or_Done );  // return value
+	// });
 }
 
-function ShowDiscardDoneButton_MyArea() {
-	$('.MyArea .buttons').append( MakeHTML_button( 'DiscardMyHandCards_Done', '完了' ) );
-}
-function HideDiscardDoneButton_MyArea() {
-	$('.MyArea .buttons .DiscardMyHandCards_Done').remove();
-}
+// function ShowDiscardDoneButton_MyArea() {
+// 	$('.MyArea .buttons').append( MakeHTML_button( 'DiscardMyHandCards_Done', '完了' ) );
+// }
+// function HideDiscardDoneButton_MyArea() {
+// 	$('.MyArea .buttons .DiscardMyHandCards_Done').remove();
+// }
 
-$( function() {
-	$('.MyHandCards').on( 'click', '.card.DiscardMyHandCard', function() {
-		Resolve['DiscardMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
-	} );
+// $( function() {
+// 	$('.MyHandCards').on( 'click', '.card.DiscardMyHandCard', function() {
+// 		Resolve['DiscardMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
 
-	$('.MyArea .buttons').on( 'click', '.DiscardMyHandCards_Done', function() {
-		Resolve['DiscardMyHandCard']( 'DiscardMyHandCards_Done' );  // 再開
-		$('.MyArea .buttons .DiscardMyHandCards_Done').remove();  /* 完了ボタン消す */
-	} );
-});
+// 	$('.MyArea .buttons').on( 'click', '.DiscardMyHandCards_Done', function() {
+// 		Resolve['DiscardMyHandCard']( 'DiscardMyHandCards_Done' );  // 再開
+// 		$('.MyArea .buttons .DiscardMyHandCards_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
 
 
 
 
 
 // 手札を山札に戻す
-function WaitForPuttingBackHandCard(
-		conditions = (card_no,card_ID) => true,
-		face = 'default' )
-{
-	return MyAsync( function*() {
-		const $handcards
-		  = $('.HandCards').children('.card')
-			.filter( function() {
-				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
-			} );
+function WaitForPuttingBackHandCard( conditions = (card_no,card_ID) => true, face = 'default' ) {
+	return WaitForMovingHandCard( 'PutBackToDeck', false, conditions, face );
+	// return MyAsync( function*() {
+	// 	const $handcards
+	// 	  = $('.HandCards').children('.card')
+	// 		.filter( function() {
+	// 			return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+	// 		} );
 
-		$handcards.addClass('PutBackToDeckHandCard pointer');
-		const ClickedCardID_or_Done
-		  = yield new Promise( resolve => Resolve['PutBackToDeckHandCard'] = resolve );
-		$handcards.removeClass('PutBackToDeckHandCard pointer');
+	// 	$handcards.addClass('PutBackToDeckHandCard pointer');
+	// 	const ClickedCardID_or_Done
+	// 	  = yield new Promise( resolve => Resolve['PutBackToDeckHandCard'] = resolve );
+	// 	$handcards.removeClass('PutBackToDeckHandCard pointer');
 
-		if ( ClickedCardID_or_Done === 'PutBackToDeckHandCards_Done' ) return 'PutBackToDeckHandCards_Done';
+	// 	if ( ClickedCardID_or_Done === 'PutBackToDeckHandCards_Done' ) return 'PutBackToDeckHandCards_Done';
 
-		Game.PutBackToDeck( ClickedCardID_or_Done, Game.player().id, true, face );
+	// 	Game.PutBackToDeck( ClickedCardID_or_Done, Game.player().id, true, face );
 
-		yield FBref_Players.child( Game.player().id ).update( {
-			HandCards : Game.player().HandCards,
-			Deck      : Game.player().Deck,
-		} );
+	// 	yield FBref_Players.child( Game.player().id ).update( {
+	// 		HandCards : Game.player().HandCards,
+	// 		Deck      : Game.player().Deck,
+	// 	} );
 
-		yield Promise.resolve( ClickedCardID_or_Done );  // return value
-	});
+	// 	yield Promise.resolve( ClickedCardID_or_Done );  // return value
+	// });
 }
 
-function ShowPutBackToDeckDoneButton() {
-	$('.action_buttons').append( MakeHTML_button( 'PutBackToDeckHandCards_Done', '完了' ) );
-}
-function HidePutBackToDeckDoneButton() {
-	$('.action_buttons .PutBackToDeckHandCards_Done').remove();
-}
+// function ShowPutBackToDeckDoneButton() {
+// 	$('.action_buttons').append( MakeHTML_button( 'PutBackToDeckHandCards_Done', '完了' ) );
+// }
+// function HidePutBackToDeckDoneButton() {
+// 	$('.action_buttons .PutBackToDeckHandCards_Done').remove();
+// }
 
-$( function() {
-	$('.HandCards').on( 'click', '.card.PutBackToDeckHandCard', function() {
-		Resolve['PutBackToDeckHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
-	} );
+// $( function() {
+// 	$('.HandCards').on( 'click', '.card.PutBackToDeckHandCard', function() {
+// 		Resolve['PutBackToDeckHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
 
-	$('.action_buttons').on( 'click', '.PutBackToDeckHandCards_Done', function() {
-		Resolve['PutBackToDeckHandCard']( 'PutBackToDeckHandCards_Done' );  // 再開
-		$('.action_buttons .PutBackToDeckHandCards_Done').remove();  /* 完了ボタン消す */
-	} );
-});
+// 	$('.action_buttons').on( 'click', '.PutBackToDeckHandCards_Done', function() {
+// 		Resolve['PutBackToDeckHandCard']( 'PutBackToDeckHandCards_Done' );  // 再開
+// 		$('.action_buttons .PutBackToDeckHandCards_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
 
 
 
 
 
 // 手札を山札に戻す(MyArea)
-function WaitForPuttingBackMyHandCard(
-		conditions = (card_no,card_ID) => true,
-		face = 'default' )
-{
-	return MyAsync( function*() {
-		const $handcards
-		  = $('.MyHandCards').children('.card')
-			.filter( function() {
-				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
-			} );
+function WaitForPuttingBackMyHandCard( conditions = (card_no,card_ID) => true, face = 'default' ) {
+	return WaitForMovingHandCard( 'PutBackToDeck', true, conditions, face );
+	// return MyAsync( function*() {
+	// 	const $handcards
+	// 	  = $('.MyHandCards').children('.card')
+	// 		.filter( function() {
+	// 			return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+	// 		} );
 
-		$handcards.addClass('PutBackToDeckMyHandCard pointer');
-		const ClickedCardID_or_Done
-		  = yield new Promise( resolve => Resolve['PutBackToDeckMyHandCard'] = resolve );
-		$handcards.removeClass('PutBackToDeckMyHandCard pointer');
+	// 	$handcards.addClass('PutBackToDeckMyHandCard pointer');
+	// 	const ClickedCardID_or_Done
+	// 	  = yield new Promise( resolve => Resolve['PutBackToDeckMyHandCard'] = resolve );
+	// 	$handcards.removeClass('PutBackToDeckMyHandCard pointer');
 
-		if ( ClickedCardID_or_Done === 'PutBackToDeckMyHandCards_Done' ) {
-			return 'PutBackToDeckMyHandCards_Done';
-		}
+	// 	if ( ClickedCardID_or_Done === 'PutBackToDeckMyHandCards_Done' ) {
+	// 		return 'PutBackToDeckMyHandCards_Done';
+	// 	}
 
-		Game.PutBackToDeck( ClickedCardID_or_Done, Game.Me().id, true, face );
+	// 	Game.PutBackToDeck( ClickedCardID_or_Done, Game.Me().id, true, face );
 
-		yield FBref_Players.child( Game.Me().id ).update( {
-			HandCards : Game.Me().HandCards,
-			Deck      : Game.Me().Deck,
-		} );
+	// 	yield FBref_Players.child( Game.Me().id ).update( {
+	// 		HandCards : Game.Me().HandCards,
+	// 		Deck      : Game.Me().Deck,
+	// 	} );
 
-		yield Promise.resolve( ClickedCardID_or_Done );  // return value
-	});
+	// 	yield Promise.resolve( ClickedCardID_or_Done );  // return value
+	// });
 }
 
-function ShowPutBackToDeckDoneButton_MyArea() {
-	$('.MyArea .buttons').append( MakeHTML_button( 'PutBackToDeckMyHandCards_Done', '完了' ) );
-}
-function HidePutBackToDeckDoneButton_MyArea() {
-	$('.MyArea .buttons .PutBackToDeckMyHandCards_Done').remove();
+// function ShowPutBackToDeckDoneButton_MyArea() {
+// 	$('.MyArea .buttons').append( MakeHTML_button( 'PutBackToDeckMyHandCards_Done', '完了' ) );
+// }
+// function HidePutBackToDeckDoneButton_MyArea() {
+// 	$('.MyArea .buttons .PutBackToDeckMyHandCards_Done').remove();
+// }
+
+// $( function() {
+// 	$('.MyHandCards').on( 'click', '.card.PutBackToDeckMyHandCard', function() {
+// 		Resolve['PutBackToDeckMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
+
+// 	$('.MyArea .buttons').on( 'click', '.PutBackToDeckMyHandCards_Done', function() {
+// 		Resolve['PutBackToDeckMyHandCard']( 'PutBackToDeckMyHandCards_Done' );  // 再開
+// 		$('.MyArea .buttons .PutBackToDeckMyHandCards_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
+
+
+
+
+
+
+// 手札を場に出す
+function WaitForPlayingHandCard( conditions = (card_no,card_ID) => true ) {
+	return WaitForMovingHandCard( 'Play', false, conditions );
+// 	return MyAsync( function*() {
+// 		const $handcards
+// 		  = $('.HandCards').children('.card')
+// 			.filter( function() {
+// 				return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+// 			} );
+
+// 		$handcards.addClass('PlayHandCard pointer');
+// 		const ClickedCardID_or_Done
+// 		  = yield new Promise( resolve => Resolve['PlayHandCard'] = resolve );
+// 		$handcards.removeClass('PlayHandCard pointer');
+
+// 		if ( ClickedCardID_or_Done === 'PlayHandCard_Done' ) return 'PlayHandCard_Done';
+
+// 		Game.Play( ClickedCardID_or_Done );
+
+// 		yield FBref_Players.child( Game.player().id ).update( {
+// 			HandCards : Game.player().HandCards,
+// 			PlayArea  : Game.player().PlayArea,
+// 		} );
+
+// 		yield Promise.resolve( ClickedCardID_or_Done );
+// 	});
 }
 
-$( function() {
-	$('.MyHandCards').on( 'click', '.card.PutBackToDeckMyHandCard', function() {
-		Resolve['PutBackToDeckMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
-	} );
+// function ShowPlayDoneButton() {
+// 	$('.action_buttons').append( MakeHTML_button( 'PlayHandCard_Done', '完了' ) );
+// }
+// function HidePlayDoneButton() {
+// 	$('.action_buttons .PlayHandCard_Done').remove();
+// }
 
-	$('.MyArea .buttons').on( 'click', '.PutBackToDeckMyHandCards_Done', function() {
-		Resolve['PutBackToDeckMyHandCard']( 'PutBackToDeckMyHandCards_Done' );  // 再開
-		$('.MyArea .buttons .PutBackToDeckMyHandCards_Done').remove();  /* 完了ボタン消す */
-	} );
-});
+// $( function() {
+// 	$('.HandCards').on( 'click', '.card.PlayHandCard', function() {
+// 		Resolve['PlayHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
+
+// 	$('.action_buttons').on( 'click', '.PlayHandCard_Done', function() {
+// 		Resolve['PlayHandCard']( 'PlayHandCard_Done' );  // 再開
+// 		$('.action_buttons .PlayHandCard_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
+
+
+
+
+
+// 手札を場に出す(MyArea)
+function WaitForPlayingMyHandCard( conditions = (card_no,card_ID) => true ) {
+	return WaitForMovingHandCard( 'Play', true, conditions );
+	// return MyAsync( function*() {
+	// 	const $handcards
+	// 	  = $('.MyHandCards').children('.card')
+	// 		.filter( function() {
+	// 			return conditions( Number( $(this).attr('data-card_no') ), Number( $(this).attr('data-card_ID') ) )
+	// 		} );
+
+	// 	$handcards.addClass('PlayMyHandCard pointer');
+	// 	const ClickedCardID_or_Done
+	// 	  = yield new Promise( resolve => Resolve['PlayMyHandCard'] = resolve );
+	// 	$handcards.removeClass('PlayMyHandCard pointer');
+
+	// 	if ( ClickedCardID_or_Done === 'PlayMyHandCards_Done' ) {
+	// 		return 'PlayMyHandCards_Done';
+	// 	}
+
+	// 	Game.Play( ClickedCardID_or_Done, Game.Me().id );
+
+	// 	yield FBref_Players.child( Game.Me().id ).update( {
+	// 		HandCards : Game.Me().HandCards,
+	// 		PlayArea  : Game.Me().PlayArea,
+	// 	} );
+
+	// 	yield Promise.resolve( ClickedCardID_or_Done );  // return value
+	// });
+}
+
+// function ShowPlayDoneButton_MyArea() {
+// 	$('.MyArea .buttons').append( MakeHTML_button( 'PlayMyHandCards_Done', '完了' ) );
+// }
+// function HidePlayDoneButton_MyArea() {
+// 	$('.MyArea .buttons .PlayMyHandCards_Done').remove();
+// }
+
+// $( function() {
+// 	$('.MyHandCards').on( 'click', '.card.PlayMyHandCard', function() {
+// 		Resolve['PlayMyHandCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+// 	} );
+
+// 	$('.MyArea .buttons').on( 'click', '.PlayMyHandCards_Done', function() {
+// 		Resolve['PlayMyHandCard']( 'PlayMyHandCards_Done' );  // 再開
+// 		$('.MyArea .buttons .PlayMyHandCards_Done').remove();  /* 完了ボタン消す */
+// 	} );
+// });
+
+
 
 
 
@@ -445,7 +650,7 @@ function WaitForGainingSupplyCard(
 		$available_piles.addClass(`GainSupplyCard ${AddTo} ${up_or_down} pointer`);
 		const GainedCardID
 		  = yield new Promise( resolve => Resolve['GainSupplyCard'] = resolve );
-		$available_piles.removeClass(`GainSupplyCard ${AddTo} ${up_or_down} pointer`);
+		$available_piles.removeClass(`GainSupplyCard ${AddTo} face${up_or_down} pointer`);
 		yield Promise.resolve( GainedCardID );
 	});
 }
@@ -464,8 +669,8 @@ $( function() {
 		}
 
 		let face = 'default';
-		if ( $(this).hasClass('up') )   face = 'up';
-		if ( $(this).hasClass('down') ) face = 'down';
+		if ( $(this).hasClass('faceup') )   face = 'up';
+		if ( $(this).hasClass('facedown') ) face = 'down';
 
 		const clicked_card_name_eng = $(this).attr('data-card-name-eng');
 		const clicked_card = Game.Supply.byName(clicked_card_name_eng).LookTopCard();

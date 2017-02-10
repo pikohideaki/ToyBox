@@ -6,7 +6,7 @@ $( function() {
 		let Players = FBsnapshot.val().Players;
 		for ( let i = 0; i < Players.length; ++i ) {
 			Players[i] = new CPlayer( Players[i] );
-			Players[i].HandCards = Players[i].GetCopyOfPlayersAllCards();
+			Players[i].HandCards = Players[i].GetCopyOfAllCards();
 			Players[i].SortHandCards();
 			const DeckAll = Players[i].HandCards;
 
@@ -14,7 +14,7 @@ $( function() {
 			$deck_all.html('');
 			DeckAll.forEach( (card) =>
 				$deck_all.append( `
-					<button class='card face'
+					<button class='card up'
 						data-card_no='${card.card_no}'
 						data-card_name_jp='${Cardlist[ card.card_no ].name_jp}'>
 					</button>

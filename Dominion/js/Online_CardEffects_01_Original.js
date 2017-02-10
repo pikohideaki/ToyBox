@@ -11,30 +11,30 @@ $( function() {
 	   CardEffect['Province']     = function* () {}  /* --  6. 属州 */
 	   CardEffect['Curse']        = function* () {}  /* --  7. 呪い */
 	   CardEffect['Market']       = function* () {}  /* --  8. 市場 */
-	// CardEffect['Remodel']      = function* () {}  /*     9. 改築 */
+	// CardEffect['Remodel']      = function* () {}  /* ok  9. 改築 */
 	   CardEffect['Smithy']       = function* () {}  /* -- 10. 鍛冶屋 */
-	// CardEffect['Moneylender']  = function* () {}  /*    11. 金貸し */
+	// CardEffect['Moneylender']  = function* () {}  /* ok 11. 金貸し */
 	   CardEffect['Woodcutter']   = function* () {}  /* -- 12. 木こり */
 	// CardEffect['Council Room'] = function* () {}  /* ok 13. 議事堂 */
 	// CardEffect['Throne Room']  = function* () {}  /* ok 14. 玉座の間 */
 	   CardEffect['Laboratory']   = function* () {}  /* -- 15. 研究所 */
-	// CardEffect['Mine']         = function* () {}  /*    16. 鉱山 */
-	// CardEffect['Workshop']     = function* () {}  /*    17. 工房 */
+	// CardEffect['Mine']         = function* () {}  /* ok 16. 鉱山 */
+	// CardEffect['Workshop']     = function* () {}  /* ok 17. 工房 */
 	// CardEffect['Chancellor']   = function* () {}  /* ok 18. 宰相 */
-	// CardEffect['Feast']        = function* () {}  /*    19. 祝宴 */
+	// CardEffect['Feast']        = function* () {}  /* ok 19. 祝宴 */
 	   CardEffect['Festival']     = function* () {}  /* -- 20. 祝祭 */
-	// CardEffect['Library']      = function* () {}  /*    21. 書庫 */
-	// CardEffect['Cellar']       = function* () {}  /*    22. 地下貯蔵庫 */
+	// CardEffect['Library']      = function* () {}  /* ok 21. 書庫 */
+	// CardEffect['Cellar']       = function* () {}  /* ok 22. 地下貯蔵庫 */
 	// CardEffect['Gardens']      = function* () {}  /* -- 23. 庭園 */
-	// CardEffect['Thief']        = function* () {}  /*    24. 泥棒 */
-	// CardEffect['Adventurer']   = function* () {}  /*    25. 冒険者 */
-	   CardEffect['Moat']         = function* () {}  /*    26. 堀 */
-	// CardEffect['Witch']        = function* () {}  /*    27. 魔女 */
-	// CardEffect['Spy']          = function* () {}  /*    28. 密偵 */
-	// CardEffect['Militia']      = function* () {}  /*    29. 民兵 */
+	// CardEffect['Thief']        = function* () {}  /* ok 24. 泥棒 */
+	// CardEffect['Adventurer']   = function* () {}  /* ok 25. 冒険者 */
+	   CardEffect['Moat']         = function* () {}  /* ok 26. 堀 */
+	// CardEffect['Witch']        = function* () {}  /* ok 27. 魔女 */
+	// CardEffect['Spy']          = function* () {}  /* ok 28. 密偵 */
+	// CardEffect['Militia']      = function* () {}  /* ok 29. 民兵 */
 	   CardEffect['Village']      = function* () {}  /* -- 30. 村 */
-	// CardEffect['Bureaucrat']   = function* () {}  /*    31. 役人 */
-	// CardEffect['Chapel']       = function* () {}  /*    32. 礼拝堂 */
+	// CardEffect['Bureaucrat']   = function* () {}  /* ok 31. 役人 */
+	// CardEffect['Chapel']       = function* () {}  /* ok 32. 礼拝堂 */
 
 
 
@@ -73,8 +73,8 @@ $( function() {
 			`コストが廃棄したカード+2(=${TrashedCardCost.coin + 2})コインまでのカードを獲得してください。` );
 
 		yield WaitForGainingSupplyCard( 'AddToDiscardPile',
-			( card, card_no ) =>
-				CostOp( '<=', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [2,0,0] ) ) );
+				( card, card_no ) =>
+					CostOp( '<=', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [2,0,0] ) ) );
 	};
 
 
@@ -111,7 +111,7 @@ $( function() {
 	   《2nd edition》 +4 Cards +1 Buy Each other player draws a card. */
 	CardEffect['Council Room'] = function* () {
 		Game.ForAllOtherPlayers( player_id => Game.Players[player_id].DrawCards(1) )
-		yield FBref_Players.update( Game.Players );
+		yield FBref_Players.set( Game.Players );
 	};
 
 
@@ -137,25 +137,25 @@ $( function() {
 
 		yield FBref_Message.set( '手札のアクションカードを1枚選んで下さい。' );
 
-		$action_cards.addClass('Throne_Room_UseTwice pointer');
-
+		const UseTwiceAction_card_ID
+		 = yield WaitForPlayingHandCard( card_no => IsActionCard( Cardlist, card_no ) );
 		// アクションカード選択待機
-		const [clicked_card_no, clicked_card_ID]
-			= yield new Promise( resolve => Resolve['Throne_Room_UseTwice'] = resolve );
-		$action_cards.removeClass('Throne_Room_UseTwice pointer');
+		// $action_cards.addClass('Throne_Room_UseTwice pointer');
+		// const clicked_card_ID
+		// 	= yield new Promise( resolve => Resolve['Throne_Room_UseTwice'] = resolve );
+		// $action_cards.removeClass('Throne_Room_UseTwice pointer');
 
-		yield MyAsync( GetCardEffect, clicked_card_no, clicked_card_ID );  /* 1回目 */
-		yield MyAsync( GetCardEffect, clicked_card_no, clicked_card_ID );  /* 2回目 */
+		yield MyAsync( GetCardEffect, UseTwiceAction_card_ID );  /* 1回目 */
+		yield MyAsync( GetCardEffect, UseTwiceAction_card_ID );  /* 2回目 */
 	};
 
-	$('.HandCards').on( 'click', '.card.Throne_Room_UseTwice', function() {
-		const clicked_card_no = Number( $(this).attr('data-card_no') );
-		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
+	// $('.HandCards').on( 'click', '.card.Throne_Room_UseTwice', function() {
+	// 	const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 
-		/* 選んだアクションカードを場に出す */
-		Game.Play( clicked_card_ID )
-		.then( () => Resolve['Throne_Room_UseTwice']( [clicked_card_no, clicked_card_ID] ) );  // 再開
-	} );
+	// 	/* 選んだアクションカードを場に出す */
+	// 	Game.Play( clicked_card_ID )
+	// 	.then( () => Resolve['Throne_Room_UseTwice']( clicked_card_ID ) );  // 再開
+	// } );
 
 
 
@@ -188,9 +188,9 @@ $( function() {
 			`コストが廃棄したカード+3(=${TrashedCardCost.coin + 3})コインまでの財宝カードを獲得してください。` );
 
 		yield WaitForGainingSupplyCard( 'AddToHandCards',
-			( card, card_no ) =>
-				CostOp( '<=', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [3,0,0] ) )
-				&& IsTreasureCard( Cardlist, card_no ) );
+				( card, card_no ) =>
+					CostOp( '<=', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [3,0,0] ) )
+					&& IsTreasureCard( Cardlist, card_no ) );
 	};
 
 
@@ -203,7 +203,7 @@ $( function() {
 		yield FBref_Message.set( 'コスト4以下のカードを獲得して下さい。' );
 
 		yield WaitForGainingSupplyCard( 'AddToDiscardPile',
-			( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [4,0,0] ) );
+				( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [4,0,0] ) );
 	};
 
 
@@ -248,7 +248,7 @@ $( function() {
 		} );
 
 		yield WaitForGainingSupplyCard( 'AddToDiscardPile',
-			( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [5,0,0] ) );
+				( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [5,0,0] ) );
 	};
 
 
@@ -353,7 +353,9 @@ $( function() {
 					} );
 
 			// 財宝カードがあれば1枚廃棄
-			if ( $TreasureCards.length > 0 ) {
+			if ( $TreasureCards.length == 0 ) {
+				yield AcknowledgeButton_OtherPlayer( player_id );
+			} else {
 				$TreasureCards.addClass('Thief_Trash pointer');
 				const clicked_card_ID
 				  = yield new Promise( resolve => Resolve['Thief_Trash'] = resolve );
@@ -365,8 +367,6 @@ $( function() {
 					[`Players/${player_id}/Open`] : Game.Players[ player_id ].Open,
 				} );
 				yield Game.StackCardID( clicked_card_ID );
-			} else {
-				yield AcknowledgeButton_OtherPlayer( player_id );
 			}
 
 			/* 公開したカードの残りを捨て札に */
@@ -385,23 +385,23 @@ $( function() {
 				attack_effects );
 
 
+		if ( Game.StackedCardIDs.length == 0 ) return;
+
 		// 1枚以上廃棄したならばその中から好きな枚数獲得
-		if ( Game.StackedCardIDs.length > 0 ) {
-			/* 廃棄したカードの獲得画面 */
-			let trashed_cards_html = "";
+		/* 廃棄したカードの獲得画面 */
+		let trashed_cards_html = "";
 
-			Game.StackedCardIDs.forEach( function( card_ID ) {
-				const card = Game.LookCardWithID( card_ID );
-				card.class_str = 'Thief_GainTrashedCard pointer';
-				trashed_cards_html += MakeHTML_Card( card, Game );
-			} );
+		Game.StackedCardIDs.forEach( function( card_ID ) {
+			const card = Game.LookCardWithID( card_ID );
+			card.class_str = 'Thief_GainTrashedCard pointer';
+			trashed_cards_html += MakeHTML_Card( card, Game );
+		} );
 
-			yield MyAlert( '廃棄したカードから好きな枚数獲得してください。', 
-				{ contents : trashed_cards_html } );
+		yield MyAlert( '廃棄したカードから好きな枚数獲得してください。', 
+			{ contents : trashed_cards_html } );
 
-			Game.ResetClassStr();
-			yield Game.ResetStackedCardIDs();
-		}
+		Game.ResetClassStr();
+		yield Game.ResetStackedCardIDs();
 	};
 
 	/* 廃棄するカードの選択 */
@@ -414,12 +414,13 @@ $( function() {
 		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
 		$(this).remove();  /* クリックしたカードを非表示 */
 
-		Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
+		Game.GainCard( clicked_card_ID );
+		// Game.player().AddToDiscardPile( Game.GetCardWithID( clicked_card_ID ) );
 
-		FBref_Game.update( {
-			TrashPile : Game.TrashPile,
-			[`Players/${Game.player().id}/DiscardPile`] : Game.player().DiscardPile,
-		} );
+		// FBref_Game.update( {
+		// 	TrashPile : Game.TrashPile,
+		// 	[`Players/${Game.player().id}/DiscardPile`] : Game.player().DiscardPile,
+		// } );
 	} );
 
 
@@ -584,7 +585,7 @@ $( function() {
 	/* アタックされる側 */
 	AttackEffect['Militia'] = function*() {
 		while ( $('.MyHandCards').children('.card').length > 3 ) {
-			yield WaitForDiscaringMyHandCard();
+			yield WaitForDiscardingMyHandCard();
 		}
 	};
 
@@ -648,16 +649,16 @@ $( function() {
 	CardEffect['Chapel'] = function* () {
 		yield FBref_Message.set( '手札を4枚まで廃棄して下さい。' );
 
-		ShowTrashDoneButton();
+		ShowDoneButton();
 
 		let trashed_num = 0;
-		while ( trashed_num < 4 ) {
+		while ( trashed_num < 4 && Game.player().HandCards.length > 0 ) {
 			const return_value = yield WaitForTrashingHandCard();
-			if ( return_value === 'TrashHandCard_Done' ) break;
+			if ( return_value === 'MoveHandCards_Done' ) break;
 			trashed_num++;
 			yield FBref_Message.set( `あと ${(4 - trashed_num)} 枚廃棄できます。` );
 		}
 
-		HideTrashDoneButton();
+		HideDoneButton();
 	};
 } );

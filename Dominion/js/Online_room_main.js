@@ -143,8 +143,8 @@ $('#make-room-btn').click( function() {
 	Randomizer( SelectedCards, UsingSetlist, Cardlist );
 
 	/* test */
-	// SelectedCards.KingdomCards = [ 9,11,13,14,16,17,18,19,21,22, ];  //
-	SelectedCards.KingdomCards = [ 21,24,25,26, 27,28,29,31, 15,32 ];  //
+	// SelectedCards.KingdomCards = [  9,11,13,14,16, 17,18,19,21, 32 ];
+	SelectedCards.KingdomCards = [ 22,24,25,26,27, 28,29,31,32, 15 ];
 
 	// SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
 	// SelectedCards.KingdomCards[1] = 142;  // 魔女娘
