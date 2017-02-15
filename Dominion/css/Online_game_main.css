@@ -349,13 +349,13 @@
 .MyDiscardPile {
 	width: 90px;
 }
-.MyArea .buttons {
+.MyAreaButtons {
 	margin-left: 95px;
 	margin-top:5px;
 	height : 50px;
 }
 
-/*.MyArea .buttons .button,input[type=button] {
+/*.MyAreaButtons .button,input[type=button] {
 	margin-left: 5px;
 }*/
 

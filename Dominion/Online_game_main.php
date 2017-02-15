@@ -239,7 +239,7 @@ $GameRoomID = $_POST['room-id'];
 					<div class='clear'></div>
 				</div>
 				<p>
-					<span class='action_buttons'> <!-- jsでここを書き換え --> </span>
+					<span class='PlayersAreaButtons'> <!-- jsでここを書き換え --> </span>
 					<input type='button' class='btn-blue SortHandCards'    value='手札をソート'>
 					<input type='button' class='btn-blue UseAllTreasures'  value='基本財宝カードを全て払う'>
 					<input type='button' class='btn-blue MoveToBuyPhase'   value='購入フェーズへ'>
@@ -308,7 +308,7 @@ $GameRoomID = $_POST['room-id'];
 			<div class='MyCardArea MyHandCards'> </div>
 			<div class='MyCardArea MyDiscardPile'> </div>
 			<div class='clear'></div>
-			<div class='buttons'>
+			<div class='MyAreaButtons'>
 				<input type='button' class='btn-blue SortHandCards' value='手札をソート'>
 			</div>
 		</div>
@@ -396,6 +396,7 @@ $GameRoomID = $_POST['room-id'];
 	const FBref_Settings             = FBref_Game.child( 'Settings' );
 	const FBref_Supply               = FBref_Game.child( 'Supply' );
 	const FBref_Players              = FBref_Game.child( 'Players' );
+	const FBref_TurnInfo             = FBref_Game.child( 'TurnInfo' );
 	const FBref_StackedCardIDs       = FBref_Game.child( 'StackedCardIDs' );
 
 	const FBref_Signal               = FBref_Room.child( 'Signals' );

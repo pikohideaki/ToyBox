@@ -73,7 +73,7 @@ $( function() {
 
 		const card_names = [];
 		for( let i = 0; i < BasicTreasures.length; ++i ) {
-			Game.Play( BasicTreasures[i].card_ID );  /* カード移動 */
+			Game.player().Play( BasicTreasures[i].card_ID, Game );  /* カード移動 */
 			Game.TurnInfo.coin += Cardlist[ BasicTreasures[i].card_no ].coin;
 
 			// 銅細工師

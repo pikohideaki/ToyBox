@@ -1,4 +1,9 @@
 
+/*
+ * CPlayerクラスの定義ファイル．
+ * プレイヤー1人のもつ情報
+ */
+
 
 class CPlayer {
 	constructor( PlayerObj ) {
@@ -46,7 +51,10 @@ class CPlayer {
 		}
 
 		this.Deck.shuffle();
-		this.DrawCards(5,false,false);
+
+		for ( let i = 0; i < 5; ++i ) {
+			this.AddToHandCards( this.GetDeckTopCard() );
+		}
 
 		this.id   = myid;
 		this.name = myname;
@@ -65,9 +73,9 @@ class CPlayer {
 	SortHandCards() {
 		let sorted = this.HandCards.sort( function(a,b) { return a.card_no - b.card_no; });
 		let action_cards, treasure_cards, victory_cards;
-		[ action_cards  , sorted ] = sorted.filterRemove( (elm) => IsActionCard  ( Cardlist, elm.card_no ) );
-		[ treasure_cards, sorted ] = sorted.filterRemove( (elm) => IsTreasureCard( Cardlist, elm.card_no ) );
-		[ victory_cards , sorted ] = sorted.filterRemove( (elm) => IsVictoryCard ( Cardlist, elm.card_no ) );
+		[ action_cards  , sorted ] = sorted.filterRemove( elm => IsActionCard  ( Cardlist, elm.card_no ) );
+		[ treasure_cards, sorted ] = sorted.filterRemove( elm => IsTreasureCard( Cardlist, elm.card_no ) );
+		[ victory_cards , sorted ] = sorted.filterRemove( elm => IsVictoryCard ( Cardlist, elm.card_no ) );
 		this.HandCards = [].concat( action_cards, treasure_cards, victory_cards, sorted );
 	}
 
@@ -81,6 +89,34 @@ class CPlayer {
 				, this.Open
 			);
 	}
+
+
+	ResetFace() {
+		this.GetCopyOfAllCards().forEach( card => card.face = 'default' );
+		return FBref_Players.child( this.id ).set( this );
+	}
+
+
+
+	HasReactionCard() {
+		for ( let i = 0; i < this.HandCards.length; i++ ) {
+			if ( IsReactionCard( Cardlist, this.HandCards[i].card_no ) ) return true;
+		}
+		return false;
+	}
+
+	HasActionCard() {
+		for ( let i = 0; i < this.HandCards.length; i++ ) {
+			if ( IsActionCard( Cardlist, this.HandCards[i].card_no ) ) return true;
+		}
+		return false;
+	}
+
+
+
+
+
+
 
 
 
@@ -118,6 +154,7 @@ class CPlayer {
 	}
 
 
+
 	// 山札をそのままひっくり返して捨て山に置く（宰相など）
 	PutDeckIntoDiscardPile() {
 		const pl = this;
@@ -136,114 +173,192 @@ class CPlayer {
 		return (( this.Deck.length + this.DiscardPile.length ) > 0 );
 	}
 
+	MakeDeck() {  // 山札がなければ作る
+		this.DiscardPile.shuffle();
+		this.Deck.copyfrom( this.DiscardPile );
+		this.DiscardPile = [];
+	}
+
 	LookDeckTopCard() {  /* カード移動基本操作 */
 		if ( !this.Drawable() ) return undefined;
-		if ( this.Deck.length === 0 ) {
-			this.DiscardPile.shuffle();
-			this.Deck.copyfrom( this.DiscardPile );
-			this.DiscardPile = [];
-		}
+		if ( this.Deck.IsEmpty() ) this.MakeDeck();
 		return this.Deck[0];
 	}
 
 	GetDeckTopCard() {  /* カード移動基本操作 */
-		const DeckTopCard = this.LookDeckTopCard();
-		if ( DeckTopCard == undefined ) return undefined;
+		if ( !this.Drawable() ) return undefined;
+		if ( this.Deck.IsEmpty() ) this.MakeDeck();
 		return this.Deck.shift();
-		// if ( !this.Drawable() ) return undefined;
-		// if ( this.Deck.length === 0 ) {
-		// 	this.DiscardPile.shuffle();
-		// 	this.Deck.copyfrom( this.DiscardPile );
-		// 	this.DiscardPile = [];
-		// }
 	}
 
-	// GetDeckTopCards(n) {  /* カード移動複合操作 */
-	// 	const ar = new Array(n);
-	// 	ar.forEach( ( val, index, array ) => array[index] = this.GetDeckTopCard() );
-	// 	return ar;
-	// }
+	DrawCards(n) {  /* カード移動複合操作 */
+		let player = this;
+		return MyAsync( function*() {
+			if ( n <= 0 ) {
+				yield Promise.resolve( [] );
+				return;
+			}
 
-	DrawCards( n, log = true, FBsync = true ) {  /* カード移動複合操作 */
-		if ( n <= 0 ) return Promise.resolve();
-		for ( let i = 0; i < n; i++ ) {
-			this.AddToHandCards( this.GetDeckTopCard() );
-		}
-		if ( log ) {
-			FBref_chat.push( `${this.name}が${n}枚カードを引きました。` );
-		}
-		if ( FBsync ) {
-			return FBref_Players.child( this.id ).update( {
-					HandCards   : this.HandCards,
-					Deck        : this.Deck,
-					DiscardPile : this.DiscardPile,
-				} );
-		} else {
-			return Promise.resolve();
-		}
+			let DrawedCardIDs = [];
+			for ( let i = 0; i < n; i++ ) {
+				DrawedCardIDs.push( player.LookDeckTopCard().card_ID );
+				player.AddToHandCards( player.GetDeckTopCard() );
+			}
+			FBref_chat.push( `${player.name}が${n}枚カードを引きました。` );
+			yield FBref_Players.child( player.id ).update( {
+				HandCards   : player.HandCards,
+				Deck        : player.Deck,
+				DiscardPile : player.DiscardPile,
+			} );
+			yield Promise.resolve( DrawedCardIDs );
+		});
 	}
 
 
 	RevealDeckTop(n) {  /* カード移動複合操作 */
-		if ( n <= 0 ) return Promise.resolve();
-		for ( let i = 0; i < n; i++ ) {
-			this.AddToOpen( this.GetDeckTopCard() );
-		}
+		let player = this;
+		return MyAsync( function*() {
+			if ( n <= 0 ) {
+				yield Promise.resolve( [] );
+				return;
+			}
+
+			let RevealedCardIDs = [];
+			for ( let i = 0; i < n; i++ ) {
+				RevealedCardIDs.push( player.LookDeckTopCard().card_ID );
+				player.AddToOpen( player.GetDeckTopCard() );
+			}
+			FBref_chat.push( `${player.name}が${n}枚カードを公開しました。` );
+			yield FBref_Players.child( player.id ).update( {
+				Deck        : player.Deck,
+				DiscardPile : player.DiscardPile,
+				Open        : player.Open,
+			} );
+			yield Promise.resolve( RevealedCardIDs );
+		});
+	}
+
+
+
+	// 手札をすべて捨て札にする
+	DiscardAll() {  /* カード移動複合操作 */
+		FBref_chat.push( `${this.name}が${this.HandCards.length}枚のカードを捨て札にしました。` );
+		this.HandCards.forEach( card => this.AddToDiscardPile( card ) );
+		this.HandCards = [];
 		return FBref_Players.child( this.id ).update( {
-			Deck        : this.Deck,
+			HandCards   : this.HandCards,
 			DiscardPile : this.DiscardPile,
-			Open        : this.Open,
-		} );
+		});
 	}
 
 
 
 
 
-	HasReactionCard() {
-		for ( let i = 0; i < this.HandCards.length; i++ ) {
-			if ( IsReactionCard( Cardlist, this.HandCards[i].card_no ) ) return true;
+
+
+	MoveHandCardTo( place, card_ID, Game, log, face ) {
+		const player = this;
+
+		if ( !player.GetCopyOfAllCards()
+				.map( card => Number( card.card_ID ) )
+				.includes( Number(card_ID) ) )
+		{
+			throw new Error(`@Game.MoveHandCardTo:
+				the card is not ${player.name}'s card. (card_ID = ${card_ID})`);
+			return Promise.reject();
 		}
-		return false;
+
+		const card = Game.LookCardWithID( card_ID );
+		if ( log ) {
+			let msg = `${player.name}が${Cardlist[ card.card_no ].name_jp}を`;
+			switch (place) {
+				case 'PlayArea'    : msg += "場に出しました。"; break;
+				case 'Aside'       : msg += "脇に置きました。"; break;
+				case 'DiscardPile' : msg += "捨て札にしました。"; break;
+				case 'Deck'        : msg += "山札に戻しました。"; break;
+				case 'HandCards'   : msg += "手札に加えました。"; break;
+				default : break;
+			}
+			FBref_chat.push( msg );
+		}
+
+		if ( face == 'up' )  Game.FaceUpCard( card_ID );
+
+		player[`AddTo${place}`]( Game.GetCardWithID( card_ID ) );
+		return FBref_Players.child( player.id ).set( player );
 	}
 
-	HasActionCard() {
-		for ( let i = 0; i < this.HandCards.length; i++ ) {
-			if ( IsActionCard( Cardlist, this.HandCards[i].card_no ) ) return true;
-		}
-		return false;
+
+	/* カード移動複合操作 （場に出す） */
+	Play         ( card_ID, Game, log = false, face = 'default' ) {
+		return this.MoveHandCardTo( 'PlayArea'   , card_ID, Game, log, face );
 	}
+
+	/* カード移動複合操作 （脇に置く） */
+	SetAside     ( card_ID, Game, log = true,  face = 'default' ) {
+		return this.MoveHandCardTo( 'Aside'      , card_ID, Game, log, face );
+	}
+
+	/* カード移動複合操作 （捨て札にする） */
+	Discard      ( card_ID, Game, log = true,  face = 'default' ) {
+		return this.MoveHandCardTo( 'DiscardPile', card_ID, Game, log, face );
+	}
+
+	/* カード移動複合操作 （山札に戻す） */
+	PutBackToDeck( card_ID, Game, log = true,  face = 'default' ) {
+		return this.MoveHandCardTo( 'Deck'       , card_ID, Game, log, face );
+	}
+
+	/* カード移動複合操作 （手札に加える） */
+	PutIntoHand  ( card_ID, Game, log = true,  face = 'default' ) {
+		return this.MoveHandCardTo( 'HandCards'  , card_ID, Game, log, face );
+	}
+
+	/* カード移動複合操作 （公開する） */
+	Reveal       ( card_ID, Game, log = true,  face = 'default' ) {
+		return this.MoveHandCardTo( 'Open'       , card_ID, Game, log, face );
+	}
+
+
+
+
+
+	// 手札を公開（その場で表にする）
+	RevealHandCards( Game ) {
+		const player = this;
+		player.HandCards.forEach( card => Game.FaceUpCard( card.card_ID ) );
+
+		return Promise.all( [
+			FBref_Players.child( `${player.id}/HandCards` ).update( player.HandCards ),
+			FBref_MessageToMe.set('手札を公開します。'),
+			FBref_chat.push( `${player.name}は手札を公開しました。` ),
+		]);
+	}
+
+
+
+
 
 
 	CleanUp() {  /* カード移動複合操作 */
-		let CardsToDiscard = [].concat(
-				  this.HandCards
-				, this.PlayArea
-				, this.Aside
-			);
-		this.DiscardPile = this.DiscardPile.concat( CardsToDiscard );
+		this.DiscardPile.append(
+			[].concat(
+				this.HandCards,
+				this.PlayArea,
+				this.Aside ) );
+
 		this.HandCards = [];
 		this.PlayArea  = [];
 		this.Aside     = [];
 
-		this.DrawCards(5,false,false);
+		for ( let i = 0; i < 5; ++i ) {
+			this.AddToHandCards( this.GetDeckTopCard() );
+		}
+
 		this.TurnCount++;
 	}
 
-
-	ResetFace() {
-		this.GetCopyOfAllCards().forEach( card => card.face = 'default' );
-	}
-
-
-	// ResetClassStr( FBsync = true ) {
-	// 	this.GetCopyOfAllCards().forEach( function( card ) {
-	// 		card.class_str = '';
-	// 	});
-	// 	if ( FBsync ) {
-	// 		return FBref_Players.child( `${this.id}` ).update( this );
-	// 	}
-	// }
 
 
 	SumUpVP() {

@@ -164,7 +164,7 @@ class CSupply {
 			this.Prize[i].InitSupplyPile( PrizeCard[i].card_no, PlayerNum, SelectedCards );
 			this.Prize[i].IsSupply = false;
 		}
-		if ( !SelectedCards.KingdomCards.val_exists( CardName2No['Tournament'] ) ) {
+		if ( !SelectedCards.KingdomCards.includes( CardName2No['Tournament'] ) ) {
 			this.Prize.forEach( p => p.in_use = false );
 		}
 
@@ -172,7 +172,7 @@ class CSupply {
 		// 魔女娘 災いカード
 		this.BaneCard = new CSupplyPile();
 		this.BaneCard.InitSupplyPile( SelectedCards.BaneCard, PlayerNum, SelectedCards );
-		if ( !SelectedCards.KingdomCards.val_exists( CardName2No['Young Witch'] ) ) {
+		if ( !SelectedCards.KingdomCards.includes( CardName2No['Young Witch'] ) ) {
 			this.BaneCard.in_use = false;
 		}
 

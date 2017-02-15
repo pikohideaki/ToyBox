@@ -58,12 +58,12 @@ Array.prototype.remove = function( index ) {
 	return this.splice( index, 1 );
 };
 
-Array.prototype.val_exists = function( val ) {
-	for ( let i = 0; i < this.length; ++i ) {
-		if ( this[i] === val ) return true;
-	}
-	return false;
-};
+// Array.prototype.val_exists = function( val ) {
+// 	for ( let i = 0; i < this.length; ++i ) {
+// 		if ( this[i] === val ) return true;
+// 	}
+// 	return false;
+// };
 
 Array.prototype.remove_val = function( val ) {
 	let ar = this.filter( e => e != val );
@@ -81,7 +81,7 @@ Array.prototype.back = function() {
 };
 
 
-
+// copy and return unique array
 Array.prototype.uniq = function( f = ( (a) => a ) ) {  // 要素の値を定義する関数（この値の同値性でuniqをかける
 	return this.map( (a) => [ f(a), a ] )
 			.sort()
@@ -92,6 +92,26 @@ Array.prototype.uniq = function( f = ( (a) => a ) ) {  // 要素の値を定義�
 Array.prototype.sortNumeric = function() {
 	return this.sort( (a,b) => ( parseFloat(a) - parseFloat(b) ) );
 };
+
+
+
+
+
+Array.prototype.append = function( passed_array ) {
+	let array = [].concat( this, passed_array );
+	this.copyfrom(array);
+	return this;
+}
+
+
+Array.prototype.IsEmpty = function() {
+	return this.length == 0;
+}
+
+
+
+
+
 
 
 function MakeTableRowString( array ) {
@@ -228,7 +248,7 @@ function MyAlert( message, options = {} ) {
 				// reset
 				$('.alert_text').html('');
 				$('.alert_contents').html('');
-				resolve();
+				resolve( options.return_value );
 			} );
 		}
 
@@ -358,6 +378,19 @@ function MyDialog( options, ref ) {
 function sleep( sec ) {
 	return new Promise( resolve => setTimeout( resolve, sec * 1000 ) );
 }
+
+
+
+// for文の中で非同期処理
+Array.prototype.AsyncEach = function( promised_function ) {
+	let this_array = this;
+	return MyAsync( function*() {
+		for ( let i = 0; i < this_array.length; ++i ) {
+			yield promised_function( this_array[i], i, this_array );
+		}
+	});
+};
+
 
 
 

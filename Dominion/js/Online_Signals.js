@@ -58,8 +58,8 @@ function* CatchSignal( signals_to_me ) {
 
 
 function* Reaction( signals_to_me ) {
-	$('.MyArea .buttons').append( MakeHTML_button('end_reaction', 'リアクション終了') );
-	$end_reaction_btn = $('.MyArea .buttons .end_reaction');
+	$('.MyAreaButtons').append( MakeHTML_button('end_reaction', 'リアクション終了') );
+	$end_reaction_btn = $('.MyAreaButtons .end_reaction');
 
 	while (true) {
 		yield FBref_MessageToMe.set('リアクションカードがあれば公開することができます。（手札を選択）');
@@ -102,7 +102,7 @@ function* Reaction( signals_to_me ) {
 			}, ref );
 
 		// 公開終了
-		Game.Me().ResetFace();  // 公開していたカードを裏向きに
+		yield Game.Me().ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
 			FBref_SignalRevealReaction.set(''),  // reset
@@ -128,8 +128,8 @@ function* Reaction( signals_to_me ) {
 
 
 function* Reveal_BaneCard( signals_to_me ) {
-	$('.MyArea .buttons').append( MakeHTML_button('end_banecard', '災いカードの公開終了') );
-	$end_banecard_btn = $('.MyArea .buttons .end_banecard');
+	$('.MyAreaButtons').append( MakeHTML_button('end_banecard', '災いカードの公開終了') );
+	$end_banecard_btn = $('.MyAreaButtons .end_banecard');
 
 	while (true) {
 		yield FBref_MessageToMe.set('災いカードがあれば公開することができます。（手札を選択）');
@@ -172,7 +172,7 @@ function* Reveal_BaneCard( signals_to_me ) {
 			}, ref );
 
 		// 公開終了
-		Game.Me().ResetFace();  // 公開していたカードを裏向きに
+		yield Game.Me().ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
 			FBref_SignalRevealBaneCard.set(''),  // reset
@@ -200,7 +200,7 @@ $( function() {
 			Resolve['SelectReactionCard']( [ Number( $(this).attr('data-card_ID') ), false ] );
 		});
 
-		$('.MyArea').on( 'click', '.buttons .end_reaction', function() {
+		$('.MyArea').on( 'click', '.MyAreaButtons .end_reaction', function() {
 			Resolve['SelectReactionCard']( [0, true] );
 		});
 
@@ -209,7 +209,7 @@ $( function() {
 			Resolve['SelectBaneCard']( [ Number( $(this).attr('data-card_ID') ), false ] );
 		});
 
-		$('.MyArea').on( 'click', '.buttons .end_banecard', function() {
+		$('.MyArea').on( 'click', '.MyAreaButtons .end_banecard', function() {
 			Resolve['SelectBaneCard']( [0, true] );
 		});
 	})

@@ -1,4 +1,9 @@
 
+/*
+ * CGameクラスの定義ファイル．
+ * グローバルに使用されるGameオブジェクト．
+ */
+
 
 class CGame {
 	constructor( FBobj_Game ) {
@@ -56,6 +61,18 @@ class CGame {
 	whose_turn() {
 		return this.player.name;
 	}
+
+
+	GetAllCards() {
+		let AllCards = [];
+		this.Players.forEach( function( player ) {
+			AllCards = AllCards.concat( player.GetCopyOfAllCards() );
+		});
+		AllCards = AllCards.concat( this.Supply.GetAllCards() );
+		AllCards = AllCards.concat( this.TrashPile );
+		return AllCards;
+	}
+
 
 
 
@@ -128,32 +145,32 @@ class CGame {
 	MoveToNextPlayer() {
 		let G = this;
 		return MyAsync( function*() {
-			let updates = {};
+			let Room_updates = {};
 
 			G.player().CleanUp();
-			updates[ `Game/Players/${G.whose_turn_id}` ] = G.player();
+			Room_updates[ `Game/Players/${G.whose_turn_id}` ] = G.player();
 
 			if ( G.GameEnded() ) {
 				G.Players.forEach( function( player, id ) {
 					player.SumUpVP();
-					updates[ `Game/Players/${id}` ] = player;
+					Room_updates[ `Game/Players/${id}` ] = player;
 				} );
 
-				updates['RoomInfo/Status'] = 'ゲーム終了';
-				updates['GameEnd'] = true;
-				yield FBref_Room.update( updates );
+				Room_updates['RoomInfo/Status'] = 'ゲーム終了';
+				Room_updates['GameEnd'] = true;
+				yield FBref_Room.update( Room_updates );
 				return;
 			}
 
 			G.whose_turn_id = G.NextPlayerID();
 			G.ResetTurnInfo();
 
-			updates['Game/whose_turn_id'] = G.whose_turn_id;
-			updates['Game/TurnInfo'] = G.TurnInfo;
-			updates['Game/phase'] = G.phase;
+			Room_updates['Game/whose_turn_id'] = G.whose_turn_id;
+			Room_updates['Game/TurnInfo'] = G.TurnInfo;
+			Room_updates['Game/phase'] = G.phase;
 
 			yield Promise.all( [
-				FBref_Room.update( updates ),
+				FBref_Room.update( Room_updates ),
 				FBref_chat.push( `${G.player().name}のターン` ),
 			]);
 
@@ -397,17 +414,6 @@ class CGame {
 
 
 
-	GetAllCards() {
-		let AllCards = [];
-		this.Players.forEach( function( player ) {
-			AllCards = AllCards.concat( player.GetCopyOfAllCards() );
-		});
-		AllCards = AllCards.concat( this.Supply.GetAllCards() );
-		AllCards = AllCards.concat( this.TrashPile );
-		return AllCards;
-	}
-
-
 
 
 	UseCard( playing_card_no, playing_card_ID ) {
@@ -438,7 +444,7 @@ class CGame {
 					break;
 			}
 
-			G.Play( playing_card_ID );  /* カード移動 */
+			G.player().Play( playing_card_ID, G );  /* カード移動 */
 
 			// アクションを1消費
 			if ( IsActionCard( Cardlist, playing_card_no ) ) G.TurnInfo.action--;
@@ -468,7 +474,7 @@ class CGame {
 
 			// actionが0なら自動でアクションフェーズ終了
 			if ( G.phase == 'ActionPhase' && G.TurnInfo.action <= 0 ) {
-				G.MovePhase( 'BuyPhase' );
+				yield G.MovePhase( 'BuyPhase' );
 			} else {
 				yield FBref_Game.child('phase').set( G.phase );
 			}
@@ -597,66 +603,9 @@ class CGame {
 	}
 
 	/* カード移動複合操作 */
+	/* どこから来るか分からないのでfirebase同期はしない */
 	Trash( card_ID ) {
 		this.AddToTrashPile( this.GetCardWithID( card_ID ) );
-	}
-
-
-
-	MoveHandCardTo( place, card_ID, player_id, log, face ) {
-		const player = this.Players[ player_id ];
-		if ( !player.GetCopyOfAllCards()
-				.map( card => Number( card.card_ID ) )
-				.val_exists( Number(card_ID) ) )
-		{
-			throw new Error(`@Game.MoveHandCardTo: the card is not ${player.name}'s card. (card_ID = ${card_ID})`);
-			return Promise.reject();
-		}
-
-		const card = this.LookCardWithID( card_ID );
-		if ( log ) {
-			let msg = `${player.name}が${Cardlist[ card.card_no ].name_jp}を`;
-			switch (place) {
-				case 'PlayArea'    : msg += "場に出しました。"; break;
-				case 'Aside'       : msg += "脇に置きました。"; break;
-				case 'DiscardPile' : msg += "捨て札にしました。"; break;
-				case 'Deck'        : msg += "山札に戻しました。"; break;
-				case 'HandCards'   : msg += "手札に加えました。"; break;
-				default : break;
-			}
-			FBref_chat.push( msg );
-		}
-
-		if ( face == 'up' )  this.FaceUpCard( card_ID );
-
-		player[`AddTo${place}`]( this.GetCardWithID( card_ID ) );
-		return FBref_Players.child( player_id ).set( player );
-	}
-
-
-	/* カード移動複合操作 （場に出す） */
-	Play         ( card_ID, player_id = this.whose_turn_id, log = false, face = 'default' ) {
-		return this.MoveHandCardTo( 'PlayArea'   , card_ID, player_id, log, face );
-	}
-
-	/* カード移動複合操作 （脇に置く） */
-	SetAside     ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		return this.MoveHandCardTo( 'Aside'      , card_ID, player_id, log, face );
-	}
-
-	/* カード移動複合操作 （捨て札にする） */
-	Discard      ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		return this.MoveHandCardTo( 'DiscardPile', card_ID, player_id, log, face );
-	}
-
-	/* カード移動複合操作 （山札に戻す） */
-	PutBackToDeck( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		return this.MoveHandCardTo( 'Deck'       , card_ID, player_id, log, face );
-	}
-
-	/* カード移動複合操作 （山札に戻す） */
-	PutIntoHand  ( card_ID, player_id = this.whose_turn_id, log = true,  face = 'default' ) {
-		return this.MoveHandCardTo( 'HandCards'  , card_ID, player_id, log, face );
 	}
 
 
@@ -672,18 +621,24 @@ class CGame {
 	}
 
 
-	// 手札を公開
-	RevealHandCards( player_id = this.whose_turn_id, CardsID ) {
-		const G = this;
-		const pl = G.Players[ player_id ];
-		CardsID = ( CardsID || pl.HandCards.map( card => card.card_ID ) );
-		CardsID.forEach( card_ID => G.FaceUpCard( card_ID ) );
 
-		return Promise.all( [
-			FBref_Players.child( `${player_id}/HandCards` ).update( pl.HandCards ),
-			FBref_MessageToMe.set('手札を公開します。'),
-			FBref_chat.push( `${pl.name}は手札を公開しました。` ),
-		]);
+	ResetStackedCardIDs() {
+		this.StackedCardIDs = [];
+		return FBref_StackedCardIDs.set( [] );
+	}
+
+
+	ResetFace() {
+		const G = this;
+		G.StackedCardIDs.forEach( card_ID => G.LookCardWithID( card_ID ).face = 'default' );
+		return G.ResetStackedCardIDs();
+	}
+
+
+	ResetClassStr() {
+		const G = this;
+		G.StackedCardIDs.forEach( card_ID => G.LookCardWithID( card_ID ).class_str = '' );
+		return G.ResetStackedCardIDs();
 	}
 
 
@@ -771,25 +726,6 @@ class CGame {
 		})
 	}
 
-
-	ResetClassStr( card_IDs = this.StackedCardIDs ) {
-		const G = this;
-		card_IDs.forEach( card_ID => G.LookCardWithID( card_ID ).class_str = '' );
-		card_IDs = [];  // reset
-	}
-
-
-	ResetFace( card_IDs = this.StackedCardIDs ) {
-		const G = this;
-		card_IDs.forEach( card_ID => G.LookCardWithID( card_ID ).face = 'default' );
-		card_IDs = [];  // reset
-	}
-
-
-	ResetStackedCardIDs() {
-		this.StackedCardIDs = [];
-		return FBref_StackedCardIDs.set( [] );
-	}
 
 }
 

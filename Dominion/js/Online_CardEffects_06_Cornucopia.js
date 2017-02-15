@@ -34,9 +34,9 @@ $( function() {
 			= pl.Open.uniq( card => card.card_no ).length == pl.Open.length;
 
 		// 公開したカードの確認
-		$('.action_buttons').append( MakeHTML_button( 'Menagerie_ok', 'OK' ) );
+		$('.PlayersAreaButtons').append( MakeHTML_button( 'Menagerie_ok', 'OK' ) );
 		yield new Promise( resolve => Resolve['Menagerie_ok'] = resolve );
-		$('.action_buttons .Menagerie_ok').remove();
+		$('.PlayersAreaButtons .Menagerie_ok').remove();
 
 		/* 公開したカードを手札に戻す */
 		pl.Open.forEach( card => pl.AddToHandCards(card) );
@@ -48,7 +48,7 @@ $( function() {
 		yield FBref_Players.child( pl.id ).set( pl );
 	}
 
-	$('.action_buttons').on( 'click', '.Menagerie_ok', () => Resolve['Menagerie_ok']() );
+	$('.PlayersAreaButtons').on( 'click', '.Menagerie_ok', () => Resolve['Menagerie_ok']() );
 
 
 
@@ -150,7 +150,7 @@ $( function() {
 	CardEffect['Diadem'] = function*() {
 		yield FBref_Message.set('このカードを使うとき、あなたが使用しなかったアクション1毎に +1 Coin を得ます。');
 
-		yield AcknowledgeButton_Me();
+		yield AcknowledgeButton();
 
 		Game.TurnInfo.coin += Game.TurnInfo.action;
 		yield FBref_Game.child('TurnInfo').set( Game.TurnInfo );
@@ -163,7 +163,7 @@ $( function() {
 	/* 131. 王女 */
 	CardEffect['Princess'] = function*() {
 		yield FBref_Message.set( 'このカードが場に出ているかぎり、カードのコストは2コイン少なくなります（0コイン未満にはなりません）。' );
-		yield AcknowledgeButton_Me();
+		yield AcknowledgeButton();
 	}
 
 
@@ -182,7 +182,7 @@ $( function() {
 			Supply : Game.Supply,
 		} );
 
-		yield AcknowledgeButton_Me();  // 確認
+		yield AcknowledgeButton();  // 確認
 
 		// 公開したカードを裏向きに戻す
 		Game.player().ResetFace();
@@ -216,10 +216,10 @@ $( function() {
 			/* サプライのクラス書き換え */
 			$('.SupplyArea').find('.card').addClass('Remake_GetCard pointer');
 
-			AddAvailableToSupplyCardIf( ( card, card_no ) =>
-				CostOp( '==',
-					Game.GetCost( card_no ),
-					CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) ) );
+			// AddAvailableToSupplyCardIf( ( card, card_no ) =>
+			// 	CostOp( '==',
+			// 		Game.GetCost( card_no ),
+			// 		CostOp( '+', TrashedCardCost, new CCost([1,0,0]) ) ) );
 
 			if ( $('.SupplyArea').find('.available').length <= 0 ) {
 				yield MyAlert( '獲得できるカードがありません' );
@@ -283,9 +283,9 @@ $( function() {
 		yield FBref_Players.child( Game.player().id ).set( Game.player() );
 
 		// 公開したカードの確認
-		$('.action_buttons').append( MakeHTML_button( 'Harvest_ok', 'OK' ) );
+		$('.PlayersAreaButtons').append( MakeHTML_button( 'Harvest_ok', 'OK' ) );
 		yield new Promise( resolve => Resolve['Harvest_ok'] = resolve );
-		$('.action_buttons .Harvest_ok').remove();
+		$('.PlayersAreaButtons .Harvest_ok').remove();
 
 		// 公開したカードのうち名前が異なるもの1枚につき +1コイン
 		Game.TurnInfo.coin += Game.player().Open.uniq( card => card.card_no ).length;
@@ -300,7 +300,7 @@ $( function() {
 		]);
 	}
 
-	$('.action_buttons').on( 'click', '.Harvest_ok', () => Resolve['Harvest_ok']() );
+	$('.PlayersAreaButtons').on( 'click', '.Harvest_ok', () => Resolve['Harvest_ok']() );
 
 
 
@@ -325,14 +325,14 @@ $( function() {
 			deck_top_card = pl.GetDeckTopCard();
 			pl.AddToOpen( deck_top_card );
 			yield FBref_Players.child( pl.id ).set( pl );
-			if ( !pl.HandCards.map( card => card.card_no ).val_exists( deck_top_card.card_no ) ) break;
+			if ( !pl.HandCards.map( card => card.card_no ).includes( deck_top_card.card_no ) ) break;
 			revealed = false;
 		}
 
 		// 公開したカードを確認
-		$('.action_buttons').append( MakeHTML_button( 'HuntingParty Done', '確認' ) );
+		$('.PlayersAreaButtons').append( MakeHTML_button( 'HuntingParty Done', '確認' ) );
 		yield new Promise( resolve => Resolve['HuntingParty'] = resolve );
-		$('.action_buttons .HuntingParty.Done').remove();  /* 完了ボタン消す */
+		$('.PlayersAreaButtons .HuntingParty.Done').remove();  /* 完了ボタン消す */
 
 		// 手札に加える
 		if ( revealed ) {
@@ -347,7 +347,7 @@ $( function() {
 		yield FBref_Players.child( pl.id ).set( Game.player() );
 	}
 
-	$('.action_buttons').on( 'click', '.HuntingParty.Done', () => Resolve['HuntingParty']() );
+	$('.PlayersAreaButtons').on( 'click', '.HuntingParty.Done', () => Resolve['HuntingParty']() );
 
 
 
@@ -360,9 +360,9 @@ $( function() {
 		// カード1枚を捨て札にすることができます。そうした場合、+1 アクション。
 		$('.HandCards').find('.card').addClass( 'Hamlet_Discard pointer' );
 
-		$('.action_buttons').html( MakeHTML_button( 'Hamlet_Discard', '捨て札しない' ) );
+		$('.PlayersAreaButtons').html( MakeHTML_button( 'Hamlet_Discard', '捨て札しない' ) );
 		let discard = yield new Promise( resolve => Resolve['Hamlet_Discard'] = resolve );
-		$('.action_buttons .Hamlet_Discard').remove();  // reset
+		$('.PlayersAreaButtons .Hamlet_Discard').remove();  // reset
 
 		if ( discard ) {
 			Game.TurnInfo.action++;
@@ -374,9 +374,9 @@ $( function() {
 		// カード1枚を捨て札にすることができます。そうした場合、+1 カードを購入。
 		$('.HandCards').find('.card').addClass( 'Hamlet_Discard pointer' );
 
-		$('.action_buttons').html( MakeHTML_button( 'Hamlet_Discard', '捨て札しない' ) );
+		$('.PlayersAreaButtons').html( MakeHTML_button( 'Hamlet_Discard', '捨て札しない' ) );
 		discard = yield new Promise( resolve => Resolve['Hamlet_Discard'] = resolve );
-		$('.action_buttons .Hamlet_Discard').remove();  // reset
+		$('.PlayersAreaButtons .Hamlet_Discard').remove();  // reset
 
 		if ( discard ) {
 			Game.TurnInfo.buy++;
@@ -384,7 +384,7 @@ $( function() {
 		}
 	}
 
-	$('.action_buttons').on( 'click', '.Hamlet_Discard', () => Resolve['Hamlet_Discard']( false ) );
+	$('.PlayersAreaButtons').on( 'click', '.Hamlet_Discard', () => Resolve['Hamlet_Discard']( false ) );
 
 	$('.HandCards').on( 'click', '.card.Hamlet_Discard', function() {
 		const clicked_card_ID = Number( $(this).attr('data-card_ID') );
@@ -508,9 +508,9 @@ $( function() {
 		}
 
 		// 公開したカードを確認
-		$('.action_buttons').append( MakeHTML_button( 'FarmingVillage Done', '確認' ) );
+		$('.PlayersAreaButtons').append( MakeHTML_button( 'FarmingVillage Done', '確認' ) );
 		yield new Promise( resolve => Resolve['FarmingVillage'] = resolve );
-		$('.action_buttons .FarmingVillage.Done').remove();  /* 完了ボタン消す */
+		$('.PlayersAreaButtons .FarmingVillage.Done').remove();  /* 完了ボタン消す */
 
 		// 手札に加える
 		if ( revealed ) {
@@ -524,7 +524,7 @@ $( function() {
 		yield FBref_Players.child( pl.id ).set( pl );
 	}
 
-	$('.action_buttons').on( 'click', '.FarmingVillage.Done', () => Resolve['FarmingVillage']() );
+	$('.PlayersAreaButtons').on( 'click', '.FarmingVillage.Done', () => Resolve['FarmingVillage']() );
 
 
 
@@ -569,9 +569,9 @@ $( function() {
 		yield FBref_Message.set( '公開されたカードを確認してください。' );
 
 		// 公開したカードの確認
-		$('.action_buttons').append( MakeHTML_button( 'Tournament_RevealProvince_ok', 'OK' ) );
+		$('.PlayersAreaButtons').append( MakeHTML_button( 'Tournament_RevealProvince_ok', 'OK' ) );
 		yield new Promise( resolve => Resolve['Tournament_RevealProvince_ok'] = resolve );
-		$('.action_buttons .Tournament_RevealProvince_ok').remove();
+		$('.PlayersAreaButtons .Tournament_RevealProvince_ok').remove();
 
 		// 他のプレイヤーの公開したカードを戻す
 		for ( let id = 0; id < Game.Players.length; ++id ) {
@@ -610,9 +610,9 @@ $( function() {
 				yield new Promise( resolve => Resolve['Tournament_GetCard'] = resolve );
 
 				// 獲得したカードの確認
-				$('.action_buttons').append( MakeHTML_button( 'Tournament_GetCard_ok', 'OK' ) );
+				$('.PlayersAreaButtons').append( MakeHTML_button( 'Tournament_GetCard_ok', 'OK' ) );
 				yield new Promise( resolve => Resolve['Tournament_GetCard_ok'] = resolve );
-				$('.action_buttons .Tournament_GetCard_ok').remove();
+				$('.PlayersAreaButtons .Tournament_GetCard_ok').remove();
 
 				// 裏向きに
 				Game.player().ResetFace();
@@ -646,14 +646,14 @@ $( function() {
 			.addClass('Tournament_RevealProivince pointer');
 
 		// 公開したかどうか
-		$('.action_buttons')
+		$('.PlayersAreaButtons')
 			.append( MakeHTML_button('dont_reveal_province', '公開しない' ) );
-		$('.MyArea .buttons' )
+		$('.MyAreaButtons' )
 			.append( MakeHTML_button('dont_reveal_province', '公開しない' ) );
 		const revealed_card_ID
 		  = yield new Promise( resolve => Resolve['Tournament_RevealProivince'] = resolve );
-		$('.action_buttons  .dont_reveal_province').remove();
-		$('.MyArea .buttons .dont_reveal_province').remove();
+		$('.PlayersAreaButtons  .dont_reveal_province').remove();
+		$('.MyAreaButtons .dont_reveal_province').remove();
 
 		if ( revealed_card_ID == 99999999 ) {
 			FBref_chat.push( `${Game.Me().name}は属州を公開しませんでした。` );
@@ -678,7 +678,7 @@ $( function() {
 	} );
 
 	// 自分と他のプレイヤー
-	$('.action_buttons,.MyArea .buttons').on( 'click', '.dont_reveal_province',
+	$('.PlayersAreaButtons,.MyAreaButtons').on( 'click', '.dont_reveal_province',
 		() => Resolve['Tournament_RevealProivince']( 99999999 ) );
 
 	// 自分
@@ -710,9 +710,9 @@ $( function() {
 	} );
 
 	// 自分
-	$('.action_buttons').on( 'click', '.Tournament_RevealProvince_ok',
+	$('.PlayersAreaButtons').on( 'click', '.Tournament_RevealProvince_ok',
 		() => Resolve['Tournament_RevealProvince_ok']() );
-	$('.action_buttons').on( 'click', '.Tournament_GetCard_ok',
+	$('.PlayersAreaButtons').on( 'click', '.Tournament_GetCard_ok',
 		() => Resolve['Tournament_GetCard_ok']() );
 
 
@@ -730,8 +730,8 @@ $( function() {
 		/* サプライのクラス書き換え */
 		$('.SupplyArea').find('.card').addClass('HornOfPlenty_GetCard pointer');
 
-		AddAvailableToSupplyCardIf( ( card, card_no ) =>
-			CostOp( '<=', Game.GetCost( card_no ), new CCost( [max_cost_coin,0,0] ) ) );
+		// AddAvailableToSupplyCardIf( ( card, card_no ) =>
+		// 	CostOp( '<=', Game.GetCost( card_no ), new CCost( [max_cost_coin,0,0] ) ) );
 
 		if ( $('.SupplyArea').find('.available').length <= 0 ) {
 			yield MyAlert( '獲得できるカードがありません' );
@@ -810,7 +810,7 @@ $( function() {
 			const has_banecard
 			 = Game.Players[id].HandCards
 				.map( x => x.card_no )
-				.val_exists( Game.Supply.BaneCard.card_no );
+				.includes( Game.Supply.BaneCard.card_no );
 
 			// Player[id] がリアクションスキップオプションがオンで手札に災いカードがない場合
 			if ( Game.Settings.SkipReaction[id] && !has_banecard ) continue;
@@ -878,14 +878,14 @@ $( function() {
 			 - +2 Coin<br>\
 			 - 銀貨を4枚獲得し山札を捨て札に置く<br>' );
 
-		$('.action_buttons')
+		$('.PlayersAreaButtons')
 			.append( MakeHTML_button( 'TrustySteed 2Card'   , '+2 Card'   ) )
 			.append( MakeHTML_button( 'TrustySteed 2Action' , '+2 Action' ) )
 			.append( MakeHTML_button( 'TrustySteed 2Coin'   , '+2 Coin'   ) )
 			.append( MakeHTML_button( 'TrustySteed 4silvers', '銀貨を4枚獲得し山札を捨て札に置く' ) );
 		let first  = yield new Promise( resolve => Resolve['TrustySteed'] = resolve );
 		let second = yield new Promise( resolve => Resolve['TrustySteed'] = resolve );
-		$('.action_buttons .TrustySteed').remove();
+		$('.PlayersAreaButtons .TrustySteed').remove();
 
 		let updates = {};
 
@@ -925,7 +925,7 @@ $( function() {
 		yield FBref_Game.update( updates );
 	};
 
-	$('.action_buttons').on( 'click', '.TrustySteed', function() {
+	$('.PlayersAreaButtons').on( 'click', '.TrustySteed', function() {
 		if ( $(this).hasClass('selected') ) return;  // 選択済みなら反応しない
 		$(this).addClass('selected').attr('disabled', 'disabled');  // 使用したボタンを無効化
 		if ( $(this).hasClass('2Card'   ) ) Resolve['TrustySteed'](1);  // 再開
