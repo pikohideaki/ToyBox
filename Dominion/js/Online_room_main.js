@@ -17,7 +17,7 @@ FBref_Rooms.on('value', function( FBsnapshot ) {
 	}
 
 	// 選択中の部屋が削除されたらモーダルをオフに
-	if ( !Object.keys( Rooms ).val_exists( SelectedRoomID ) ) {
+	if ( !Object.keys( Rooms ).includes( SelectedRoomID ) ) {
 		$('.waiting-modal-wrapper').fadeOut();
 		return;
 	}
@@ -145,9 +145,9 @@ $('#make-room-btn').click( function() {
 	/* test */
 	// SelectedCards.KingdomCards = [  9,11,13,14,16, 17,18,19,21, 32 ];
 	// SelectedCards.KingdomCards = [ 22,24,25,26,27, 28,29,31,32, 15 ];
-	SelectedCards.KingdomCards = [ 34,35,36,37,38,39,40,41, 15,32 ];
+	// SelectedCards.KingdomCards = [ 34,35,36,37,38,39,40,41, 15,32 ];
 	// SelectedCards.KingdomCards = [ 42,43,44,45,46,47,48,49, 15,32 ];
-	// SelectedCards.KingdomCards = [ 50,51,52,53,54,54,55,56,57, 32, ];
+	SelectedCards.KingdomCards = [ 50,51,52,53,54,55,56,57, 15,32, ];
 
 
 

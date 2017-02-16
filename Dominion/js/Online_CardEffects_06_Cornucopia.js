@@ -153,7 +153,7 @@ $( function() {
 		yield AcknowledgeButton();
 
 		Game.TurnInfo.coin += Game.TurnInfo.action;
-		yield FBref_Game.child('TurnInfo').set( Game.TurnInfo );
+		yield FBref_TurnInfo.set( Game.TurnInfo );
 	}
 
 
@@ -207,7 +207,7 @@ $( function() {
 			/* 手札のカードのクリック動作を廃棄するカードの選択に変更 */
 			$('.HandCards').children('.card').addClass('Remake_Trash pointer');
 
-			const trashed_card_ID = yield WaitForTrashingHandCard();
+			const trashed_card_ID = ( yield WaitForTrashingHandCard() ).card_ID;
 			const TrashedCardCost = Game.GetCost( Game.GetCardWithID( trashed_card_ID ).card_no );
 
 			yield FBref_Message.set(
@@ -296,7 +296,7 @@ $( function() {
 
 		yield Promise.all( [
 			FBref_Players.child( Game.player().id ).set( Game.player() ),
-			FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin ),
+			FBref_TurnInfo.child('coin').set( Game.TurnInfo.coin ),
 		]);
 	}
 
@@ -366,7 +366,7 @@ $( function() {
 
 		if ( discard ) {
 			Game.TurnInfo.action++;
-			yield FBref_Game.child('TurnInfo/action').set( Game.TurnInfo.action );
+			yield FBref_TurnInfo.child('action').set( Game.TurnInfo.action );
 		}
 
 		yield FBref_Message.set( 'カード1枚を捨て札にすることができます。そうした場合、+1 カードを購入。' );
@@ -380,7 +380,7 @@ $( function() {
 
 		if ( discard ) {
 			Game.TurnInfo.buy++;
-			yield FBref_Game.child('TurnInfo/buy').set( Game.TurnInfo.buy );
+			yield FBref_TurnInfo.child('buy').set( Game.TurnInfo.buy );
 		}
 	}
 

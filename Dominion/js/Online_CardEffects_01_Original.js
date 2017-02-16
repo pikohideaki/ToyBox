@@ -45,7 +45,7 @@ $( function() {
 	CardEffect['Copper'] = function* () {
 		 // 銅細工師の効果
 		Game.TurnInfo.coin += Game.TurnInfo.add_copper_coin;
-		yield FBref_Game.child('TurnInfo/coin').set( Game.TurnInfo.coin );
+		yield FBref_TurnInfo.child('coin').set( Game.TurnInfo.coin );
 	}
 
 
@@ -64,15 +64,15 @@ $( function() {
 		// (1) 廃棄する手札のカードの選択
 		yield FBref_Message.set( '手札のカードを1枚廃棄して下さい。' );
 
-		const TrashedCardID = yield WaitForTrashingHandCard();
+		const TrashedCardID = ( yield WaitForTrashingHandCard() ).card_ID;
 
 		const TrashedCardCost = Game.GetCost( Game.LookCardWithID( TrashedCardID ).card_no );
 
 		// (2) 廃棄したカード+2コインまでのコストのカードの獲得
-		yield FBref_Message.set(
-			`コストが廃棄したカード+2(=${TrashedCardCost.coin + 2})コインまでのカードを獲得してください。` );
+		yield FBref_Message.set( `コストが廃棄したカード+2(=${TrashedCardCost.coin + 2})
+				コインまでのカードを獲得してください。` );
 
-		yield WaitForGainingSupplyCard( 'AddToDiscardPile', Game.player().id,
+		yield WaitForGainingSupplyCard( 'DiscardPile', Game.player().id,
 				( card, card_no ) =>
 					CostOp( '<=', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [2,0,0] ) ) );
 	};
@@ -134,7 +134,7 @@ $( function() {
 
 		// アクションカード選択待機
 		const UseTwiceAction_card_ID
-		 = yield WaitForPlayingHandCard( card_no => IsActionCard( Cardlist, card_no ) );
+		 = ( yield WaitForPlayingHandCard( card_no => IsActionCard( Cardlist, card_no ) ) ).card_ID;
 
 		yield MyAsync( GetCardEffect, UseTwiceAction_card_ID );  /* 1回目 */
 		yield MyAsync( GetCardEffect, UseTwiceAction_card_ID );  /* 2回目 */
@@ -162,15 +162,15 @@ $( function() {
 		yield FBref_Message.set( '手札の財宝カードを1枚廃棄して下さい。' );
 
 		const TrashedCardID
-		  = yield WaitForTrashingHandCard( card_no => IsTreasureCard( Cardlist, card_no ) );
+		  = ( yield WaitForTrashingHandCard( card_no => IsTreasureCard( Cardlist, card_no ) ) ).card_ID;
 
 		const TrashedCardCost = Game.GetCost( Game.LookCardWithID( TrashedCardID ).card_no );
 
 		// (2) 廃棄したカード+3コインまでのコストの財宝カードの獲得
-		yield FBref_Message.set(
-			`コストが廃棄したカード+3(=${TrashedCardCost.coin + 3})コインまでの財宝カードを獲得してください。` );
+		yield FBref_Message.set( `コストが廃棄したカード+3(=${TrashedCardCost.coin + 3})
+				コインまでの財宝カードを獲得してください。` );
 
-		yield WaitForGainingSupplyCard( 'AddToHandCards', Game.player().id,
+		yield WaitForGainingSupplyCard( 'HandCards', Game.player().id,
 				( card, card_no ) =>
 					CostOp( '<=', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [3,0,0] ) )
 					&& IsTreasureCard( Cardlist, card_no ) );
@@ -185,7 +185,7 @@ $( function() {
 	CardEffect['Workshop'] = function* () {
 		yield FBref_Message.set( 'コスト4以下のカードを獲得して下さい。' );
 
-		yield WaitForGainingSupplyCard( 'AddToDiscardPile', Game.player().id,
+		yield WaitForGainingSupplyCard( 'DiscardPile', Game.player().id,
 				( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [4,0,0] ) );
 	};
 
@@ -199,10 +199,10 @@ $( function() {
 	CardEffect['Chancellor'] = function* () {
 		yield FBref_Message.set( '山札を捨て札に置きますか？' );
 
-		const clicked_btn = yield WaitForButtonClick( {
+		const clicked_btn = yield WaitForButtonClick( [
 			{ return_value : 'Discard'    , label : '捨て札におく' },
 			{ return_value : 'DontDiscard', label : '何もしない' },
-		});
+		] );
 
 		if ( clicked_btn == 'Discard' ) {
 			yield Game.player().PutDeckIntoDiscardPile();  /* 山札をそのままひっくり返して捨て山に置く */
@@ -225,7 +225,7 @@ $( function() {
 			[`Players/${Game.player().id}/PlayArea`] : Game.player().PlayArea,
 		} );
 
-		yield WaitForGainingSupplyCard( 'AddToDiscardPile', Game.player().id,
+		yield WaitForGainingSupplyCard( 'DiscardPile', Game.player().id,
 				( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [5,0,0] ) );
 	};
 
@@ -240,7 +240,8 @@ $( function() {
 	   《2nd edition》 Draw until you have 7 cards in hand, skipping any Action cards you choose to;
 	   set those aside, discarding them afterwards. */
 	CardEffect['Library'] = function* () {
-		yield FBref_Message.set( '手札が7枚になるまでカードを引きます。アクションカードを引いたら脇に置くことができます。' );
+		yield FBref_Message.set( `手札が7枚になるまでカードを引きます。
+				アクションカードを引いたら脇に置くことができます。` );
 
 		const AsideCardsID = [];
 
@@ -314,12 +315,9 @@ $( function() {
 	   They discard the other revealed cards.
 	   《2nd edition》 Removed */
 	CardEffect['Thief'] = function* () {
-		yield FBref_Message.set(
-			'他のプレイヤーの山札の上から2枚を公開し、\
-			その中に財宝カードがあればそのうち1枚を選んで廃棄します。\
-			これによって廃棄されたカードのうち好きな枚数を獲得できます。' );
-
-		yield Game.ResetStackedCardIDs();
+		yield FBref_Message.set( `他のプレイヤーの山札の上から2枚を公開し、
+			その中に財宝カードがあればそのうち1枚を選んで廃棄します。
+			これによって廃棄されたカードのうち好きな枚数を獲得できます。` );
 
 		function* attack_effects( player_id ) {
 			const pl = Game.Players[player_id];
@@ -479,9 +477,8 @@ $( function() {
 	   and either discards it or puts it back, your choice.
 	   《2nd edition》 Removed */
 	CardEffect['Spy'] = function* () {
-		yield FBref_Message.set(
-			'各プレイヤー（自分を含む）の山札の上から1枚を公開し、\
-			それを捨て札にするかそのまま山札に戻すか選んでください。' );
+		yield FBref_Message.set( `各プレイヤー（自分を含む）の山札の上から1枚を公開し、
+			それを捨て札にするかそのまま山札に戻すか選んでください。` );
 
 		function* Spy_Reveal( player_id ) {
 			const pl = Game.Players[player_id];
@@ -599,7 +596,7 @@ $( function() {
 
 		// 手札に勝利点カードが無ければ手札を公開
 		if ( VictoryCards.IsEmpty() ) {
-			yield Game.Me().RevealHandCards( Game );  /* 手札を公開 */
+			yield Game.Me().FaceUpAllHandCards( Game );  /* 手札を公開 */
 			return;
 		}
 
@@ -620,9 +617,9 @@ $( function() {
 		ShowDoneButton();
 
 		let trashed_num = 0;
-		while ( trashed_num < 4 && Game.player().HandCards.length > 0 ) {
+		while ( trashed_num < 4 && !Game.player().HandCards.IsEmpty() ) {
 			const return_value = yield WaitForTrashingHandCard();
-			if ( return_value === 'MoveHandCards_Done' ) break;
+			if ( return_value.done === true ) break;
 			trashed_num++;
 			yield FBref_Message.set( `あと ${(4 - trashed_num)} 枚廃棄できます。` );
 		}

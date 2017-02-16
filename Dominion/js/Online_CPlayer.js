@@ -91,10 +91,10 @@ class CPlayer {
 	}
 
 
-	ResetFace() {
-		this.GetCopyOfAllCards().forEach( card => card.face = 'default' );
-		return FBref_Players.child( this.id ).set( this );
-	}
+	// ResetFace() {
+	// 	this.GetCopyOfAllCards().forEach( card => card.face = 'default' );
+	// 	return FBref_Players.child( this.id ).set( this );
+	// }
 
 
 
@@ -200,11 +200,13 @@ class CPlayer {
 			}
 
 			let DrawedCardIDs = [];
-			for ( let i = 0; i < n; i++ ) {
+			let i = 0;
+			for ( i = 0; i < n; i++ ) {
+				if ( !player.Drawable() ) break;
 				DrawedCardIDs.push( player.LookDeckTopCard().card_ID );
 				player.AddToHandCards( player.GetDeckTopCard() );
 			}
-			FBref_chat.push( `${player.name}が${n}枚カードを引きました。` );
+			FBref_chat.push( `${player.name}が${i}枚カードを引きました。` );
 			yield FBref_Players.child( player.id ).update( {
 				HandCards   : player.HandCards,
 				Deck        : player.Deck,
@@ -224,11 +226,13 @@ class CPlayer {
 			}
 
 			let RevealedCardIDs = [];
-			for ( let i = 0; i < n; i++ ) {
+			let i = 0;
+			for ( ; i < n; i++ ) {
+				if ( !player.Drawable() ) break;
 				RevealedCardIDs.push( player.LookDeckTopCard().card_ID );
 				player.AddToOpen( player.GetDeckTopCard() );
 			}
-			FBref_chat.push( `${player.name}が${n}枚カードを公開しました。` );
+			FBref_chat.push( `${player.name}が山札から${i}枚カードを公開しました。` );
 			yield FBref_Players.child( player.id ).update( {
 				Deck        : player.Deck,
 				DiscardPile : player.DiscardPile,
@@ -325,15 +329,16 @@ class CPlayer {
 
 
 	// 手札を公開（その場で表にする）
-	RevealHandCards( Game ) {
+	FaceUpAllHandCards( Game ) {
 		const player = this;
-		player.HandCards.forEach( card => Game.FaceUpCard( card.card_ID ) );
+		return MyAsync( function*() {
+			yield player.HandCards.AsyncEach( card => Game.FaceUpCard( card.card_ID ) );
 
-		return Promise.all( [
-			FBref_Players.child( `${player.id}/HandCards` ).update( player.HandCards ),
-			FBref_MessageToMe.set('手札を公開します。'),
-			FBref_chat.push( `${player.name}は手札を公開しました。` ),
-		]);
+			yield Promise.all( [
+				FBref_Players.child( `${player.id}/HandCards` ).update( player.HandCards ),
+				FBref_chat.push( `${player.name}は手札を公開しました。` ),
+			]);
+		})
 	}
 
 

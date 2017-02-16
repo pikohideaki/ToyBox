@@ -58,12 +58,6 @@ Array.prototype.remove = function( index ) {
 	return this.splice( index, 1 );
 };
 
-// Array.prototype.val_exists = function( val ) {
-// 	for ( let i = 0; i < this.length; ++i ) {
-// 		if ( this[i] === val ) return true;
-// 	}
-// 	return false;
-// };
 
 Array.prototype.remove_val = function( val ) {
 	let ar = this.filter( e => e != val );
@@ -226,6 +220,37 @@ function MyAsync( GenFunc, ...Args ) {
 
 
 
+function sleep( sec ) {
+	return new Promise( resolve => setTimeout( resolve, sec * 1000 ) );
+}
+
+
+
+// for文の中で非同期処理
+Array.prototype.AsyncEach = function( promised_function ) {
+	let this_array = this;
+	return MyAsync( function*() {
+		for ( let i = 0; i < this_array.length; ++i ) {
+			yield promised_function( this_array[i], i, this_array );
+		}
+	});
+};
+
+
+function AsyncForTimes( n, GenFunc, ...Args ) {
+	return MyAsync( function*() {
+		for ( let i = 0; i < n; ++i ) {
+			yield MyAsync( GenFunc, ...Args );
+		}
+	})
+}
+
+
+
+
+
+
+
 /*
 	<div class='BlackCover MyAlert'>
 		<div class='MyAlert-box'>
@@ -371,25 +396,6 @@ function MyDialog( options, ref ) {
 }
 
 
-
-
-
-
-function sleep( sec ) {
-	return new Promise( resolve => setTimeout( resolve, sec * 1000 ) );
-}
-
-
-
-// for文の中で非同期処理
-Array.prototype.AsyncEach = function( promised_function ) {
-	let this_array = this;
-	return MyAsync( function*() {
-		for ( let i = 0; i < this_array.length; ++i ) {
-			yield promised_function( this_array[i], i, this_array );
-		}
-	});
-};
 
 
 

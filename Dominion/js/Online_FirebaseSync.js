@@ -98,8 +98,8 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		FBref_pl.child('DiscardPile').on('value', snap => SetAndPrintDiscardPile( player_id, snap ) );
 	}
 
-	FBref_Game.child('TurnInfo' ).on('value', SetAndPrintTurnInfo  );
-	FBref_Game.child('Supply'   ).on('value', SetAndPrintSupply    );
+	FBref_TurnInfo               .on('value', SetAndPrintTurnInfo  );
+	FBref_Supply                 .on('value', SetAndPrintSupply    );
 	FBref_Game.child('TrashPile').on('value', SetAndPrintTrashPile );
 	FBref_Game.child('phase'    ).on('value', SetAndPrintPhase     );
 

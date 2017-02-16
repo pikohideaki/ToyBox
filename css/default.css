@@ -20,9 +20,9 @@ a {
 	text-decoration: none;
 }
 
-ul, ol, li {
+/*ul, ol, li {
 	list-style: none;
-}
+}*/
 
 dt {
 	/*clear : left;*/
@@ -418,6 +418,7 @@ nav a {
 	vertical-align: middle;
 	padding: 10px 10px;
 	border: 1px solid #DDD;
+	height : 50px;  /* 全角文字と半角英数字で高さが変わるのを防ぐ */
 
 	background: #7abcff; /* Old browsers */
 	background: -moz-linear-gradient(top, #7abcff 0%, #60abf8 44%, #4096ee 100%); /* FF3.6+ */
@@ -453,6 +454,7 @@ nav a {
 	vertical-align: middle;
 	padding: 10px 10px;
 	border: 1px solid #DDD;
+	height : 50px;  /* 全角文字と半角英数字で高さが変わるのを防ぐ */
 
 	background: #68DB81; /* Old browsers */
 	background: -moz-linear-gradient(top, #68DB81 0%, #51CE6C 44%, #2EAB3D 100%); /* FF3.6+ */

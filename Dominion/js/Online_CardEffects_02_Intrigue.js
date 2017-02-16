@@ -2,30 +2,30 @@ $( function() {
 
 
 	   CardEffect['Great Hall']     = function* () {}  /* -- 33. 大広間 */
-	// CardEffect['Upgrade']        = function* () {}  /* ?  34. 改良 */
-	// CardEffect['Masquerade']     = function* () {}  /*    35. 仮面舞踏会 */
-	// CardEffect['Nobles']         = function* () {}  /*    36. 貴族 */
-	// CardEffect['Conspirator']    = function* () {}  /*    37. 共謀者 */
-	// CardEffect['Trading Post']   = function* () {}  /*    38. 交易場 */
-	// CardEffect['Mining Village'] = function* () {}  /*    39. 鉱山の村 */
+	// CardEffect['Upgrade']        = function* () {}  /* ok 34. 改良 */
+	// CardEffect['Masquerade']     = function* () {}  /* ok 35. 仮面舞踏会 */
+	// CardEffect['Nobles']         = function* () {}  /* ok 36. 貴族 */
+	// CardEffect['Conspirator']    = function* () {}  /* ok 37. 共謀者 */
+	// CardEffect['Trading Post']   = function* () {}  /* ok 38. 交易場 */
+	// CardEffect['Mining Village'] = function* () {}  /* ok 39. 鉱山の村 */
 	// CardEffect['Duke']           = function* () {}  /* -- 40. 公爵 */
-	// CardEffect['Torturer']       = function* () {}  /*    41. 拷問人 */
-	// CardEffect['Swindler']       = function* () {}  /*    42. 詐欺師 */
-	// CardEffect['Steward']        = function* () {}  /*    43. 執事 */
-	// CardEffect['Baron']          = function* () {}  /*    44. 男爵 */
-	// CardEffect['Minion']         = function* () {}  /*    45. 寵臣 */
-	// CardEffect['Scout']          = function* () {}  /*    46. 偵察員 */
-	// CardEffect['Pawn']           = function* () {}  /*    47. 手先 */
-	// CardEffect['Ironworks']      = function* () {}  /*    48. 鉄工所 */
-	// CardEffect['Coppersmith']    = function* () {}  /*    49. 銅細工師 */
-	// CardEffect['Courtyard']      = function* () {}  /*    50. 中庭 */
+	// CardEffect['Torturer']       = function* () {}  /* ok 41. 拷問人 */
+	// CardEffect['Swindler']       = function* () {}  /* ok 42. 詐欺師 */
+	// CardEffect['Steward']        = function* () {}  /* ok 43. 執事 */
+	// CardEffect['Baron']          = function* () {}  /* ok 44. 男爵 */
+	// CardEffect['Minion']         = function* () {}  /* ok 45. 寵臣 */
+	// CardEffect['Scout']          = function* () {}  /* ok 46. 偵察員 */
+	// CardEffect['Pawn']           = function* () {}  /* ok 47. 手先 */
+	// CardEffect['Ironworks']      = function* () {}  /* ok 48. 鉄工所 */
+	// CardEffect['Coppersmith']    = function* () {}  /* ok 49. 銅細工師 */
+	// CardEffect['Courtyard']      = function* () {}  /* ok 50. 中庭 */
 	// CardEffect['Wishing Well']   = function* () {}  /*    51. 願いの井戸 */
 	   CardEffect['Harem']          = function* () {}  /* -- 52. ハーレム */
 	// CardEffect['Saboteur']       = function* () {}  /*    53. 破壊工作員 */
-	// CardEffect['Bridge']         = function* () {}  /*    54. 橋 */
-	// CardEffect['Secret Chamber'] = function* () {}  /*    55. 秘密の部屋 */
-	// CardEffect['Shanty Town']    = function* () {}  /*    56. 貧民街 */
-	// CardEffect['Tribute']        = function* () {}  /*    57. 貢物 */
+	// CardEffect['Bridge']         = function* () {}  /* ok 54. 橋 */
+	// CardEffect['Secret Chamber'] = function* () {}  /* ok 55. 秘密の部屋 */
+	// CardEffect['Shanty Town']    = function* () {}  /* ok 56. 貧民街 */
+	// CardEffect['Tribute']        = function* () {}  /* ok 57. 貢物 */
 
 
 
@@ -47,7 +47,7 @@ $( function() {
 		// (1) 廃棄する手札のカードの選択
 		yield FBref_Message.set( '手札のカードを1枚廃棄して下さい。' );
 
-		const TrashedCardID = yield WaitForTrashingHandCard();
+		const TrashedCardID = ( yield WaitForTrashingHandCard() ).card_ID;
 
 		const TrashedCardCost = Game.GetCost( Game.LookCardWithID( TrashedCardID ).card_no );
 
@@ -55,7 +55,7 @@ $( function() {
 		yield FBref_Message.set(
 			`コストがちょうど廃棄したカード+1(=${TrashedCardCost.coin + 1} )コインのカードを獲得してください。` );
 
-		yield WaitForGainingSupplyCard( 'AddToDiscardPile', Game.player().id,
+		yield WaitForGainingSupplyCard( 'DiscardPile', Game.player().id,
 				( card, card_no ) =>
 					CostOp( '==', Game.GetCost( card_no ), CostOp( '+', TrashedCardCost, [1,0,0] ) ) );
 	};
@@ -94,7 +94,7 @@ $( function() {
 			if ( passed_val == null ) return;
 
 			// 全員分揃ったら次に
-			if ( ++done_num == Game.Players.length ) {
+			if ( ++done_num === Game.Players.length ) {
 				PassedCardIDs = passed_val;
 				Resolve['Masquerade_gather']();
 			}
@@ -108,15 +108,14 @@ $( function() {
 			const passed_card_ID = PassedCardIDs[ Game.PreviousPlayerID( player_id ) ];
 
 			// 前の人が手札が無かった場合何も受け取れない
-			if ( passed_card_ID == 99999999 ) return;
+			if ( passed_card_ID == -1 ) return;
 
-			Game.StackCardID( passed_card_ID );
-			yield Game.Players[ player_id ].PutIntoHand( passed_card_ID, Game, false );
-
+			yield Game.StackCardID( passed_card_ID );
+			Game.Players[ player_id ].AddToHandCards( Game.GetCardWithID( passed_card_ID ) );
 			yield FBref_MessageTo.child( player_id ).set('');
 		} );
 
-		// 裏向きを解除
+		// カードを渡した後のPlayersの同期、裏向きを解除
 		yield Game.ResetFace();
 		yield FBref_Players.set( Game.Players );
 
@@ -129,23 +128,23 @@ $( function() {
 	// 自分と他のプレイヤー
 	CardEffect['Masquerade_SelectPassCard'] = function* () {
 		if ( Game.Me().HandCards.IsEmpty() ) {
-			yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( 99999999 );
+			yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( -1 );
 			return;
 		}
 
 		// 渡すカードの選択待ち
 		const SelectedCardID
-		 = yield WaitForSelectingHandCard( Game.player().id != Game.Me().id );
+		 = ( yield WaitForSelectingHandCard( Game.player().id != Game.Me().id ) ).card_ID;
 
 		Game.Me().AddToOpen( Game.GetCardWithID( SelectedCardID ) );
-		Game.FaceDownCard( SelectedCardID );
+		yield Game.FaceDownCard( SelectedCardID );
 		yield FBref_Players.child( Game.Me().id ).set( Game.Me() )
 
 		// カードidを送る
 		yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( SelectedCardID );
 	}
 
-​​
+
 
 
 
@@ -160,10 +159,10 @@ $( function() {
 	CardEffect['Nobles'] = function*() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
 
-		const clicked_btn = yield WaitForButtonClick( {
+		const clicked_btn = yield WaitForButtonClick( [
 			{ return_value : '3Cards'  , label : '+3 Cards'   },
 			{ return_value : '2Actions', label : '+2 Actions' },
-		});
+		] );
 
 		switch ( clicked_btn ) {
 			case '3Cards' :
@@ -215,7 +214,7 @@ $( function() {
 
 		// 廃棄するカードを2枚選択
 		let trashed_num = 0;
-		while ( Game.player().HandCards.length > 0 && trashed_num < 2 ) {
+		while ( trashed_num < 2 && !Game.player().HandCards.IsEmpty() ) {
 			yield WaitForTrashingHandCard();
 			trashed_num++;
 		}
@@ -239,10 +238,10 @@ $( function() {
 	CardEffect['Mining Village'] = function*( playing_card_ID ) {
 		yield FBref_Message.set( 'このカードを即座に廃棄することができます。そうした場合、2コインを得ます。' );
 
-		const clicked_btn = yield WaitForButtonClick( {
+		const clicked_btn = yield WaitForButtonClick( [
 			{ return_value : 'trash'     , label : '廃棄して +2 Coins' },
 			{ return_value : 'dont_trash', label : '廃棄しない' },
-		});
+		] );
 
 		// 廃棄した場合2コインを得る
 		if ( clicked_btn == 'trash' ) {
@@ -250,7 +249,7 @@ $( function() {
 			Game.Trash( playing_card_ID );
 
 			yield FBref_Game.update( {
-				[`Players/${Game.player().id}/HandCards`] : Game.player(),
+				[`Players/${Game.player().id}/PlayArea`] : Game.player().PlayArea,
 				TrashPile : Game.TrashPile,
 				'TurnInfo/coin' : Game.TurnInfo.coin,
 			} );
@@ -270,18 +269,19 @@ $( function() {
 	   Each other player either discards 2 cards or gains a Curse to their hand, their choice.
 	   (They may pick an option they can't do.) */
 	CardEffect['Torturer'] = function*() {
-		// yield FBref_Message.set( '他のプレイヤーは次のうち1つを選ぶ ： <br>\
-		// 	- 手札からカードを2枚捨て札にする<br>\
-		// 	- 呪いを獲得し手札に加える<br>' );
 		yield FBref_Message.set( `他のプレイヤーは次のうち1つを選ぶ ： 
-			- 手札からカードを2枚捨て札にする
-			- 呪いを獲得し手札に加える` );
+			<ul>
+				<li> 手札からカードを2枚捨て札にする </li>
+				<li> 呪いを獲得し手札に加える </li>
+			</ul>` );
 
 		yield Game.AttackAllOtherPlayers(
 				'Torturer',
 				'手札からカードを2枚捨て札にするか呪いを獲得して手札に加えるか選んでください。',
 				true,  // send signals
 				undefined );
+
+		yield AcknowledgeButton();
 
 		// 公開したカードを裏向きに戻す
 		yield Game.ResetFace();
@@ -292,29 +292,29 @@ $( function() {
 	};
 
 	AttackEffect['Torturer'] = function* () {  /* アタックされる側 */
-		const clicked_btn = yield WaitForButtonClick_MyArea( {
+		const clicked_btn = yield WaitForButtonClick_MyArea( [
 			{ return_value : 'Discard2', label : '手札からカードを2枚捨て札にする' },
 			{ return_value : 'GetCurse', label : '呪いを獲得し手札に加える' },
-		});
+		] );
 
 		switch ( clicked_btn ) {
 			case 'Discard2' :
 				yield FBref_MessageTo.child(myid).set('手札からカードを2枚捨て札にしてください。');
 				let discarded_num = 0;
-				while ( discarded_num < 2 && $('.MyHandCards').children('.card').length > 0 ) {
+				while ( discarded_num < 2 && !Game.Me().HandCards.IsEmpty() ) {
 					yield WaitForDiscardingMyHandCard();
 					discarded_num++;
 				}
-				return;
+				break;
 
 			case 'GetCurse' :
 				yield FBref_MessageTo.child(myid).set('呪いを獲得して手札に加えてください。');
 				yield Game.GainCardFromSupplyByName( 'Curse', 'HandCards', myid, 'up' );
-				return;
+				break;
 
 			default :
 				throw new Error(`@AttackEffect.Torturer: invalid value for clicked_btn "${clicked_btn}"`);
-				return;
+				break;
 		}
 	};
 
@@ -357,7 +357,7 @@ $( function() {
 			});
 
 			// 同じコストのカードを1枚獲得
-			yield WaitForGainingSupplyCard( 'AddToDiscardPile', player_id,
+			yield WaitForGainingSupplyCard( 'DiscardPile', player_id,
 					( card, card_no ) =>
 						CostOp( '==', Game.GetCost( card_no ), Game.GetCost( DeckTopCard.card_no ) ) );
 		}
@@ -380,16 +380,15 @@ $( function() {
 	CardEffect['Steward'] = function*() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
 
-		const clicked_btn = yield WaitForButtonClick( {
+		const clicked_btn = yield WaitForButtonClick( [
 			{ return_value : '2Cards', label : '+2 Cards' },
 			{ return_value : '2Coins', label : '+2 Coins' },
 			{ return_value : 'trash2', label : '手札から2枚廃棄' },
-		});
+		] );
 
 		switch ( clicked_btn ) {
 			case '2Cards' :
-				Game.player().DrawCards(2);
-				yield FBref_Players.child( Game.player().id ).set( Game.player() );
+				yield Game.player().DrawCards(2);
 				break;
 
 			case '2Coins' :
@@ -401,7 +400,7 @@ $( function() {
 				yield FBref_Message.set('手札から2枚廃棄してください。');
 
 				let trashed_num = 0;
-				while ( Game.player().HandCards.length > 0 && trashed_num < 2 ) {
+				while ( trashed_num < 2 && !Game.player().HandCards.IsEmpty() ) {
 					yield WaitForTrashingHandCard();
 					trashed_num++;
 				}
@@ -424,27 +423,29 @@ $( function() {
 	   +1 Buy
 	   You may discard an Estate for + 4 Coins. If you don't, gain an Estate. */
 	CardEffect['Baron'] = function*() {
-		yield FBref_Message.set( '屋敷を捨て札にすることができます。そうした場合4コインを得ます。捨て札にしなかった場合は屋敷を獲得します。' );
+		yield FBref_Message.set( `屋敷を捨て札にすることができます。
+			そうした場合4コインを得ます。捨て札にしなかった場合は屋敷を獲得します。` );
 
-		$('.PlayersAreaButtons').append( MakeHTML_button( 'Baron_get_estate', '屋敷を獲得' ) );
+		// 手札に屋敷が無いとき
+		if ( Game.player().HandCards.filter( card => card.card_no == CardName2No['Estate'] ).IsEmpty() ) {
+			yield AcknowledgeButton( '屋敷を獲得' );
+			yield Game.GainCardFromSupplyByName( 'Estate', 'DiscardPile' );  /* 屋敷を獲得 */
+			return;
+		}
 
-		// 手札の屋敷か屋敷獲得ボタンのうち先に押された方で解決
-		const return_value = yield Promise.race( [
-			WaitForDiscardingHandCard( card_no => card_no == CardName2No['Estate'] ),
-			new Promise( resolve => { Resolve['Baron'] = resolve } ),
-		]);
+		const clicked_btn = yield WaitForButtonClick( [
+			{ return_value : 'get_estate',     label : '屋敷を獲得' },
+			{ return_value : 'discard_estate', label : '屋敷を捨て札にする' },
+		] );
 
-		$('.PlayersAreaButtons .Baron_get_estate').remove();  // reset
-
-		if ( return_value == 'get_estate' ) {
+		if ( clicked_btn === 'get_estate' ) {
 			yield Game.GainCardFromSupplyByName( 'Estate', 'DiscardPile' );  /* 屋敷を獲得 */
 		} else {
+			yield WaitForDiscardingHandCard( card_no => card_no == CardName2No['Estate'] ),
 			Game.TurnInfo.coin += 4;
 			yield FBref_TurnInfo.child('coin').set( Game.TurnInfo.coin );
 		}
 	};
-
-	$('.PlayersAreaButtons').on( 'click', '.Baron_get_estate', () => Resolve['Baron']( 'get_estate' ) );
 
 
 
@@ -463,10 +464,10 @@ $( function() {
 	CardEffect['Minion'] = function*() {
 		yield FBref_Message.set( '次のうち一つを選んでください。' );
 
-		const clicked_btn = yield WaitForButtonClick( {
+		const clicked_btn = yield WaitForButtonClick( [
 			{ return_value : 'Discard', label : '手札を全て捨て札にして +4 Cards' },
 			{ return_value : '2Coins' , label : '+2 Coins' },
-		});
+		] );
 
 		switch ( clicked_btn ) {
 		 case '2Coins' :
@@ -510,23 +511,23 @@ $( function() {
 	   Put the other cards on top of your deck in any order.
 	   《2nd edition》 Removed */
 	CardEffect['Scout'] = function*() {
-		yield FBref_Message.set( '山札の上から4枚のカードを公開し、\
-			勝利点カードが含まれていればそれらを全て手札に加えます。\
-			残りは好きな順番で山札に戻してください。' );
+		yield FBref_Message.set( `山札の上から4枚のカードを公開し、
+			勝利点カードが含まれていればそれらを全て手札に加えます。
+			残りは好きな順番で山札に戻してください。` );
 
-		yield Game.player().RevealDeckTop(4);
+		const RevealedCardIDs = yield Game.player().RevealDeckTop(4);
 
-		const Victory
-			= Game.player().Open.filter( card => IsVictoryCard( Cardlist, card.card_no ) );
+		const VictoryCardIDs
+			= RevealedCardIDs.filter( card_ID =>
+				IsVictoryCard( Cardlist, Game.LookCardWithID( card_ID ).card_no ) );
 
-		if ( Victory.length > 0 ) {
+		if ( !VictoryCardIDs.IsEmpty() ) {
 			yield AcknowledgeButton( '勝利点カードを手札に加える' );
-			yield Victory.AsyncEach( card => Game.player().PutIntoHand( card.card_ID, Game ) );
+			yield VictoryCardIDs.AsyncEach( card_ID => Game.player().PutIntoHand( card_ID, Game ) );
 		}
 
-		while ( Game.player().Open.length > 0 ) {
+		while ( !Game.player().Open.IsEmpty() ) {
 			yield WaitForPuttingBackRevealedCard();
-			/* 公開カードのクリック動作を山札に戻すカードの選択に変更 */
 		}
 	};
 
@@ -541,20 +542,22 @@ $( function() {
 	   Choose two:
 	   +1 Card; +1 Action; +1 Buy; +1 Coin. The choices must be different. */
 	CardEffect['Pawn'] = function*() {
-		yield FBref_Message.set( '次のうち異なる二つを選んでください。\
-			 - +1 Card<br>\
-			 - +1 Action<br>\
-			 - +1 Buy<br>\
-			 - +1 Coin<br>' );
+		yield FBref_Message.set( `次のうち異なる二つを選んでください。
+			<ul>
+				<li> +1 Card   </li>
+				<li> +1 Action </li>
+				<li> +1 Buy    </li>
+				<li> +1 Coin   </li>
+			</ul>` );
 
-		const clicked_btn = yield WaitForButtonClick( {
+		const clicked_btns = yield WaitForButtonClick( [
 			{ return_value : '1Card'  , label : '+1 Card'   },
 			{ return_value : '1Action', label : '+1 Action' },
 			{ return_value : '1Buy'   , label : '+1 Buy'    },
 			{ return_value : '1Coin'  , label : '+1 Coin'   },
-		}, 2 );
+		], 2 );
 
-		function select_effect( clicked_btn ) {
+		function* select_effect( clicked_btn ) {
 			switch ( clicked_btn ) {
 				case '1Card' :
 					yield Game.player().DrawCards(1);
@@ -581,7 +584,8 @@ $( function() {
 			}
 		}
 
-		select_effect(first);  select_effect(second);
+		yield MyAsync( select_effect, clicked_btns[0]  );
+		yield MyAsync( select_effect, clicked_btns[1] );
 	};
 
 
@@ -601,17 +605,21 @@ $( function() {
 	     Treasure card, +1 Coin
 	     Victory card, +1 Card */
 	CardEffect['Ironworks'] = function*() {
-		yield FBref_Message.set( 'コストが4コイン以下のカードを獲得してください。<br>\
-			そのカードが<br>\
-			 - アクションカードならば +1 Action<br>\
-			 - 財宝カードならば +1 Coin<br>\
-			 - 勝利点カードならば +1 Card<br>' );
+		yield FBref_Message.set( `コストが4コイン以下のカードを獲得してください。
+			そのカードが
+			<ul>
+				<li>アクションカードならば +1 Action</li>
+				<li>財宝カードならば +1 Coin</li>
+				<li>勝利点カードならば +1 Card</li>
+			</ul>` );
 
-		const gotten_card_ID
-		  = yield WaitForGainingSupplyCard( 'AddToDiscardPile', Game.player().id,
+		const return_value
+		  = yield WaitForGainingSupplyCard( 'DiscardPile', Game.player().id,
 				( card, card_no ) => CostOp( '<=', Game.GetCost( card_no ), [4,0,0] ) );
 
-		const gotten_card_no = Game.LookCardWithID( gotten_card_ID ).card_no;
+		if ( !return_value.exists ) return;
+
+		const gotten_card_no = return_value.card_no;
 
 		if ( IsActionCard( Cardlist, gotten_card_no ) ) {
 			Game.TurnInfo.action++;
@@ -666,8 +674,8 @@ $( function() {
 	   Name a card, then reveal the top card of your deck.
 	   If you named it, put it into your hand. */
 	CardEffect['Wishing Well'] = function*() {
-		yield FBref_Message.set( 'カード名を1つ指定してください（サプライエリアのカードをクリックしてください）。\
-			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。' );
+		yield FBref_Message.set( `カード名を1つ指定してください（サプライエリアのカードをクリックしてください）。
+			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。` );
 
 		if ( !Game.player().Drawable() ) {
 			yield MyAlert( '山札にカードがありません。' );
@@ -675,16 +683,16 @@ $( function() {
 		}
 
 		const return_value = yield Promise.race( [
-			WaitForSelectingSupplyCard( undefined, true, false );
-			AcknowledgeButton( '存在しないカード名', 'non_existent' );
-		]);
+			WaitForSelectingSupplyCard( undefined, true, false ),
+			WaitForButtonClick( [ { return_value : 'non_existent', label : '存在しないカード名' } ] ),
+		] );
 
 		const card_name_jp
 		  = ( return_value == 'non_existent' ?
 		         '存在しないカード名'
 		       : `「${Cardlist[ return_value.card_no ].name_jp}」` );
 
-		const named_card_no = ( return_value == 'non_existent' ? 99999999 : return_value.card_no );
+		const named_card_no = ( return_value == 'non_existent' ? -1 : return_value.card_no );
 
 		yield Promise.all( [
 			FBref_chat.push( `${Game.player().name}が${card_name_jp}を指定しました。` ),
@@ -721,9 +729,9 @@ $( function() {
 	   He discards the other revealed cards.
 	   《2nd edition》 Removed */
 	CardEffect['Saboteur'] = function*() {
-		const msg = '自分の山札からコストが3コイン以上のカードが出るまで公開し、そのカードを廃棄します。\
-			廃棄したカードよりも2コイン以上コストが小さいカードをサプライから1枚獲得することができます。\
-			公開した残りのカードは捨て札にします。';
+		const msg = `自分の山札からコストが3コイン以上のカードが出るまで公開し、そのカードを廃棄します。
+			廃棄したカードよりも2コイン以上コストが小さいカードをサプライから1枚獲得することができます。
+			公開した残りのカードは捨て札にします。`;
 
 		yield FBref_Message.set( `他のプレイヤーは${msg}` );
 
@@ -739,16 +747,17 @@ $( function() {
 		let TrashedCardCostCoin = -100;
 
 		while ( Game.Me().Drawable() ) {
-			const RevealedCard = Game.Me().LookDeckTopCard();
-			yield Game.Me().RevealDeckTop(1);
+			const RevealedCardID = ( yield Game.Me().RevealDeckTop(1) )[0];
 
-			const RevealedCard_cost_coin = Game.GetCost( RevealedCard.card_no ).coin;
-			if ( RevealedCard_cost_coin >= 3 ) {
-				LastRevealedCardID = RevealedCard.card_ID;
+			const RevealedCard_cost_coin
+			  = Game.GetCost( Game.LookCardWithID( RevealedCardID ).card_no ).coin;
+
+			if ( RevealedCard_cost_coin < 3 ) {
+				Game.StackCardID( RevealedCardID );
+			} else {
+				LastRevealedCardID = RevealedCardID;
 				TrashedCardCostCoin = RevealedCard_cost_coin;
 				break;
-			} else {
-				Game.StackCardID( RevealedCard.card_ID );
 			}
 		}
 
@@ -778,7 +787,7 @@ $( function() {
 		}
 
 		// 公開した残りのカードを捨て札にする
-		Game.StackedCardIDs.AsyncEach( card_ID => Game.Me().Discard( card_ID, Game ) );
+		yield Game.StackedCardIDs.AsyncEach( card_ID => Game.Me().Discard( card_ID, Game ) );
 		yield Game.ResetStackedCardIDs();
 	};
 
@@ -819,14 +828,14 @@ $( function() {
 		const SelectedCardsID = yield WaitForMarkingHandCards();
 
 		// 選択したカードを捨て札に
-		SelectedCardsID.AsyncEach( card_ID => Game.player().Discard( card_ID, Game, false ) );
+		yield SelectedCardsID.AsyncEach( card_ID => Game.player().Discard( card_ID, Game, false ) );
 
 		yield Promise.all( [
 			FBref_Message.set( `捨て札にした枚数 ： ${SelectedCardsID.length}枚` ),
 			FBref_chat.push( `${Game.player().name}が${Game.player().HandCards.length}枚のカードを捨て札にしました。` ),
 		] );
 
-		Game.TurnInfo.coin += discarded_num;
+		Game.TurnInfo.coin += SelectedCardsID.length;
 		yield FBref_TurnInfo.child('coin').set( Game.TurnInfo.coin )
 	};
 
@@ -835,8 +844,9 @@ $( function() {
 		yield Game.Me().DrawCards(2);
 
 		let put_back_num = 0;
-		while ( put_back_num++ < 2 ) {
+		while ( put_back_num < 2 ) {
 			yield WaitForPuttingBackMyHandCard();
+			put_back_num++;
 		}
 	};
 
@@ -853,15 +863,16 @@ $( function() {
 	CardEffect['Shanty Town'] = function*() {
 		yield FBref_Message.set( '手札を公開します。手札にアクションカードがない場合2枚カードを引きます。' );
 
-		yield RevealHandCards( Game );  // 手札を公開
+		yield Game.player().FaceUpAllHandCards( Game );  // 手札を公開
 		yield AcknowledgeButton();
-		yield ResetFace();  // 手札を戻す
+		yield Game.ResetFace();  // 手札を戻す
+		yield FBref_Players.child( `${Game.player().id}/HandCards` ).set( Game.player().HandCards );
 
-		let Action
+		const Action
 			= Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
 
 		if ( Action.IsEmpty() ) {
-			yield FBref_chat.push( '手札にアクションカードがありませんでした。' );
+			FBref_chat.push( '手札にアクションカードがありませんでした。' );
 			yield Game.player().DrawCards(2);
 		}
 	};
@@ -879,12 +890,13 @@ $( function() {
 	     Victory Card, +2 Cards
 	   《2nd edition》 Removed */
 	CardEffect['Tribute'] = function*() {
-		yield FBref_Message.set( '左隣りのプレイヤーの山札の上から2枚を公開します。\
-			それらのうち異なる名前のカード1枚につき、それが<br>\
-			- アクションカードならば +2 Actions<br>\
-			- 財宝カードならば +2 Coins<br>\
-			- 勝利点カードならば +2 Cards<br>\
-			' );
+		yield FBref_Message.set( `左隣りのプレイヤーの山札の上から2枚を公開します。
+			それらのうち異なる名前のカード1枚につき、それが
+			<ul>
+				<li> アクションカードならば +2 Actions </li>
+				<li> 財宝カードならば +2 Coins </li>
+				<li> 勝利点カードならば +2 Cards </li>
+			</ul>` );
 
 		const RevealedCardIDs = yield Game.NextPlayer().RevealDeckTop(2);
 

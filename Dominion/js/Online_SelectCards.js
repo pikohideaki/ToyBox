@@ -54,10 +54,10 @@ function SelectKingdomCards( SelectedCards, UsingSetlist, Cardlist ) {
 		if ( Cardlist[r].class !== '王国' ) continue;
 
 		/* 使わないセットのカードならスキップ */
-		if ( !UsingSetlist.val_exists( Cardlist[r].set_name ) ) continue;
+		if ( !UsingSetlist.includes( Cardlist[r].set_name ) ) continue;
 
 		/* 使用済みカードならスキップ */
-		if ( SelectedCards.KingdomCards.val_exists(r) ) continue;
+		if ( SelectedCards.KingdomCards.includes(r) ) continue;
 
 		/* rが有効なとき */
 		SelectedCards.KingdomCards[generated_num] = r;
@@ -93,10 +93,10 @@ function SelectBaneCard( SelectedCards, UsingSetlist, Cardlist ) {
 		if ( Cardlist[r].class !== '王国' ) continue;
 
 		/* 使わないセットのカードならスキップ */
-		if ( !UsingSetlist.val_exists( Cardlist[r].set_name ) ) continue;
+		if ( !UsingSetlist.includes( Cardlist[r].set_name ) ) continue;
 
 		/* 使用済みカードならスキップ */
-		if ( SelectedCards.KingdomCards.val_exists(r) ) continue;
+		if ( SelectedCards.KingdomCards.includes(r) ) continue;
 
 		/* コストは2~3 */
 		if ( Cardlist[r].cost_potion != 0
