@@ -606,6 +606,7 @@ class CGame {
 	/* どこから来るか分からないのでfirebase同期はしない */
 	Trash( card_ID ) {
 		this.AddToTrashPile( this.GetCardWithID( card_ID ) );
+		FBref_chat.push( `「${Cardlist[ this.LookCardWithID( card_ID ).card_no ].name_jp}」を廃棄しました。` );
 	}
 
 

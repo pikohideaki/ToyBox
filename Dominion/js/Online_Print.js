@@ -269,7 +269,21 @@ function PrintDiscardPile( player_id ) {
 
 
 
+function AddBuyCardClass() {
+	// 購入フェーズならクリック可能に（災いカードも対象）
+	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
+		if ( Get$SupplyAreaWithConditions().hasClass('card down') ) return;
 
+		Get$SupplyAreaWithConditions().removeClass('BuyCard pointer'); // reset
+
+		Get$SupplyAreaWithConditions(
+				(card, card_no) => 
+					CostOp( '<=', Game.GetCost( card_no ), [ Game.TurnInfo.coin, Game.TurnInfo.potion, 10000 ] ),
+				false,
+				true )
+			.addClass('BuyCard pointer');
+	}
+}
 
 
 function PrintSupply() {
@@ -314,13 +328,7 @@ function PrintSupply() {
 		$('.BaneCard-wrapper').show();
 	}
 
-
-	// 購入フェーズならクリック可能に（災いカードも対象）
-	if ( Game.phase == 'BuyPhase' || Game.phase == 'BuyPhase_GetCard' ) {
-		// $('.SupplyArea').find('.card')
-		Get$SupplyAreaWithConditions( undefined, false ).addClass('BuyCard pointer');
-	}
-
+	AddBuyCardClass();
 
 	// 更新時アニメーション
 	$('.SupplyArea').find('.card').emphasize_card();
@@ -395,6 +403,7 @@ function PrintTurnInfo() {
 	$('.TurnInfo-action').html( Game.TurnInfo.action );
 	$('.TurnInfo-buy'   ).html( Game.TurnInfo.buy    );
 	$('.TurnInfo-coin'  ).html( Game.TurnInfo.coin   );
+	AddBuyCardClass();
 }
 
 
@@ -414,6 +423,20 @@ function PrintTrashPile() {
 
 
 
+
+// 破壊工作員などで使用
+function ShowSupplyAreaInMyArea() {
+	$CommonArea_in_MyArea = $('.MyArea-wrapper .MyArea .Common-Area');
+	$CommonArea_in_MyArea.html( $('.main .Common-Area').html() );   // copy
+	$CommonArea_in_MyArea.find('.TrashPile-wrapper').remove()
+	$CommonArea_in_MyArea.show();
+	PrintSupply();
+}
+
+function HideSupplyAreaInMyArea() {
+	$CommonArea_in_MyArea = $('.MyArea-wrapper .MyArea .Common-Area');
+	$CommonArea_in_MyArea.hide();
+}
 
 
 

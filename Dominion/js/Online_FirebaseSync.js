@@ -62,9 +62,7 @@ Initialize.then( function() {  /* 初期設定終わったら */
 			$('.MyArea-wrapper').fadeIn();
 		}
 
-		for ( let player_id = 0; player_id < Game.Players.length; ++player_id ) {
-			PrintPlayersCardAreas( player_id );
-		}
+		Game.ForAllPlayers( PrintPlayersCardAreas );
 
 		// 手番 アニメーション
 		$('.turn-dialog-wrapper .dialog_text').html( `${Game.player().name}のターン` );
@@ -85,8 +83,7 @@ Initialize.then( function() {  /* 初期設定終わったら */
 			} )
 	});
 
-
-	for ( let player_id = 0; player_id < Game.Players.length; ++player_id ) {
+	Game.ForAllPlayers( player_id => {
 		let FBref_pl = FBref_Players.child( player_id );
 		FBref_pl.child('TurnCount'  ).on('value', snap => SetAndPrintTurnCount  ( player_id, snap ) );
 		FBref_pl.child('Connection' ).on('value', snap => SetAndPrintConnection ( player_id, snap ) );
@@ -96,7 +93,19 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		FBref_pl.child('Deck'       ).on('value', snap => SetAndPrintDeck       ( player_id, snap ) );
 		FBref_pl.child('HandCards'  ).on('value', snap => SetAndPrintHandCards  ( player_id, snap ) );
 		FBref_pl.child('DiscardPile').on('value', snap => SetAndPrintDiscardPile( player_id, snap ) );
-	}
+	} );
+
+	// for ( let player_id = 0; player_id < Game.Players.length; ++player_id ) {
+	// 	let FBref_pl = FBref_Players.child( player_id );
+	// 	FBref_pl.child('TurnCount'  ).on('value', snap => SetAndPrintTurnCount  ( player_id, snap ) );
+	// 	FBref_pl.child('Connection' ).on('value', snap => SetAndPrintConnection ( player_id, snap ) );
+	// 	FBref_pl.child('Open'       ).on('value', snap => SetAndPrintOpen       ( player_id, snap ) );
+	// 	FBref_pl.child('PlayArea'   ).on('value', snap => SetAndPrintPlayArea   ( player_id, snap ) );
+	// 	FBref_pl.child('Aside'      ).on('value', snap => SetAndPrintAside      ( player_id, snap ) );
+	// 	FBref_pl.child('Deck'       ).on('value', snap => SetAndPrintDeck       ( player_id, snap ) );
+	// 	FBref_pl.child('HandCards'  ).on('value', snap => SetAndPrintHandCards  ( player_id, snap ) );
+	// 	FBref_pl.child('DiscardPile').on('value', snap => SetAndPrintDiscardPile( player_id, snap ) );
+	// }
 
 	FBref_TurnInfo               .on('value', SetAndPrintTurnInfo  );
 	FBref_Supply                 .on('value', SetAndPrintSupply    );

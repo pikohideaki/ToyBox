@@ -69,7 +69,8 @@ $( function() {
 				card.card_no == CardName2No['Silver'  ] ||
 				card.card_no == CardName2No['Gold'    ] ||
 				card.card_no == CardName2No['Platinum'] ||
-				card.card_no == CardName2No['Potion'  ] );
+				card.card_no == CardName2No['Potion'  ] ||
+				card.card_no == CardName2No['Harem'   ] );
 
 		const card_names = [];
 		for( let i = 0; i < BasicTreasures.length; ++i ) {

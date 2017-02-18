@@ -43,7 +43,7 @@ $( function() {
 
 	/* 1. 銅貨 */
 	CardEffect['Copper'] = function* () {
-		 // 銅細工師の効果
+	 /* 銅細工師の効果 */
 		Game.TurnInfo.coin += Game.TurnInfo.add_copper_coin;
 		yield FBref_TurnInfo.child('coin').set( Game.TurnInfo.coin );
 	}
@@ -53,9 +53,13 @@ $( function() {
 
 
 	/* 9. 基本 - 改築 */
-	/* Trash a card from your hand. Gain a card costing up to 2 Coins more than the trashed card.
-	   《2nd edition》 Trash a card from your hand. Gain a card costing up to 2 Coins more than it. */
 	CardEffect['Remodel'] = function* () {
+	 /*
+		Trash a card from your hand.
+		Gain a card costing up to 2 Coins more than the trashed card.
+		《2nd edition》 Trash a card from your hand.
+		Gain a card costing up to 2 Coins more than it.
+	 */
 		if ( Game.player().HandCards.IsEmpty() ) {
 			yield MyAlert( '手札にカードがありません。' );
 			return;
@@ -82,8 +86,8 @@ $( function() {
 
 
 	/* 11. 金貸し */
-	/* Trash a Copper card from your hand. If you do, +3 Coins. */
 	CardEffect['Moneylender'] = function* () {
+	 /* Trash a Copper card from your hand. If you do, +3 Coins. */
 		const Coppers 
 		  = Game.player().HandCards.filter( card => card.card_no === CardName2No['Copper'] );
 
@@ -107,9 +111,14 @@ $( function() {
 
 
 	/* 13. 議事堂 */
-	/* +4 Cards +1 Buy Each other player draws a card.
-	   《2nd edition》 +4 Cards +1 Buy Each other player draws a card. */
 	CardEffect['Council Room'] = function* () {
+	 /*
+		+4 Cards +1 Buy
+		Each other player draws a card.
+		《2nd edition》
+		+4 Cards +1 Buy
+		Each other player draws a card.
+	 */
 		yield Game.ForAllOtherPlayers( player_id => Game.Players[ player_id ].DrawCards(1) )
 	};
 
@@ -118,10 +127,12 @@ $( function() {
 
 
 	/* 14. 玉座の間 */
-	/* Choose an Action card in your hand. Play it twice.
-	   《2nd edition》 You may play an Action card from your hand twice. */
-	/* 1st editionで実装 */
 	CardEffect['Throne Room'] = function* () {
+	 /*
+		Choose an Action card in your hand. Play it twice.
+		《2nd edition》 You may play an Action card from your hand twice.
+	 */
+	 /* 1st editionで実装 */
 		const Action
 		  = Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
 
@@ -145,11 +156,13 @@ $( function() {
 
 
 	/* 16. 基本 - 鉱山 */
-	/* Trash a Treasure card from your hand.
-	   Gain a Treasure card costing up to 3 Coins more; put it into your hand.
-	   《2nd edition》 You may trash a Treasure from your hand.
-	   Gain a Treasure to your hand costing up to 3 Coins more than it. */
 	CardEffect['Mine'] = function* () {
+	 /*
+		Trash a Treasure card from your hand.
+		Gain a Treasure card costing up to 3 Coins more; put it into your hand.
+		《2nd edition》 You may trash a Treasure from your hand.
+		Gain a Treasure to your hand costing up to 3 Coins more than it.
+	 */
 		const Treasure
 		  = Game.player().HandCards.filter( card => IsTreasureCard( Cardlist, card.card_no ) );
 
@@ -181,8 +194,8 @@ $( function() {
 
 
 	/* 17. 基本 - 工房 */
-	/* Gain a card costing up to 4 Coins. */
 	CardEffect['Workshop'] = function* () {
+	 /* Gain a card costing up to 4 Coins. */
 		yield FBref_Message.set( 'コスト4以下のカードを獲得して下さい。' );
 
 		yield WaitForGainingSupplyCard( 'DiscardPile', Game.player().id,
@@ -194,9 +207,12 @@ $( function() {
 
 
 	/* 18. 宰相 */
-	/* +2 Coins You may immediately put your deck into your discard pile.
-	   《2nd edition》 Removed  */
 	CardEffect['Chancellor'] = function* () {
+	 /*
+		+2 Coins
+		You may immediately put your deck into your discard pile.
+		《2nd edition》 Removed.
+	 */
 		yield FBref_Message.set( '山札を捨て札に置きますか？' );
 
 		const clicked_btn = yield WaitForButtonClick( [
@@ -214,8 +230,11 @@ $( function() {
 
 
 	/* 19. 基本 - 祝宴 */
-	/* Trash this card. Gain a card costing up to 5 Coins. 《2nd edition》 Removed */
 	CardEffect['Feast'] = function* ( playing_card_ID ) {
+	 /*
+		Trash this card. Gain a card costing up to 5 Coins.
+		《2nd edition》 Removed
+	 */
 		yield FBref_Message.set( 'コスト5以下のカードを獲得して下さい。' );
 
 		// このカードを廃棄する
@@ -234,12 +253,14 @@ $( function() {
 
 
 	/* 21. 書庫 */
-	/* Draw until you have 7 cards in hand.
-	   You may set aside any Action cards drawn this way, as you draw them;
-	   discard the set aside cards after you finish drawing.
-	   《2nd edition》 Draw until you have 7 cards in hand, skipping any Action cards you choose to;
-	   set those aside, discarding them afterwards. */
 	CardEffect['Library'] = function* () {
+	 /*
+		Draw until you have 7 cards in hand.
+		You may set aside any Action cards drawn this way, as you draw them;
+		discard the set aside cards after you finish drawing.
+		《2nd edition》 Draw until you have 7 cards in hand, skipping any Action cards you choose to;
+		set those aside, discarding them afterwards.
+	 */
 		yield FBref_Message.set( `手札が7枚になるまでカードを引きます。
 				アクションカードを引いたら脇に置くことができます。` );
 
@@ -281,10 +302,14 @@ $( function() {
 
 
 	/* 22. 地下貯蔵庫 */
-	/* +1 Action Discard any number of cards. +1 Card per card discarded.
-	《2nd edition》 +1 Action Discard any number of cards, then draw that many. */
-	// 捨て札にする枚数は公開だが内訳は非公開
 	CardEffect['Cellar'] = function* () {
+	 /*
+		+1 Action
+		Discard any number of cards. +1 Card per card discarded.
+		《2nd edition》
+		+1 Action
+		Discard any number of cards, then draw that many.
+	 */
 		yield FBref_Message.set( '手札から任意の枚数を捨て札にして下さい。捨て札にした枚数だけカードを引きます。' );
 
 		// 手札のカードを任意枚数選択
@@ -297,8 +322,10 @@ $( function() {
 
 		yield Promise.all( [
 			FBref_Message.set( `捨て札にした枚数 ： ${SelectedCardsID.length}枚` ),
-			FBref_chat.push( `${pl.name}が${pl.HandCards.length}枚のカードを捨て札にしました。` ),
+			FBref_chat.push( `${pl.name}が${SelectedCardsID.length}枚のカードを捨て札にしました。` ),
 		] );
+
+		yield AcknowledgeButton();
 
 		// 捨て札にした枚数カードを引く
 		yield pl.DrawCards( SelectedCardsID.length );
@@ -309,12 +336,14 @@ $( function() {
 
 
 	/* 24. 泥棒 */
-	/* Each other player reveals the top 2 cards of his deck.
-	   If they revealed any Treasure cards, they trash one of them that you choose.
-	   You may gain any or all of these trashed cards.
-	   They discard the other revealed cards.
-	   《2nd edition》 Removed */
 	CardEffect['Thief'] = function* () {
+	 /*
+		Each other player reveals the top 2 cards of his deck.
+		If they revealed any Treasure cards, they trash one of them that you choose.
+		You may gain any or all of these trashed cards.
+		They discard the other revealed cards.
+		《2nd edition》 Removed
+	 */
 		yield FBref_Message.set( `他のプレイヤーの山札の上から2枚を公開し、
 			その中に財宝カードがあればそのうち1枚を選んで廃棄します。
 			これによって廃棄されたカードのうち好きな枚数を獲得できます。` );
@@ -397,10 +426,12 @@ $( function() {
 
 
 	/* 25. 冒険者 */
-	/* Reveal cards from your deck until you reveal 2 Treasure cards.
-	   Put those Treasure cards in your hand and discard the other revealed cards.
-	   《2nd edition》 Removed */
 	CardEffect['Adventurer'] = function*() {
+	 /*
+	 	Reveal cards from your deck until you reveal 2 Treasure cards.
+		Put those Treasure cards in your hand and discard the other revealed cards.
+		《2nd edition》 Removed
+	 */
 		yield FBref_Message.set( '財宝カードが2枚公開されるまでカードを引きます。' );
 
 		const RevealedCardIDs = [];
@@ -432,17 +463,19 @@ $( function() {
 
 
 	/* 26. 堀 */
-	/* +2 Cards
-	   -------------------------
-	   When another player plays an Attack card, you may reveal this from your hand.
-	   If you do, you are unaffected by that Attack.
-
-	   《2nd edition》
-	   +2 Cards
-	   -------------------------
-	   When another player plays an Attack card, you may first reveal this from your hand,
-	   to be unaffected by it. */
 	ReactionEffect['Moat'] = function*() {
+	 /*
+		+2 Cards
+		-------------------------
+		When another player plays an Attack card, you may reveal this from your hand.
+		If you do, you are unaffected by that Attack.
+
+		《2nd edition》
+		+2 Cards
+		-------------------------
+		When another player plays an Attack card, you may first reveal this from your hand,
+		to be unaffected by it.
+	 */
 		Game.TurnInfo.Revealed_Moat[myid] = true;
 		yield FBref_Game.child(`TurnInfo/Revealed_Moat/${myid}`).set(true);
 	};
@@ -452,9 +485,14 @@ $( function() {
 
 
 	/* 27. 魔女 */
-	/* +2 Cards Each other player gains a Curse card.
-	   《2nd edition》 +2 Cards Each other player gains a Curse. */
 	CardEffect['Witch'] = function* () {
+	 /*
+		+2 Cards
+		Each other player gains a Curse card.
+		《2nd edition》
+		+2 Cards
+		Each other player gains a Curse.
+	 */
 		yield FBref_Message.set( '呪いを獲得して下さい。' );
 
 		yield Game.AttackAllOtherPlayers(
@@ -472,11 +510,13 @@ $( function() {
 
 
 	/* 28. 密偵 */
-	/* +1 Card +1 Action
-	   Each player (including you) reveals the top card of his deck
-	   and either discards it or puts it back, your choice.
-	   《2nd edition》 Removed */
 	CardEffect['Spy'] = function* () {
+	 /*
+		+1 Card +1 Action
+		Each player (including you) reveals the top card of his deck
+		and either discards it or puts it back, your choice.
+		《2nd edition》 Removed
+	 */
 		yield FBref_Message.set( `各プレイヤー（自分を含む）の山札の上から1枚を公開し、
 			それを捨て札にするかそのまま山札に戻すか選んでください。` );
 
@@ -533,9 +573,14 @@ $( function() {
 
 
 	/* 29. 民兵 */
-	/* +2 Coins Each other player discards down to 3 cards in his hand.
-	   《2nd edition》 +2 Coins Each other player discards down to 3 cards in hand. */
 	CardEffect['Militia'] = function* () {
+	 /*
+		+2 Coins
+		Each other player discards down to 3 cards in his hand.
+		《2nd edition》
+		+2 Coins
+		Each other player discards down to 3 cards in hand.
+	 */
 		yield FBref_Message.set( '手札が3枚になるまで捨てて下さい。' );
 
 		yield Game.AttackAllOtherPlayers(
@@ -545,10 +590,10 @@ $( function() {
 				undefined );
 	};
 
-	/* アタックされる側 */
 	AttackEffect['Militia'] = function*() {
+		/* アタックされる側 */
 		while ( $('.MyHandCards').children('.card').length > 3 ) {
-			yield WaitForDiscardingMyHandCard();
+			yield WaitForDiscardingMyHandCard( undefined, false );
 		}
 	};
 
@@ -557,13 +602,16 @@ $( function() {
 
 
 	/* 31. 役人 */
-	/* Gain a silver card; put it on top of your deck.
-	   Each other player reveals a Victory card from his hand and puts it on his deck
-	   (or reveals a hand with no Victory cards).
-	   《2nd edition》 Gain a Silver onto your deck.
-	   Each other player reveals a Victory card from their hand and puts it onto their deck
-	   (or reveals a hand with no Victory cards). */
 	CardEffect['Bureaucrat'] = function* () {
+	 /*
+		Gain a silver card; put it on top of your deck.
+		Each other player reveals a Victory card from his hand and puts it on his deck
+		(or reveals a hand with no Victory cards).
+		《2nd edition》
+		Gain a Silver onto your deck.
+		Each other player reveals a Victory card from their hand and puts it onto their deck
+		(or reveals a hand with no Victory cards).
+	 */
 		const msg = '手札に勝利点カードが1枚以上ある場合はそのうち1枚を山札に戻してください。\
 					そうでない場合は手札を公開してください。';
 
@@ -589,8 +637,8 @@ $( function() {
 		])
 	};
 
-	// アタックされる側
-	AttackEffect['Bureaucrat'] = function*() {  /* アタックされる側 */
+	AttackEffect['Bureaucrat'] = function*() {
+		/* アタックされる側 */
 		const VictoryCards
 		  = Game.Me().HandCards.filter( card => IsVictoryCard( Cardlist, card.card_no ) );
 
@@ -601,7 +649,7 @@ $( function() {
 		}
 
 		// 手札に勝利点カードがあればそのうち1枚を選んで山札に戻す
-		yield WaitForPuttingBackMyHandCard( card_no => IsVictoryCard( Cardlist, card_no ), 'up' );
+		yield WaitForPuttingBackMyHandCard( card_no => IsVictoryCard( Cardlist, card_no ), true, 'up' );
 	};
 
 
@@ -609,21 +657,24 @@ $( function() {
 
 
 	/* 32. 礼拝堂 */
-	/* Trash up to 4 cards from your hand.
-	   《2nd edition》 Trash up to 4 cards from your hand. */
 	CardEffect['Chapel'] = function* () {
+	 /*
+		Trash up to 4 cards from your hand.
+		《2nd edition》
+		Trash up to 4 cards from your hand.
+	 */
 		yield FBref_Message.set( '手札を4枚まで廃棄して下さい。' );
 
-		ShowDoneButton();
+		ShowAbortButton();
 
 		let trashed_num = 0;
 		while ( trashed_num < 4 && !Game.player().HandCards.IsEmpty() ) {
 			const return_value = yield WaitForTrashingHandCard();
-			if ( return_value.done === true ) break;
+			if ( return_value.aborted ) break;
 			trashed_num++;
 			yield FBref_Message.set( `あと ${(4 - trashed_num)} 枚廃棄できます。` );
 		}
 
-		HideDoneButton();
+		HideAbortButton();
 	};
 } );

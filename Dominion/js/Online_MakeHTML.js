@@ -30,14 +30,6 @@ function MakeHTML_SupplyPile( SupplyPile, Cardlist, Game ) {
 
 
 
-function MakeHTML_MyArea_Supply() {
-	return `
-			<div class='Common-Area'>
-				${$('.Common-Area').html()}
-			</div>
-			`;
-}
-
 
 
 function MakeHTML_Card( card, Game ) {

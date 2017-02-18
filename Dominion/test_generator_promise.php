@@ -49,7 +49,9 @@ include( $Filename_sDc );
 		<div class='MyAlert-box'>
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>
-			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear buttons'>
+				<button class='btn-blue ok'>OK</button>
+			</div>
 			<div class='clear'></div>
 		</div>
 	</div>

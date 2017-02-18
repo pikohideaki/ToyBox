@@ -298,6 +298,10 @@
 	padding: 10px;
 }
 
+.MyArea .Common-Area {
+	display : none;
+}
+
 .MessageToMe {
 	margin-bottom: 10px;
 	background-color: rgba(230, 236, 240, 1); /* #e6ecf0 */

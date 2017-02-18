@@ -256,7 +256,9 @@ function AsyncForTimes( n, GenFunc, ...Args ) {
 		<div class='MyAlert-box'>
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>
-			<div class='clear buttons'> <input type='button' class='btn-blue' value='OK'> </div>
+			<div class='clear buttons'>
+				<button class='btn-blue ok'>OK</button>
+			</div>
 			<div class='clear'></div>
 		</div>
 	</div>
@@ -266,7 +268,7 @@ function MyAlert( message, options = {} ) {
 		$('.alert_text').html( message || '' );
 		$('.alert_contents').html( options.contents || '' );
 		$('.MyAlert').fadeIn( 'normal' );
-		$('.MyAlert .buttons button').focus();
+		$('.MyAlert .buttons button.ok').focus();
 
 		function close_alert() {
 			$('.MyAlert').fadeOut( 'normal', function() {
@@ -278,7 +280,7 @@ function MyAlert( message, options = {} ) {
 		}
 
 		// ボタンで閉じる
-		$('.MyAlert .buttons button').click( close_alert );
+		$('.MyAlert .buttons button.ok').click( close_alert );
 
 		// キー入力で閉じる
 		$(document).keydown( function(e) {
@@ -303,8 +305,8 @@ function MyAlert( message, options = {} ) {
 			<div class='clear confirm_text'></div>
 			<div class='clear confirm_contents'></div>
 			<div class='clear buttons'>
-				<input type='button' class='btn-blue yes' value='はい'>
-				<input type='button' class='btn-blue no' value='いいえ'>
+				<button class='btn-blue yes'>はい</button>
+				<button class='btn-blue no'>いいえ</button>
 			</div>
 			<div class='clear'></div>
 		</div>

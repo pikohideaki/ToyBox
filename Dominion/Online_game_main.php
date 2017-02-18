@@ -297,8 +297,9 @@ $GameRoomID = $_POST['room-id'];
 
 	<div class='BlackCover BlackCover_rightside MyArea-wrapper'>
 		<div class='MyArea'>
+			<div class='Common-Area'> </div>
 			<div class='clear'></div>
-			<div class='MessageToMe'> </div>
+			<div class='MessageToMe'> &nbsp</div>
 			<div class='MyCardArea MyOpen'> </div>
 			<div class='clear'></div>
 			<div class='MyCardArea MyPlayArea'> </div>
@@ -335,7 +336,7 @@ $GameRoomID = $_POST['room-id'];
 			<div class='clear alert_text'></div>
 			<div class='clear alert_contents'></div>
 			<div class='clear buttons'>
-				<button class='btn-blue'>OK</button>
+				<button class='btn-blue ok'>OK</button>
 			</div>
 			<div class='clear'></div>
 		</div>

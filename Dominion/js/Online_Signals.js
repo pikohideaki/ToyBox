@@ -102,7 +102,7 @@ function* Reaction( signals_to_me ) {
 			}, ref );
 
 		// 公開終了
-		yield Game.Me().ResetFace();  // 公開していたカードを裏向きに
+		yield Game.ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
 			FBref_SignalRevealReaction.set(''),  // reset
@@ -172,7 +172,7 @@ function* Reveal_BaneCard( signals_to_me ) {
 			}, ref );
 
 		// 公開終了
-		yield Game.Me().ResetFace();  // 公開していたカードを裏向きに
+		yield Game.ResetFace();  // 公開していたカードを裏向きに
 		yield Promise.all( [
 			FBref_Players.child(`${myid}/HandCards`).set( Game.Me().HandCards ),
 			FBref_SignalRevealBaneCard.set(''),  // reset

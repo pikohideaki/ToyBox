@@ -226,18 +226,24 @@ class CPlayer {
 			}
 
 			let RevealedCardIDs = [];
-			let i = 0;
-			for ( ; i < n; i++ ) {
+
+			for ( let i = 0; i < n; i++ ) {
 				if ( !player.Drawable() ) break;
 				RevealedCardIDs.push( player.LookDeckTopCard().card_ID );
 				player.AddToOpen( player.GetDeckTopCard() );
 			}
-			FBref_chat.push( `${player.name}が山札から${i}枚カードを公開しました。` );
+
 			yield FBref_Players.child( player.id ).update( {
 				Deck        : player.Deck,
 				DiscardPile : player.DiscardPile,
 				Open        : player.Open,
 			} );
+
+			let card_names_jp = [];
+			RevealedCardIDs.forEach( card_ID =>
+				card_names_jp.push( Cardlist[ Game.LookCardWithID( card_ID ).card_no ].name_jp ) );
+			FBref_chat.push( `${player.name}が山札から（${card_names_jp.join('，')}）を公開しました。` );
+
 			yield Promise.resolve( RevealedCardIDs );
 		});
 	}
@@ -334,10 +340,12 @@ class CPlayer {
 		return MyAsync( function*() {
 			yield player.HandCards.AsyncEach( card => Game.FaceUpCard( card.card_ID ) );
 
-			yield Promise.all( [
-				FBref_Players.child( `${player.id}/HandCards` ).update( player.HandCards ),
-				FBref_chat.push( `${player.name}は手札を公開しました。` ),
-			]);
+			yield FBref_Players.child( `${player.id}/HandCards` ).set( player.HandCards );
+			let card_names_jp = [];
+			player.HandCards.forEach( card =>
+				card_names_jp.push( Cardlist[ card.card_no ].name_jp ) );
+
+			FBref_chat.push( `${player.name}は手札（${card_names_jp.join('，')}）を公開しました。` );
 		})
 	}
 
