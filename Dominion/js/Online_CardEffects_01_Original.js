@@ -52,7 +52,7 @@ $( function() {
 
 
 
-	/* 9. 基本 - 改築 */
+	/* 9. 改築 */
 	CardEffect['Remodel'] = function* () {
 	 /*
 		Trash a card from your hand.
@@ -61,6 +61,7 @@ $( function() {
 		Gain a card costing up to 2 Coins more than it.
 	 */
 		if ( Game.player().HandCards.IsEmpty() ) {
+			FBref_chat.push('手札にカードがありませんでした。');
 			yield MyAlert( '手札にカードがありません。' );
 			return;
 		}
@@ -92,6 +93,7 @@ $( function() {
 		  = Game.player().HandCards.filter( card => card.card_no === CardName2No['Copper'] );
 
 		if ( Coppers.IsEmpty() ) {
+			FBref_chat.push('手札に銅貨がありませんでした。');
 			yield MyAlert( '手札に銅貨がありません。' );
 			return;
 		}
@@ -119,7 +121,9 @@ $( function() {
 		+4 Cards +1 Buy
 		Each other player draws a card.
 	 */
-		yield Game.ForAllOtherPlayers( player_id => Game.Players[ player_id ].DrawCards(1) )
+		yield Game.ForAllOtherPlayers( function*( player_id ) {
+			yield Game.Players[ player_id ].DrawCards(1);
+		} );
 	};
 
 
@@ -137,6 +141,7 @@ $( function() {
 		  = Game.player().HandCards.filter( card => IsActionCard( Cardlist, card.card_no ) );
 
 		if ( Action.IsEmpty() ) {
+			FBref_chat.push('手札にアクションカードがありませんでした。');
 			yield MyAlert( '手札にアクションカードがありません。' );
 			return;
 		}
@@ -155,7 +160,7 @@ $( function() {
 
 
 
-	/* 16. 基本 - 鉱山 */
+	/* 16. 鉱山 */
 	CardEffect['Mine'] = function* () {
 	 /*
 		Trash a Treasure card from your hand.
@@ -167,6 +172,7 @@ $( function() {
 		  = Game.player().HandCards.filter( card => IsTreasureCard( Cardlist, card.card_no ) );
 
 		if ( Treasure.IsEmpty() ) {
+			FBref_chat.push('手札に財宝カードがありませんでした。');
 			yield MyAlert( '手札に財宝カードがありません。' );
 			return;
 		}
@@ -193,7 +199,7 @@ $( function() {
 
 
 
-	/* 17. 基本 - 工房 */
+	/* 17. 工房 */
 	CardEffect['Workshop'] = function* () {
 	 /* Gain a card costing up to 4 Coins. */
 		yield FBref_Message.set( 'コスト4以下のカードを獲得して下さい。' );
@@ -229,7 +235,7 @@ $( function() {
 
 
 
-	/* 19. 基本 - 祝宴 */
+	/* 19. 祝宴 */
 	CardEffect['Feast'] = function* ( playing_card_ID ) {
 	 /*
 		Trash this card. Gain a card costing up to 5 Coins.
@@ -280,7 +286,8 @@ $( function() {
 					contents : MakeHTML_Card( DeckTopCard, Game ),
 					buttons  : [
 						{ return_value : true , label : '脇に置く', },
-						{ return_value : false, label : '手札に加える', }, ],
+						{ return_value : false, label : '手札に加える', },
+					],
 				} );
 
 			if ( set_aside ) {
@@ -325,7 +332,7 @@ $( function() {
 			FBref_chat.push( `${pl.name}が${SelectedCardsID.length}枚のカードを捨て札にしました。` ),
 		] );
 
-		yield AcknowledgeButton();
+		// yield AcknowledgeButton();
 
 		// 捨て札にした枚数カードを引く
 		yield pl.DrawCards( SelectedCardsID.length );
@@ -349,10 +356,8 @@ $( function() {
 			これによって廃棄されたカードのうち好きな枚数を獲得できます。` );
 
 		function* attack_effects( player_id ) {
-			const pl = Game.Players[player_id];
-
 			/* 山札から2枚めくり公開（山札が無いときがあるので2枚とは限らない） */
-			const RevealedCardIDs = yield pl.RevealDeckTop(2);
+			const RevealedCardIDs = yield Game.Players[player_id].RevealDeckTop(2);
 
 			const $TreasureCards
 			 = $(`.OtherPlayer[data-player_id=${player_id}] .sOpen`)
@@ -376,10 +381,12 @@ $( function() {
 					[`Players/${player_id}/Open`] : Game.Players[ player_id ].Open,
 				} );
 				yield Game.StackCardID( clicked_card_ID );
+
+				RevealedCardIDs.remove_val( clicked_card_ID );
 			}
 
 			/* 公開したカードの残りを捨て札に */
-			yield RevealedCardIDs.AsyncEach( card_ID => pl.Discard( card_ID, Game ) );
+			yield RevealedCardIDs.AsyncEach( card_ID => Game.Players[player_id].Discard( card_ID, Game ) );
 		}
 
 		yield Game.AttackAllOtherPlayers(
@@ -438,9 +445,9 @@ $( function() {
 
 		let treasure_num = 0;
 		while ( Game.player().Drawable() && treasure_num < 2 ) {
-			const DeckTopCard = ( yield Game.player().RevealDeckTop(1) )[0];
-			if ( IsTreasureCard( Cardlist, DeckTopCard.card_no ) ) treasure_num++;
-			RevealedCardIDs.push( DeckTopCard.card_ID );
+			const DeckTopCardID = ( yield Game.player().RevealDeckTop(1) )[0];
+			if ( IsTreasureCard( Cardlist, Game.LookCardWithID( DeckTopCardID ).card_no ) ) treasure_num++;
+			RevealedCardIDs.push( DeckTopCardID );
 		}
 
 		yield AcknowledgeButton();  // 脇に置いたカードを確認
@@ -531,7 +538,7 @@ $( function() {
 
 			const clicked_btn
 			  = yield MyDialog( {
-					message  : `${pl.name}の山札から${Cardlist[ DeckTopCard.card_no ].name_jp}を公開しました。`,
+					message  : `${pl.name}の山札から「${Cardlist[ DeckTopCard.card_no ].name_jp}」を公開しました。`,
 					contents : MakeHTML_Card( DeckTopCard, Game ),
 					buttons  : [
 						{ return_value : 'Discard'      , label : '捨て札にする', },
@@ -634,7 +641,7 @@ $( function() {
 		yield Promise.all([
 			FBref_Players.set( Game.Players ),
 			Game.ResetStackedCardIDs(),
-		])
+		]);
 	};
 
 	AttackEffect['Bureaucrat'] = function*() {

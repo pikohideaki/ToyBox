@@ -121,6 +121,8 @@ function SetAndPrintPhase( FBsnapshot ) {
 function SetAndPrintTurnInfo( FBsnapshot ) {
 	FBSet_TurnInfo( FBsnapshot );
 	PrintTurnInfo();
+
+	Game.ForAllPlayers( PrintRevealedMoat );
 }
 
 function SetAndPrintSupply( FBsnapshot ) {

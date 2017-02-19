@@ -145,11 +145,12 @@ $('#make-room-btn').click( function() {
 	/* test */
 	// SelectedCards.KingdomCards = [  9,11,13,14,16, 17,18,19,21, 32 ];
 	// SelectedCards.KingdomCards = [ 22,24,25,26,27, 28,29,31,32, 15 ];
-	SelectedCards.KingdomCards = [ 34,35,36,37,38,39,40,41, 15,32 ];
+	// SelectedCards.KingdomCards = [ 34,35,36,37,38,39,40,41, 15,32 ];
 	// SelectedCards.KingdomCards = [ 42,43,44,45,46,47,48,49, 15,32 ];
 	// SelectedCards.KingdomCards = [ 50,51,52,53,54,55,56,57, 15,32, ];
-
-
+	// SelectedCards.KingdomCards = [ 127,128,129,133,134, 135,136,137,138,15 ];
+	// SelectedCards.KingdomCards = [ 139,141,142, 15,15,15,15,15,15,15, ];
+	SelectedCards.KingdomCards = [ 128,27,35, 15,15,  15,15,15,15,15, ];
 
 	// SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
 	// SelectedCards.KingdomCards[1] = 142;  // 魔女娘

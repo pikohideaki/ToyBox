@@ -63,6 +63,7 @@ function MakeHTML_OtherPlayerDiv( player_id ) {
 				</div>
 				<div class='player_TurnCount'>
 					（ターン数 ： <span class='player_TurnCount_num'>${Game.Players[ player_id ].TurnCount}</span>）
+					<span class='player_RevealedMoat'>（堀を公開済み）</span>
 					<span class='player_Connection'></span>
 				</div>
 				<div class='clear'></div>

@@ -20,8 +20,6 @@ $( function() {
 
 	$('.logallcards').click( function() {
 		let AllCards = Game.GetAllCards();
-		// console.log( AllCards );
-		// AllCardsNo = AllCards.map( a => a.card_no ).sort();
 		AllCardsNo = AllCards.map( a => a.card_no ).uniq().sortNumeric();
 		console.log( AllCardsNo );
 	});
@@ -48,16 +46,6 @@ $( function() {
 			$('.CardView-wrapper').fadeOut();
 		}
 	});
-
-
-	// $('.main').on( 'click', '.zoom_card', function(event) {
-	// 	event.stopImmediatePropagation();
-	// 	console.log( $(this).parent().attr('data-card_no') );
-	// });
-
-	// $('.HandCards').click( function() { console.log('HandCards'); } );
-	// $('.TurnAction').click( function() { console.log('TurnAction'); } );
-	// $('.main').click( function() { console.log('main'); } );
 
 
 

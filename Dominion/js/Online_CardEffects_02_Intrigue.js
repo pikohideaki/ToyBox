@@ -19,9 +19,9 @@ $( function() {
 	// CardEffect['Ironworks']      = function* () {}  /* ok 48. 鉄工所 */
 	// CardEffect['Coppersmith']    = function* () {}  /* ok 49. 銅細工師 */
 	// CardEffect['Courtyard']      = function* () {}  /* ok 50. 中庭 */
-	// CardEffect['Wishing Well']   = function* () {}  /*    51. 願いの井戸 */
+	// CardEffect['Wishing Well']   = function* () {}  /* ok 51. 願いの井戸 */
 	   CardEffect['Harem']          = function* () {}  /* -- 52. ハーレム */
-	// CardEffect['Saboteur']       = function* () {}  /*    53. 破壊工作員 */
+	// CardEffect['Saboteur']       = function* () {}  /* ok 53. 破壊工作員 */
 	// CardEffect['Bridge']         = function* () {}  /* ok 54. 橋 */
 	// CardEffect['Secret Chamber'] = function* () {}  /* ok 55. 秘密の部屋 */
 	// CardEffect['Shanty Town']    = function* () {}  /* ok 56. 貧民街 */
@@ -42,6 +42,7 @@ $( function() {
 		Trash a card from your hand. Gain a card costing exactly 1 Coin more than it.
 	 */
 		if ( Game.player().HandCards.IsEmpty() ) {
+			FBref_chat.push('手札にカードがありませんでした。');
 			yield MyAlert( '手札にカードがありません。' );
 			return;
 		}
@@ -53,7 +54,7 @@ $( function() {
 
 		const TrashedCardCost = Game.GetCost( Game.LookCardWithID( TrashedCardID ).card_no );
 
-		// (2) 廃棄したカード+2コインまでのコストのカードの獲得
+		// (2) 廃棄したカード+1コインのコストのカードの獲得
 		yield FBref_Message.set(
 			`コストがちょうど廃棄したカード+1(=${TrashedCardCost.coin + 1} )コインのカードを獲得してください。` );
 
@@ -77,8 +78,8 @@ $( function() {
 		Each player with any cards in hand passes one to the next such player to their left, at once.
 		Then you may trash a card from your hand.
 	 */
-		yield FBref_Message.set( '各プレイヤーは自分の手札のカードを1枚選び、次のプレイヤーに同時に渡します。\
-			その後、あなたは自分の手札のカードを1枚廃棄することができます。' );
+		yield FBref_Message.set( `各プレイヤーは自分の手札のカードを1枚選び、次のプレイヤーに同時に渡します。
+			その後、あなたは自分の手札のカードを1枚廃棄することができます。` );
 
 		// 仮面舞踏会使用者が一旦全員分（自分含む）の選択したカードを集める
 		yield Game.ForAllPlayers( function*( player_id ) {
@@ -116,7 +117,6 @@ $( function() {
 
 			yield Game.StackCardID( passed_card_ID );
 			Game.Players[ player_id ].AddToHandCards( Game.GetCardWithID( passed_card_ID ) );
-			yield FBref_MessageTo.child( player_id ).set('');
 		} );
 
 		// カードを渡した後のPlayersの同期、裏向きを解除
@@ -145,7 +145,7 @@ $( function() {
 		yield Game.FaceDownCard( SelectedCardID );
 		yield FBref_Players.child( Game.Me().id ).set( Game.Me() )
 
-		// カードidを送る
+		// card_IDを送る
 		yield FBref_Signal.child(`Masquerade_gather/${Game.Me().id}`).set( SelectedCardID );
 	}
 
@@ -363,16 +363,15 @@ $( function() {
 			if ( !pl.Drawable() ) return;
 
 			/* 山札から1枚めくり公開 */
-			const DeckTopCard = pl.LookDeckTopCard();
-			yield pl.RevealDeckTop(1);
+			const DeckTopCardID = ( yield pl.RevealDeckTop(1) )[0];
+			const DeckTopCard = Game.LookCardWithID( DeckTopCardID );
 
-			const return_value
-			  = yield MyAlert(
-			      `${pl.name}の山札から${Cardlist[ DeckTopCard.card_no ].name_jp}を公開しました。`, 
-			      { contents : MakeHTML_Card( DeckTopCard, Game ) } );
+			yield MyAlert(
+				`${pl.name}の山札から${Cardlist[ DeckTopCard.card_no ].name_jp}を公開しました。`,
+				{ contents : MakeHTML_Card( DeckTopCard, Game ) } );
 
 			// 廃棄
-			Game.Trash( DeckTopCard.card_ID );
+			Game.Trash( DeckTopCardID );
 			yield FBref_Game.update( {
 				[`Players/${player_id}`] : pl,
 				TrashPile : Game.TrashPile,
@@ -554,6 +553,8 @@ $( function() {
 			yield VictoryCardIDs.AsyncEach( card_ID => Game.player().PutIntoHand( card_ID, Game ) );
 		}
 
+		yield FBref_Message.set( '勝利点カード以外は好きな順番で山札に戻してください。' );
+
 		while ( !Game.player().Open.IsEmpty() ) {
 			yield WaitForPuttingBackRevealedCard();
 		}
@@ -718,6 +719,7 @@ $( function() {
 			山札の1番上のカードを公開し、そのカードの名前が指定したカード名だった場合、手札に加えます。` );
 
 		if ( !Game.player().Drawable() ) {
+			FBref_chat.push('山札にカードがありませんでした。');
 			yield MyAlert( '山札にカードがありません。' );
 			return;
 		}
@@ -785,6 +787,7 @@ $( function() {
 		/* アタックされる側 */
 		let LastRevealedCardID;
 		let TrashedCardCostCoin = -100;
+		let RevealedCardIDs = [];
 
 		while ( Game.Me().Drawable() ) {
 			const RevealedCardID = ( yield Game.Me().RevealDeckTop(1) )[0];
@@ -793,7 +796,7 @@ $( function() {
 			  = Game.GetCost( Game.LookCardWithID( RevealedCardID ).card_no ).coin;
 
 			if ( RevealedCard_cost_coin < 3 ) {
-				Game.StackCardID( RevealedCardID );
+				RevealedCardIDs.push( RevealedCardID );
 			} else {
 				LastRevealedCardID = RevealedCardID;
 				TrashedCardCostCoin = RevealedCard_cost_coin;
@@ -811,23 +814,26 @@ $( function() {
 				[`Players/${myid}`] : Game.Me(),
 			} );
 
-			ShowSupplyAreaInMyArea();
-
 			yield FBref_MessageToMe.set( `コスト${TrashedCardCostCoin - 2}以下のカードを獲得できます。` );
 
+			ShowSupplyAreaInMyArea();
 			ShowAbortButton_MyArea('獲得しない');
-			const return_value = yield WaitForGainingSupplyCard( 'DiscardPile', Game.Me().id,
+			const return_values
+			 = yield WaitForGainingSupplyCard( 'DiscardPile', Game.Me().id,
 					( card, card_no ) =>
 						CostOp( '<=', Game.GetCost( card_no ), [TrashedCardCostCoin - 2,0,0] ) );
 			HideAbortButton_MyArea();
+			HideSupplyAreaInMyArea();
 
 			yield FBref_MessageToMe.set('');
-			yield AcknowledgeButton_MyArea();  // 獲得したカードの確認
+
+			if ( !return_values.aborted ) {
+				yield AcknowledgeButton_MyArea();  // 獲得したカードの確認
+			}
 		}
 
 		// 公開した残りのカードを捨て札にする
-		yield Game.StackedCardIDs.AsyncEach( card_ID => Game.Me().Discard( card_ID, Game ) );
-		yield Game.ResetStackedCardIDs();
+		yield RevealedCardIDs.AsyncEach( card_ID => Game.Me().Discard( card_ID, Game ) );
 	};
 
 
@@ -915,9 +921,13 @@ $( function() {
 	 */
 		yield FBref_Message.set( '手札を公開します。手札にアクションカードがない場合2枚カードを引きます。' );
 
-		yield Game.player().FaceUpAllHandCards( Game );  // 手札を公開
+		/* 手札を公開 */
+		yield Game.player().FaceUpAllHandCards( Game );
+
 		yield AcknowledgeButton();
-		yield Game.ResetFace();  // 手札を戻す
+
+		/* 手札を裏に戻す */
+		yield Game.ResetFace();
 		yield FBref_Players.child( `${Game.player().id}/HandCards` ).set( Game.player().HandCards );
 
 		const Action

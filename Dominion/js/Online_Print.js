@@ -106,11 +106,15 @@ function PrintTurnCount( player_id ) {
 		.html( Game.Players[ player_id ].TurnCount );
 }
 
+function PrintRevealedMoat( player_id ) {
+	$(`.OtherPlayer[data-player_id='${player_id}'] .player_RevealedMoat`)
+		.toggle( Game.TurnInfo.Revealed_Moat[ player_id ] );
+}
+
 function PrintConnection( player_id ) {
 	$(`.OtherPlayer[data-player_id='${player_id}'] .player_Connection`)
 		.html( ( Game.Players[ player_id ].Connection ? '' : '再接続中…' ) );
 }
-
 
 
 

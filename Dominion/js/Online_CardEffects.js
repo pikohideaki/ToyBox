@@ -104,7 +104,8 @@ function WaitForButtonClick_sub( $buttons_area, buttons, multiselect = 1 ) {
 	});
 }
 $( function() {
-	$('.PlayersAreaButtons,.MyAreaButtons').on( 'click', '.WaitForButtonClick', function() {
+	$('.PlayersAreaButtons,.MyAreaButtons,.OtherPlayers-wrapper')
+	 .on( 'click', '.WaitForButtonClick', function() {
 		if ( $(this).hasClass('selected') ) return;  // 選択済みなら反応しない
 		$(this).addClass('selected').attr('disabled', 'disabled');  // 使用したボタンを無効化
 
@@ -121,7 +122,7 @@ function WaitForButtonClick_MyArea( buttons, multiselect = 1 ) {
 	return WaitForButtonClick_sub( $('.MyAreaButtons'), buttons, multiselect );
 }
 
-function WaitForButtonClick_OtherPlayer( buttons, multiselect = 1 ) {
+function WaitForButtonClick_OtherPlayer( player_id, buttons, multiselect = 1 ) {
 	return WaitForButtonClick_sub(
 				$(`.OtherPlayer[data-player_id=${player_id}] .OtherPlayer_Buttons`),
 				buttons, multiselect );
@@ -129,15 +130,15 @@ function WaitForButtonClick_OtherPlayer( buttons, multiselect = 1 ) {
 
 // 確認ボタン(shortcuts)
 function AcknowledgeButton( label = 'OK', return_value ) {
-	return WaitForButtonClick( { return_value : return_value, label : label }, 1 );
+	return WaitForButtonClick( [{ return_value : return_value, label : label }], 1 );
 }
 
 function AcknowledgeButton_MyArea( label = 'OK', return_value ) {
-	return WaitForButtonClick_MyArea( { return_value : return_value, label : label }, 1 );
+	return WaitForButtonClick_MyArea( [{ return_value : return_value, label : label }], 1 );
 }
 
 function AcknowledgeButton_OtherPlayer( player_id, label = 'OK', return_value ) {
-	return WaitForButtonClick_OtherPlayer( { return_value : return_value, label : label }, 1 );
+	return WaitForButtonClick_OtherPlayer( player_id, [{ return_value : return_value, label : label }], 1 );
 }
 
 
@@ -164,42 +165,48 @@ $( function() {
 });
 
 
+function ShowAbortButton_sub( MyArea, label ) {
+	$buttons = ( MyArea ? $('.MyAreaButtons') : $('.PlayersAreaButtons') );
+	$buttons.append( MakeHTML_button( 'AbortSelectingCard', label ) );
+}
+function HideAbortButton_sub( MyArea ) {
+	$buttons = ( MyArea ? $('.MyAreaButtons') : $('.PlayersAreaButtons') );
+	$buttons.find('.AbortSelectingCard').remove();
+}
 
 // 手札・サプライのカード選択等を終了するボタン
-function ShowAbortButton( label = '完了' ) {
-	$('.PlayersAreaButtons').append( MakeHTML_button( 'SelectPlayersCard_Done', label ) );
-}
-function HideAbortButton() {
-	$('.PlayersAreaButtons .SelectPlayersCard_Done').remove();
-}
-function ShowAbortButton_MyArea( label = '完了' ) {
-	$('.MyAreaButtons').append( MakeHTML_button( 'SelectPlayersCard_Done', label ) );
-}
-function HideAbortButton_MyArea() {
-	$('.MyAreaButtons .SelectPlayersCard_Done').remove();
-}
+function ShowAbortButton       ( label = '完了' ) { ShowAbortButton_sub( false, label ); }
+function ShowAbortButton_MyArea( label = '完了' ) { ShowAbortButton_sub( true , label ); }
+function HideAbortButton       () { HideAbortButton_sub( false ); }
+function HideAbortButton_MyArea() { HideAbortButton_sub( true  ); }
 
 $( function() {
 	// Game.player()
-	$('.PlayersAreaButtons').on( 'click', '.SelectPlayersCard_Done', function() {
-		Resolve['WaitForClickingCard']( 'SelectPlayersCard_Done' );  // 再開
-		$('.PlayersAreaButtons .SelectPlayersCard_Done').remove();  /* 完了ボタン消す */
+	$('.PlayersAreaButtons').on( 'click', '.AbortSelectingCard', function() {
+		Resolve['WaitForClickingCard']( {
+			aborted : true,
+			card_ID : undefined,
+			card_no : undefined,
+		} );
+		$('.PlayersAreaButtons .AbortSelectingCard').remove();  /* 完了ボタン消す */
 	} );
 
 	// Game.Me()
-	$('.MyAreaButtons').on( 'click', '.SelectPlayersCard_Done', function() {
-		Resolve['WaitForClickingCard']( 'SelectPlayersCard_Done' );  // 再開
-		$('.MyAreaButtons .SelectPlayersCard_Done').remove();  /* 完了ボタン消す */
+	$('.MyAreaButtons').on( 'click', '.AbortSelectingCard', function() {
+		Resolve['WaitForClickingCard']( {
+			aborted : true,
+			card_ID : undefined,
+			card_no : undefined,
+		} );
+		$('.MyAreaButtons .AbortSelectingCard').remove();  /* 完了ボタン消す */
 	} );
 
-	// Game.player()
-	$('.HandCards,.Open').on( 'click', '.card.SelectPlayersCard', function() {
-		Resolve['WaitForClickingCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
-	} );
-
-	// Game.Me()
-	$('.MyHandCards,.MyOpen').on( 'click', '.card.SelectPlayersCard', function() {
-		Resolve['WaitForClickingCard']( Number( $(this).attr('data-card_ID') ) );  // 再開
+	$('.HandCards,.Open,.MyHandCards,.MyOpen').on( 'click', '.card.SelectPlayersCard', function() {
+		Resolve['WaitForClickingCard']( {
+			aborted : false,
+			card_ID : Number( $(this).attr('data-card_ID') ),
+			card_no : undefined,
+		} );
 	} );
 });
 
@@ -218,7 +225,7 @@ function WaitForSelectingPlayersCard( CardArea, MyArea, conditions = (card_no,ca
 	const player = ( MyArea ? Game.Me() : Game.player() );
 
 	if ( player[CardArea].IsEmpty() ) {
-		return Promise.resolve( { aborted : true, card_ID : undefined } );
+		return Promise.resolve( { aborted : true, card_ID : undefined, card_no : undefined } );
 	}
 
 	return MyAsync( function*() {
@@ -229,18 +236,11 @@ function WaitForSelectingPlayersCard( CardArea, MyArea, conditions = (card_no,ca
 					Number( $(this).attr('data-card_ID') ) ) } );
 
 		$cards.addClass( 'SelectPlayersCard pointer' );
-		const return_value
+		const return_values
 		  = yield new Promise( resolve => Resolve['WaitForClickingCard'] = resolve );
 		$cards.removeClass( 'SelectPlayersCard pointer' );
 
-		if ( return_value === 'SelectPlayersCard_Done' ) {
-			yield Promise.resolve( { aborted : true, card_ID : undefined } );
-			return;
-		}
-
-		const ClickedCardID = return_value;
-
-		yield Promise.resolve( { aborted : false, card_ID : ClickedCardID } );
+		yield Promise.resolve( return_values );
 	});
 }
 
@@ -257,14 +257,14 @@ function WaitForMovingPlayersCard(
 	const player = ( MyArea ? Game.Me() : Game.player() );
 
 	return MyAsync( function*() {
-		const return_value = yield WaitForSelectingPlayersCard( CardArea, MyArea, conditions );
+		const return_values = yield WaitForSelectingPlayersCard( CardArea, MyArea, conditions );
 
-		if ( return_value.aborted ) {
-			yield Promise.resolve( { aborted : true, card_ID : undefined } );
+		if ( return_values.aborted ) {
+			yield Promise.resolve( { aborted : true, card_ID : undefined, card_no : undefined } );
 			return;
 		}
 
-		const ClickedCardID = return_value.card_ID;
+		const ClickedCardID = return_values.card_ID;
 
 		switch ( operation ) {
 			case 'Trash' :
@@ -276,26 +276,26 @@ function WaitForMovingPlayersCard(
 				break;
 
 			case 'Discard' :
-				yield player.Discard( ClickedCardID, Game );
+				yield player.Discard( ClickedCardID, Game, log, face );
 				break;
 
 			case 'Play' :
-				yield player.Play( ClickedCardID, Game );
+				yield player.Play( ClickedCardID, Game, log, face );
 				break;
 
 			case 'PutBackToDeck' :
-				yield player.PutBackToDeck( ClickedCardID, Game, false, face );
+				yield player.PutBackToDeck( ClickedCardID, Game, log, face );
 				break;
 
 			case 'Reveal' :
-				yield player.Reveal( ClickedCardID, Game, false, face );
+				yield player.Reveal( ClickedCardID, Game, log, face );
 				break;
 
 			default :
 				throw new Error(`@WaitForMovingCard: invalid value for opreation "${operation}"`);
 		}
 
-		yield Promise.resolve( { aborted : false, card_ID : ClickedCardID } );  // return value
+		yield Promise.resolve( return_values );
 	});
 }
 
@@ -312,7 +312,7 @@ function WaitForMovingHandCard(
 			operation,
 			MyArea,
 			conditions = (card_no,card_ID) => true,
-			log = false,
+			log,
 			face = 'default' )
 {
 	return WaitForMovingPlayersCard( 'HandCards', operation, MyArea, conditions, log, face );
@@ -439,37 +439,37 @@ function WaitForSelectingSupplyCard(
 		available_card_only = true )
 {
 	return MyAsync( function*() {
-		const $available_piles
+		const $piles
 		  = Get$SupplyAreaWithConditions( conditions, additional_piles, available_card_only );
 
-		if ( $available_piles.length == 0 ) {
+		if ( $piles.length === 0 ) {
 			yield MyAlert( '選択できるカードがありません' );
 			yield Promise.resolve( {
-				exists : false,
+				aborted : true,
 				card_ID : undefined,
 				card_no : undefined,
 			} );
 			return;
 		}
 
-		$available_piles.addClass( 'SelectSupplyCard pointer' );
-		const [ SelectedPile_card_no, SelectedCardID ]
+		$piles.addClass( 'SelectSupplyCard pointer' );
+		const return_values
 		  = yield new Promise( resolve => Resolve['WaitForClickingCard'] = resolve );
-		$available_piles.removeClass( 'SelectSupplyCard pointer' );
+		$piles.removeClass( 'SelectSupplyCard pointer' );
 
-		yield Promise.resolve( {
-			exists : true,
-			card_ID : SelectedCardID,
-			card_no : SelectedPile_card_no,
-		} );  // return value
+		yield Promise.resolve( return_values );
 	});
 }
 $( function() {
-	$('.SupplyArea,.additional-piles').on( 'click', '.card.SelectSupplyCard', function() {
+	$('.Common-Area').on( 'click', '.card.SelectSupplyCard', function() {
 		const clicked_pile = Game.Supply.byName( $(this).attr('data-card-name-eng') );
 		const clicked_card = clicked_pile.LookTopCard();
 		const clicked_card_ID = ( clicked_card == undefined ? undefined : clicked_card.card_ID );
-		Resolve['WaitForClickingCard']( [ clicked_pile.card_no, clicked_card_ID ] );
+		Resolve['WaitForClickingCard']( {
+			aborted : false,
+			card_ID : clicked_card_ID,
+			card_no : clicked_pile.card_no,
+		} );
 	} );
 });
 
@@ -483,14 +483,15 @@ function WaitForGainingSupplyCard(
 			face = 'default' )
 {
 	return MyAsync( function*() {
-		const return_value
+		const return_values
 		  = yield WaitForSelectingSupplyCard( conditions, additional_piles, true );
-		if ( !return_value.exists ) {
-			yield Promise.resolve( return_value );
+		if ( return_values.aborted ) {
+			// yield MyAlert( '獲得できるカードがありません' );
+			yield Promise.resolve( return_values );
 			return;
 		}
-		yield Game.GainCardFromSupply( return_value.card_ID, AddTo, player_id, face );
-		yield Promise.resolve( return_value );  // return value
+		yield Game.GainCardFromSupply( return_values.card_ID, AddTo, player_id, face );
+		yield Promise.resolve( return_values );
 	});
 }
 

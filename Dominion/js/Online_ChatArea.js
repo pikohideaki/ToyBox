@@ -32,16 +32,26 @@ $( function() {
 
 	$('.chat-wrapper .reset_phase').click( function() { return MyAsync( function*() {
 		const yn = yield MyConfirm( 
-			"アクションフェーズに戻しますか？<font color='red'>（不具合発生時）</font>" );
+			`強制的にアクションフェーズに戻しますか？<br>
+			<font color='red'>（不具合発生時）</font>` );
 		if ( yn ) {
 			Game.phase = 'ActionPhase';
-			Game.TurnInfo.action++;  // アクション1回復
-			yield FBref_Game.update( {
-				phase : Game.phase,
-				'TurnInfo/action' : Game.TurnInfo.action,
-			});
-			const msg = '【アクションフェーズに戻しました】';
-			FBref_chat.push( `<font color='red'>${msg}</font>` );
+			Game.TurnInfo.action = Math.max( 1, Game.TurnInfo.action );  // アクション1まで回復
+
+			yield Promise.all( [
+				FBref_Game.update( {
+					phase : Game.phase,
+					'TurnInfo/action' : Game.TurnInfo.action,
+				}),
+
+				// reset
+				FBref_Message.remove(),
+				FBref_MessageTo.remove(),
+				FBref_Signal.remove(),
+				FBref_StackedCardIDs.remove(),
+			]);
+
+			FBref_chat.push( `<font color='red'>【アクションフェーズに戻しました】</font>` );
 		}
 	}); });
 

@@ -399,10 +399,10 @@ class CGame {
 		}
 
 		if ( matched_num < 1 ) {
-			throw new Error( `the card with ID:${card_ID} not found.` );
+			throw new Error( `the card with ID:"${card_ID}" not found.` );
 		}
 		if ( matched_num > 1 ) {
-			throw new Error( `2 or more cards with ID:${card_ID} found.` );
+			throw new Error( `2 or more cards with ID:"${card_ID}" found.` );
 		}
 		return card;
 	}
@@ -687,6 +687,7 @@ class CGame {
 			{
 				func( player_id );
 			}
+			return Promise.resolve();
 		}
 	}
 
@@ -699,7 +700,7 @@ class CGame {
 				attack_effect = function*() {} )
 	{
 		const G = this;
-		return this.ForAllOtherPlayers( function*( player_id ) {
+		return G.ForAllOtherPlayers( function*( player_id ) {
 			if ( G.TurnInfo.Revealed_Moat[ player_id ] ) return;  // 堀を公開していたらスキップ
 
 			yield FBref_MessageTo.child( player_id ).set( message );

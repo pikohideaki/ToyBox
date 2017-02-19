@@ -45,12 +45,18 @@ function* CatchSignal( signals_to_me ) {
 
 	if ( signals_to_me.card_name == 'Masquerade' ) {
 		yield MyAsync( CardEffect['Masquerade_SelectPassCard'] );
-		yield FBref_SignalToMe.remove();
+		yield Promise.all( [
+			FBref_SignalToMe.remove(),
+			FBref_MessageToMe.set(''),
+		] );
 	}
 
 	if ( signals_to_me.card_name == 'Tournament' ) {
 		yield MyAsync( CardEffect['Tournament_RevealProivince'] );
-		yield FBref_SignalToMe.remove();
+		yield Promise.all( [
+			FBref_SignalToMe.remove(),
+			FBref_MessageToMe.set(''),
+		] );
 	}
 
 }

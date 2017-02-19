@@ -153,60 +153,60 @@ $GameRoomID = $_POST['room-id'];
 			</div>
 
 
-			<div class="OtherPlayers-wrapper"> <!-- jsでここを書き換え --> 
+			<div class='OtherPlayers-wrapper'> <!-- jsでここを書き換え --> 
 
-				<div class="OtherPlayer" data-player_id="0">
-					<div class="player_name"> </div>
-					<div class="player_TurnCount">
-						 （ターン数 ： <span class="player_TurnCount_num">0</span>）
+				<div class='OtherPlayer' data-player_id='0'>
+					<div class='player_name'> </div>
+					<div class='player_TurnCount'>
+						 （ターン数 ： <span class='player_TurnCount_num'>0</span>）
 					</div>
-					<div class="clear"></div>
+					<div class='clear'></div>
 
-					<div class="sCardArea sOpen"></div>
-					<div class="OtherPlayer_Buttons"> </div>
-					<div class="clear"></div>
+					<div class='sCardArea sOpen'></div>
+					<div class='OtherPlayer_Buttons'> </div>
+					<div class='clear'></div>
 
-					<div class="sCardArea sPlayArea"></div>
-					<div class="sCardArea sAside"> </div>
-					<div class="clear"></div>
+					<div class='sCardArea sPlayArea'></div>
+					<div class='sCardArea sAside'> </div>
+					<div class='clear'></div>
 
-					<div class="sCardArea sDeck">
-						<button class="card down" data-card_no="1">
-							<span class="card-num-of-remaining">0</span>
+					<div class='sCardArea sDeck'>
+						<button class='card down' data-card_no='1'>
+							<span class='card-num-of-remaining'>0</span>
 						</button>
 					</div>
-					<div class="sCardArea sHandCards"> </div>
-					<div class="sCardArea sDiscardPile"> </div>
-					<div class="clear"></div>
+					<div class='sCardArea sHandCards'> </div>
+					<div class='sCardArea sDiscardPile'> </div>
+					<div class='clear'></div>
 				</div>
 
-				<div class="OtherPlayer" data-player_id="1">
-					<div class="player_name"> </div>
-					<div class="player_TurnCount">
-						 （ターン数 ： <span class="player_TurnCount_num">0</span>）
+				<div class='OtherPlayer' data-player_id='1'>
+					<div class='player_name'> </div>
+					<div class='player_TurnCount'>
+						 （ターン数 ： <span class='player_TurnCount_num'>0</span>）
 					</div>
-					<div class="clear"></div>
+					<div class='clear'></div>
 
-					<div class="sCardArea sOpen"></div>
-					<div class="OtherPlayer_Buttons"> </div>
-					<div class="clear"></div>
+					<div class='sCardArea sOpen'></div>
+					<div class='OtherPlayer_Buttons'> </div>
+					<div class='clear'></div>
 
-					<div class="sCardArea sPlayArea"></div>
-					<div class="sCardArea sAside"> </div>
-					<div class="clear"></div>
+					<div class='sCardArea sPlayArea'></div>
+					<div class='sCardArea sAside'> </div>
+					<div class='clear'></div>
 
-					<div class="sCardArea sDeck">
-						<button class="card down" data-card_no="1">
-							<span class="card-num-of-remaining">0</span>
+					<div class='sCardArea sDeck'>
+						<button class='card down' data-card_no='1'>
+							<span class='card-num-of-remaining'>0</span>
 						</button>
 					</div>
-					<div class="sCardArea sHandCards"> </div>
-					<div class="sCardArea sDiscardPile"> </div>
-					<div class="clear"></div>
+					<div class='sCardArea sHandCards'> </div>
+					<div class='sCardArea sDiscardPile'> </div>
+					<div class='clear'></div>
 				</div>
 			</div>
 
-			<div class="clear"></div>
+			<div class='clear'></div>
 
 
 			<div class='TurnAction'>

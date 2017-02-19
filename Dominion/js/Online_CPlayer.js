@@ -158,12 +158,13 @@ class CPlayer {
 	// 山札をそのままひっくり返して捨て山に置く（宰相など）
 	PutDeckIntoDiscardPile() {
 		const pl = this;
+		FBref_chat.push( `${pl.name}が山札を捨て札に置きました。` );
 		return new Promise( function( resolve ) {
 			pl.Deck.reverse();  /* 山札をそのままひっくり返して捨て山に置く */
-			pl.Deck.forEach( card => pl.AddToDiscardPile(card) );
+			pl.Deck.forEach( card => pl.AddToDiscardPile(　card　) );
 			pl.Deck = [];
 			FBref_Players.child( pl.id ).set( pl ).then( resolve );
-		})
+		});
 	}
 
 
@@ -281,7 +282,7 @@ class CPlayer {
 
 		const card = Game.LookCardWithID( card_ID );
 		if ( log ) {
-			let msg = `${player.name}が${Cardlist[ card.card_no ].name_jp}を`;
+			let msg = `${player.name}が「${Cardlist[ card.card_no ].name_jp}」を`;
 			switch (place) {
 				case 'PlayArea'    : msg += "場に出しました。"; break;
 				case 'Aside'       : msg += "脇に置きました。"; break;
@@ -377,7 +378,7 @@ class CPlayer {
 	SumUpVP() {
 		const DeckAll = this.GetCopyOfAllCards();
 		const VictoryCards = 
-			DeckAll.filter( (card) => IsVictoryCard( Cardlist, card.card_no ) );
+			DeckAll.filter( card => IsVictoryCard( Cardlist, card.card_no ) );
 
 		this.VPtotal = 0;
 
@@ -385,46 +386,46 @@ class CPlayer {
 
 		// 呪い
 		this.VPtotal -=
-			DeckAll.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Curse' ) ).length;
+			DeckAll.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Curse' ) ).length;
 
 		// 得点固定の勝利点カードの合計
-		VictoryCards.forEach( (card) => { this.VPtotal += Number( Cardlist[ card.card_no ].VP ) });
+		VictoryCards.forEach( card => { this.VPtotal += Number( Cardlist[ card.card_no ].VP ) });
 
 		// 庭園 : デッキ枚数 ÷ 10 点
 		this.VPtotal +=
 			Math.floor( DeckAll.length / 10 )
-			* VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Gardens' ) ).length;
+			* VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Gardens' ) ).length;
 
 
 		// 公爵 : 公領1枚につき1点
 		this.VPtotal +=
-			VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Duchy' ) ).length
-			* VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Duke' ) ).length;
+			VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Duchy' ) ).length
+			* VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Duke' ) ).length;
 
 		// ブドウ園 : アクションカード3枚につき1点
 		this.VPtotal +=
-			Math.floor( DeckAll.filter( (card) => IsActionCard( Cardlist, card.card_no ) ).length / 3 )
-			* VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Vineyard' ) ).length;
+			Math.floor( DeckAll.filter( card => IsActionCard( Cardlist, card.card_no ) ).length / 3 )
+			* VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Vineyard' ) ).length;
 
 		// 品評会 : 異なる名前のカード5枚につき2勝利点
 		this.VPtotal +=
-			2 * Math.floor(DeckAll.uniq( (card) => Cardlist[card.card_no].name_eng ).length / 5)
-			* VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Fairgrounds' ) ).length;
+			2 * Math.floor(DeckAll.uniq( card => Cardlist[card.card_no].name_eng ).length / 5　)
+			* VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Fairgrounds' ) ).length;
 
 		 // シルクロード : 勝利点カード4枚につき1点
 		this.VPtotal +=
 			Math.floor( VictoryCards.length / 4 )
-			* VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Silk Road' ) ).length;
+			* VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Silk Road' ) ).length;
 
 		// 封土 : 銀貨3枚につき1点
 		this.VPtotal +=
-			Math.floor( DeckAll.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Silver' ) ).length / 3 )
-			* VictoryCards.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Feodum' ) ).length;
+			Math.floor( DeckAll.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Silver' ) ).length / 3 )
+			* VictoryCards.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Feodum' ) ).length;
 
 		// 遠隔地 : 酒場マットの上にあれば4点，そうでなければ0点
 		// this.VPtotal +=
 		// 	this.TavernMat
-		// 	.filter( (card) => ( Cardlist[ card.card_no ].name_eng == 'Distant Lands' ) )
+		// 	.filter( card => ( Cardlist[ card.card_no ].name_eng == 'Distant Lands' ) )
 		// 	.length * 4;
 
 		// Castles
