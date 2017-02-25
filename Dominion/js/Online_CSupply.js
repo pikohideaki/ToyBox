@@ -8,6 +8,7 @@ class CCard {
 		this.card_ID = Number( card_ID );
 		this.face = 'default';  /* 表向きにするか裏向きにするか { default, up, down } */
 		this.class_str = '';  /* 一時的に付加しデータとして共有するクラス文字列 */
+		this.remain_in_play = 0;  // クリーンアップを超えて場に残る回数
 	}
 }
 

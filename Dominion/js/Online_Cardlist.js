@@ -1,8 +1,7 @@
 
 
-function MakeMap_CardName2No( Cardlist )
-{
-	CardName2No = {};
+function MakeMap_CardName2No( Cardlist ) {
+	let CardName2No = {};
 	for ( var i = 1; i < Cardlist.length; i++ ) {
 		CardName2No[ Cardlist[i].name_eng ] = i;
 	}

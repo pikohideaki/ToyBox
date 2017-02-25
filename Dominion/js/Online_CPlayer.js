@@ -356,16 +356,20 @@ class CPlayer {
 
 
 	CleanUp() {  /* カード移動複合操作 */
-		this.DiscardPile.append(
-			[].concat(
-				this.HandCards,
-				this.PlayArea,
-				this.Aside ) );
+		let DiscardCardIDs = [];
 
-		this.HandCards = [];
-		this.PlayArea  = [];
-		this.Aside     = [];
+		this.HandCards
+			.map( card => card.card_ID )
+			.appendTo( DiscardCardIDs );
 
+		[].concat( this.PlayArea, this.Aside )
+			.filter( card => card.remain_in_play === 0 )
+			.map( card => card.card_ID )
+			.appendTo( DiscardCardIDs );
+
+		DiscardCardIDs.forEach( card_ID => this.Discard( card_ID, Game, false ) );
+
+		// draw 5 cards
 		for ( let i = 0; i < 5; ++i ) {
 			this.AddToHandCards( this.GetDeckTopCard() );
 		}

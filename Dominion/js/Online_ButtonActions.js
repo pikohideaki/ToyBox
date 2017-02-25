@@ -118,18 +118,18 @@ $( function() {
 				return;
 			}
 			yield Game.BuyCardFromSupply( clicked_card_ID )   /* カード移動 */
+
 			Game.TurnInfo.buy--;
 			Game.TurnInfo.coin   -= clicked_card_cost.coin;
 			Game.TurnInfo.potion -= clicked_card_cost.potion;
-
 			if ( Game.phase == 'BuyPhase' ) {
 				Game.phase = 'BuyPhase_GetCard';  // 一度購入を始めたら以降財宝カードを追加で使用することはできない
 			}
-
 			yield FBref_Game.update( {
 				TurnInfo : Game.TurnInfo,
-				phase : Game.phase,
+				phase    : Game.phase,
 			} );
+
 
 			// buyが0なら自動でターン終了
 			if ( Game.TurnInfo.buy <= 0 ) {

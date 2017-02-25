@@ -56,10 +56,10 @@ function* GetCardEffect( playing_card_ID ) {
 	Game.TurnInfo.coin   += playing_Card.coin;
 	Game.player().DrawCards( playing_Card.draw_card );
 
-	let updates = {};
-	updates['TurnInfo'] = Game.TurnInfo;
-	updates[`Players/${Game.player().id}`] = Game.player();
-	yield FBref_Game.update( updates );
+	yield FBref_Game.update( {
+		TurnInfo : Game.TurnInfo,
+		[`Players/${Game.player().id}`] : Game.player(),
+	} );
 
 	const playing_card_name = Cardlist[ playing_card_no ].name_eng;
 	yield MyAsync( CardEffect[ playing_card_name ], playing_card_ID, playing_card_no );

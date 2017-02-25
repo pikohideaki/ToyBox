@@ -150,7 +150,7 @@ $('#make-room-btn').click( function() {
 	// SelectedCards.KingdomCards = [ 50,51,52,53,54,55,56,57, 15,32, ];
 	// SelectedCards.KingdomCards = [ 127,128,129,133,134, 135,136,137,138,15 ];
 	// SelectedCards.KingdomCards = [ 139,141,142, 15,15,15,15,15,15,15, ];
-	SelectedCards.KingdomCards = [ 128,27,35, 15,15,  15,15,15,15,15, ];
+	// SelectedCards.KingdomCards = [ 128,27,35, 15,15,  15,15,15,15,15, ];
 
 	// SelectedCards.KingdomCards[0] = 139;  // 馬上槍試合
 	// SelectedCards.KingdomCards[1] = 142;  // 魔女娘

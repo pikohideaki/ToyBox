@@ -8,68 +8,68 @@
 class CGame {
 	constructor( FBobj_Game ) {
 		if ( FBobj_Game === undefined ) {
-			this.TrashPile      = [];
-			this.whose_turn_id  = 0;
-			this.TurnInfo       = {};
-			this.phase          = '';
-			this.Supply         = new CSupply();
-			this.Players        = [];
-			this.Settings       = {};
-			this.StackedCardIDs = [];
+			TrashPile      = [];
+			whose_turn_id  = 0;
+			TurnInfo       = {};
+			phase          = '';
+			Supply         = new CSupply();
+			Players        = [];
+			Settings       = {};
+			StackedCardIDs = [];
 		} else {
-			this.TrashPile     = ( FBobj_Game.TrashPile || [] );
-			this.whose_turn_id = FBobj_Game.whose_turn_id;
-			this.TurnInfo      = FBobj_Game.TurnInfo;
-			this.phase         = FBobj_Game.phase;
-			this.Supply        = new CSupply( FBobj_Game.Supply );
-			this.Players       = [];
+			TrashPile     = ( FBobj_Game.TrashPile || [] );
+			whose_turn_id = FBobj_Game.whose_turn_id;
+			TurnInfo      = FBobj_Game.TurnInfo;
+			phase         = FBobj_Game.phase;
+			Supply        = new CSupply( FBobj_Game.Supply );
+			Players       = [];
 			FBobj_Game.Players = ( FBobj_Game.Players || [] );
 			for ( let i = 0; i < RoomInfo.PlayerNum; ++i ) {
-				this.Players[i] = new CPlayer( FBobj_Game.Players[i] );
+				Players[i] = new CPlayer( FBobj_Game.Players[i] );
 			}
-			this.Settings      = ( FBobj_Game.Settings || {} );
-			this.StackedCardIDs = ( FBobj_Game.StackedCardIDs || [] );
+			Settings      = ( FBobj_Game.Settings || {} );
+			StackedCardIDs = ( FBobj_Game.StackedCardIDs || [] );
 		}
 	}
 
 
-	NextPlayerID( current_player_id = this.whose_turn_id ) {
+	NextPlayerID( current_player_id = whose_turn_id ) {
 		 /* 0 -> 1 -> 2 -> 3 -> 0 */
-		return (current_player_id + 1) % this.Players.length;
+		return (current_player_id + 1) % Players.length;
 	}
 
-	PreviousPlayerID( current_player_id = this.whose_turn_id ) {
-		return (this.Players.length + current_player_id - 1) % this.Players.length;
+	PreviousPlayerID( current_player_id = whose_turn_id ) {
+		return (Players.length + current_player_id - 1) % Players.length;
 	}
 
 	Me() {
-		return this.Players[ myid ];
+		return Players[ myid ];
 	}
 
 	player() {
-		return this.Players[ this.whose_turn_id ];
+		return Players[ whose_turn_id ];
 	}
 
-	NextPlayer( current_player_id = this.whose_turn_id ) {
-		return this.Players[ this.NextPlayerID( current_player_id ) ];
+	NextPlayer( current_player_id = whose_turn_id ) {
+		return Players[ NextPlayerID( current_player_id ) ];
 	}
 
-	PreviousPlayer( current_player_id = this.whose_turn_id ) {
-		return this.Players[ this.PreviousPlayerID( current_player_id ) ];
+	PreviousPlayer( current_player_id = whose_turn_id ) {
+		return Players[ PreviousPlayerID( current_player_id ) ];
 	}
 
 	whose_turn() {
-		return this.player.name;
+		return player.name;
 	}
 
 
 	GetAllCards() {
 		let AllCards = [];
-		this.Players.forEach( function( player ) {
+		Players.forEach( player => {
 			AllCards = AllCards.concat( player.GetCopyOfAllCards() );
 		});
-		AllCards = AllCards.concat( this.Supply.GetAllCards() );
-		AllCards = AllCards.concat( this.TrashPile );
+		AllCards = AllCards.concat( Supply.GetAllCards() );
+		AllCards = AllCards.concat( TrashPile );
 		return AllCards;
 	}
 
@@ -94,7 +94,7 @@ class CGame {
 					break;
 			}
 			$('.phase-dialog-wrapper .dialog_text').html( phase_jp );
-			yield new Promise( function( resolve ) {
+			yield new Promise( resolve => {
 				$('.phase-dialog-wrapper').fadeIn().delay(300).fadeOut('normal', resolve );
 			});
 		})
@@ -102,7 +102,7 @@ class CGame {
 
 
 	ResetTurnInfo() {
-		this.TurnInfo = {
+		TurnInfo = {
 			action : 1,
 			buy    : 1,
 			coin   : 0,
@@ -113,24 +113,24 @@ class CGame {
 			Revealed_Moat     : new Array( PLAYER_NUM_MAX ).fill(false),  /* 堀を公開したか */
 			Revealed_BaneCard : new Array( PLAYER_NUM_MAX ).fill(false),  /* 災いカードを公開したか */
 		};
-		this.phase = 'ActionPhase';
+		phase = 'ActionPhase';
 	}
 
 
 	GameEnded() {
 		// 属州がなくなったら終了
-		if ( this.Supply.byName('Province').IsEmpty() ) return true;
+		if ( Supply.byName('Province').IsEmpty() ) return true;
 
 		// 植民地場なら植民地がなくなったら終了
-		if ( this.Supply.byName('Colony').in_use
-			&& this.Supply.byName('Colony').IsEmpty() ) return true;
+		if ( Supply.byName('Colony').in_use
+			&& Supply.byName('Colony').IsEmpty() ) return true;
 
 		// 使用しているサプライが3山なくなったら終了
 		/* [ToDo] 闇市場，廃墟などもカウント */
 		const empty_pile_num = [].concat(
-				this.Supply.Basic,
-				this.Supply.KingdomCards,
-				[this.Supply.BaneCard] )
+				Supply.Basic,
+				Supply.KingdomCards,
+				[Supply.BaneCard] )
 			.filter( pile => pile.in_use && pile.IsEmpty() )
 			.length;
 
@@ -180,13 +180,13 @@ class CGame {
 
 
 	// card_no のコスト
-	GetCost( card_no, player_id = this.whose_turn_id ) {
+	GetCost( card_no, player_id = whose_turn_id ) {
 		let cost = new CCost( Cardlist[card_no] );
 
 		// 橋によるコスト減少量
-		cost = CostOp( '-', cost, new CCost( [ this.TurnInfo.cost_down_by_Bridge ,0,0] ) );
+		cost = CostOp( '-', cost, new CCost( [ TurnInfo.cost_down_by_Bridge ,0,0] ) );
 
-		let playarea = this.Players[ player_id ].PlayArea;
+		let playarea = Players[ player_id ].PlayArea;
 
 		// 街道（場にある枚数）
 		let Highway_num_in_play
@@ -219,8 +219,8 @@ class CGame {
 
 
 	StackCardID( card_ID ) {
-		this.StackedCardIDs.push( card_ID );
-		return FBref_StackedCardIDs.set( this.StackedCardIDs );
+		StackedCardIDs.push( card_ID );
+		return FBref_StackedCardIDs.set( StackedCardIDs );
 	}
 
 
@@ -340,7 +340,7 @@ class CGame {
 
 
 	LookCardWithID( card_ID ) {
-		return this.GetCardWithID( card_ID, false );
+		return GetCardWithID( card_ID, false );
 	}
 
 
@@ -419,7 +419,7 @@ class CGame {
 	GainCard(
 				card_ID,
 				place_to_gain = 'DiscardPile',
-				player_id = this.whose_turn_id,
+				player_id = whose_turn_id,
 				face = 'default',
 				buy = false )
 	{
@@ -469,11 +469,11 @@ class CGame {
 	GainCardFromSupply(
 				card_ID,
 				place_to_gain = 'DiscardPile',
-				player_id = this.whose_turn_id,
+				player_id = whose_turn_id,
 				face = 'default',
 				buy = false )
 	{
-		this.GainCard( card_ID, place_to_gain, player_id, face, buy );
+		GainCard( card_ID, place_to_gain, player_id, face, buy );
 		return FBref_Game.update( {
 			[`Players/${player_id}/${place_to_gain}`] : Game.Players[player_id][place_to_gain],
 			Supply : Game.Supply,
@@ -485,10 +485,10 @@ class CGame {
 	BuyCard(
 				card_ID,
 				place_to_gain = 'DiscardPile',
-				player_id = this.whose_turn_id,
+				player_id = whose_turn_id,
 				face = 'default' )
 	{
-		this.GainCard( card_ID, place_to_gain, player_id, face, true );
+		GainCard( card_ID, place_to_gain, player_id, face, true );
 
 	}
 
@@ -497,10 +497,10 @@ class CGame {
 	BuyCardFromSupply(
 				card_ID,
 				place_to_gain = 'DiscardPile',
-				player_id = this.whose_turn_id,
+				player_id = whose_turn_id,
 				face = 'default' )
 	{
-		return this.GainCardFromSupply( card_ID, place_to_gain, player_id, face, true );
+		return GainCardFromSupply( card_ID, place_to_gain, player_id, face, true );
 	}
 
 
@@ -508,7 +508,7 @@ class CGame {
 	GainCardFromSupplyByName(
 				card_name_eng,
 				place_to_gain = 'DiscardPile',
-				player_id = this.whose_turn_id,
+				player_id = whose_turn_id,
 				face = 'default' )
 	{
 		const G = this;
@@ -530,32 +530,32 @@ class CGame {
 	/* カード移動基本操作 */
 	AddToTrashPile( card ) {
 		if ( card == undefined ) return;
-		this.TrashPile.push( card );
+		TrashPile.push( card );
 	}
 
 	/* カード移動複合操作 */
 	/* どこから来るか分からないのでfirebase同期はしない */
 	Trash( card_ID ) {
-		this.AddToTrashPile( this.GetCardWithID( card_ID ) );
-		FBref_chat.push( `「${Cardlist[ this.LookCardWithID( card_ID ).card_no ].name_jp}」を廃棄しました。` );
+		AddToTrashPile( GetCardWithID( card_ID ) );
+		FBref_chat.push( `「${Cardlist[ LookCardWithID( card_ID ).card_no ].name_jp}」を廃棄しました。` );
 	}
 
 
 
 	FaceUpCard( card_ID ) {
-		this.LookCardWithID( card_ID ).face = 'up';
-		return this.StackCardID( card_ID );
+		LookCardWithID( card_ID ).face = 'up';
+		return StackCardID( card_ID );
 	}
 
 	FaceDownCard( card_ID ) {
-		this.LookCardWithID( card_ID ).face = 'down';
-		return this.StackCardID( card_ID );
+		LookCardWithID( card_ID ).face = 'down';
+		return StackCardID( card_ID );
 	}
 
 
 
 	ResetStackedCardIDs() {
-		this.StackedCardIDs = [];
+		StackedCardIDs = [];
 		return FBref_StackedCardIDs.set( [] );
 	}
 
@@ -638,7 +638,7 @@ class CGame {
 
 			if ( send_signals ) {
 				yield FBref_SignalAttackEnd.set(false);  /* reset */
-				FBref_SignalAttackEnd.on( 'value', function(snap) {  // 監視開始
+				FBref_SignalAttackEnd.on( 'value', snap => {  // 監視開始
 					if ( snap.val() ) Resolve[ card_name ]();
 				} );
 

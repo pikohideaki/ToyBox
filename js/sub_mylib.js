@@ -98,6 +98,12 @@ Array.prototype.append = function( passed_array ) {
 }
 
 
+Array.prototype.appendTo = function( passed_array ) {
+	passed_array.copyfrom( [].concat( passed_array, this ) );
+	return passed_array;
+}
+
+
 Array.prototype.IsEmpty = function() {
 	return this.length == 0;
 }

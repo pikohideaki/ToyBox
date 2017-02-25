@@ -383,74 +383,10 @@ $GameRoomID = $_POST['room-id'];
 
 <!-- Firebase -->
 <script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
-<script type='text/javascript' src='/Dominion/js/sub_InitializeFirebase.js'></script>
-<script type='text/javascript'>
-	const FBref_connected            = FBdatabase.ref(".info/connected");
-	const FBref_Room                 = FBref_Rooms.child( GameRoomID );
-	const FBref_chat                 = FBref_Room.child('chat');
-
-	const FBref_Message              = FBref_Room.child( 'Message' );
-	const FBref_MessageTo            = FBref_Room.child( 'MessageTo' );
-	const FBref_MessageToMe          = FBref_Room.child( `MessageTo/${myid}` );
-
-	const FBref_Game                 = FBref_Room.child( 'Game' );
-	const FBref_Settings             = FBref_Game.child( 'Settings' );
-	const FBref_Supply               = FBref_Game.child( 'Supply' );
-	const FBref_Players              = FBref_Game.child( 'Players' );
-	const FBref_TurnInfo             = FBref_Game.child( 'TurnInfo' );
-	const FBref_StackedCardIDs       = FBref_Game.child( 'StackedCardIDs' );
-
-	const FBref_Signal               = FBref_Room.child( 'Signals' );
-	const FBref_SignalToMe           = FBref_Signal.child( myid );
-	const FBref_SignalAttackEnd      = FBref_Signal.child( 'AttackEnd' );
-	const FBref_SignalReactionEnd    = FBref_Signal.child( 'ReactionEnd' );
-	const FBref_SignalRevealReaction = FBref_Signal.child( 'RevealReaction' );
-	const FBref_SignalBaneCardEnd    = FBref_Signal.child( 'BaneCardEnd' );
-	const FBref_SignalRevealBaneCard = FBref_Signal.child( 'RevealBaneCard' );
-</script>
-
-
-<!-- function & class -->
-<script type="text/javascript">
-	let RoomInfo = {};  /* global object, not changed after initialization */
-	let Game = {};  /* global object */
-	let Initialize;
-	const SizeOf$Card   = new SizeOfjQueryObj( $('.SupplyArea.line2').find('.card') );
-	const SizeOf$sCard  = new SizeOfjQueryObj( $('.SupplyArea.line1').find('.card') );
-	const SizeOf$ssCard = new SizeOfjQueryObj( $('.OtherPlayers-wrapper').find('.card') );
-	const SizeOf$CardArea = new SizeOfjQueryObj( $('.OtherPlayers-wrapper').find('.card') );
-</script>
-
-<script type='text/javascript' src='/Dominion/js/Online_Cardlist.js'></script>
-<script type='text/javascript'>
-	var CardName2No = MakeMap_CardName2No( Cardlist );  /* global object */
-</script>
-<script type='text/javascript' src='/Dominion/js/Online_ChatArea.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_MakeHTML.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_Print.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_FBSet.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_SelectCards.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CSupply.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CPlayer.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_01_Original.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_02_Intrigue.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_03_Seaside.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_04_Alchemy.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_05_Prosperity.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_06_Cornucopia.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_07_Hinterlands.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_08_Dark_Ages.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_09_Guilds.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_10_Adventures.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CardEffects_11_Empires.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_CGame.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_ButtonActions.js'></script>
 
 <!-- start game -->
-<script type='text/javascript' src='/Dominion/js/Online_FirebaseSync.js'></script>
-<script type='text/javascript' src='/Dominion/js/Online_Signals.js'></script>
-
+<!-- <script type='text/javascript' src='/Dominion/js/Online_game_main.js'></script> -->
+<script type='text/javascript' src='/Dominion/js/Online_main_Game.js'></script>
 
 </html>
 

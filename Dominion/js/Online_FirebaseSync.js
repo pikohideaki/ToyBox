@@ -14,23 +14,59 @@ Initialize = FBref_Room.once('value').then( function( FBsnapshot ) {
 
 	// make OtherPlayers wrapper
 	$('.OtherPlayers-wrapper').html('');
-	for ( let id = 0; id < Game.Players.length; ++id ) {
+	for ( let player_id = 0; player_id < Game.Players.length; ++player_id ) {
 		// if ( id == myid ) continue;
-		$('.OtherPlayers-wrapper').append( MakeHTML_OtherPlayerDiv( id ) );
+		$('.OtherPlayers-wrapper').append( MakeHTML_OtherPlayerDiv( player_id ) );
 	}
 	$( '.OtherPlayer_Buttons .ok' ).hide();
 
 	// make CardView
 	$CardViewlist = $('.CardView_list');
 
-	let AllCardNo = Game.GetAllCards().map( a => a.card_no ).uniq().sortNumeric().remove_val(0);
-	AllCardNo.forEach( (card_no) => $CardViewlist.append( MakeHTML_CardBiggest( card_no ) ) );
+	const AllCardNo = Game.GetAllCards().map( a => a.card_no ).uniq().sortNumeric().remove_val(0);
+	AllCardNo.forEach( card_no => $CardViewlist.append( MakeHTML_CardBiggest( card_no ) ) );
 	$('.CardView_zoom .card_biggest').attr('data-card_no', AllCardNo[0] );  // 初期値
 });
 
 
 
 Initialize.then( function() {  /* 初期設定終わったら */
+
+	// データの同期
+	Game.ForAllPlayers( player_id => {
+		let FBref_pl = FBref_Players.child( player_id );
+		FBref_pl.child('TurnCount'  ).on('value', snap => SetAndPrintTurnCount   ( player_id, snap ) );
+		FBref_pl.child('Connection' ).on('value', snap => SetAndPrintConnection  ( player_id, snap ) );
+		FBref_pl.child('Open'       ).on('value', snap => SetAndPrintOpen        ( player_id, snap ) );
+		FBref_pl.child('PlayArea'   ).on('value', snap => SetAndPrintPlayArea    ( player_id, snap ) );
+		FBref_pl.child('Aside'      ).on('value', snap => SetAndPrintAside       ( player_id, snap ) );
+		FBref_pl.child('Deck'       ).on('value', snap => SetAndPrintDeck        ( player_id, snap ) );
+		FBref_pl.child('HandCards'  ).on('value', snap => SetAndPrintHandCards   ( player_id, snap ) );
+		FBref_pl.child('DiscardPile').on('value', snap => SetAndPrintDiscardPile ( player_id, snap ) );
+	} );
+
+	FBref_TurnInfo               .on('value', SetAndPrintTurnInfo  );
+	FBref_Supply                 .on('value', SetAndPrintSupply    );
+	FBref_Game.child('TrashPile').on('value', SetAndPrintTrashPile );
+	FBref_Game.child('phase'    ).on('value', SetAndPrintPhase     );
+	/* TrashPile は消えたときに親階層から監視しておかないと反応しない -> 削除ちゃんと反応するようになった */
+
+	// 一時オブジェクト．card_IDのメモを共有．
+	FBref_StackedCardIDs.on( 'value', function( FBsnapshot ) {
+		Game.StackedCardIDs = ( FBsnapshot.val() || [] );
+	});
+
+	// メッセージの同期
+	FBref_Message.on( 'value', ( FBsnapshot ) => $('.Message').html( FBsnapshot.val() ) );
+
+	FBref_MessageToMe.on( 'value', function( FBsnapshot ) {
+		const MessageToMe = ( FBsnapshot.val() || '' );
+		$('.MessageToMe').html( MessageToMe + '&nbsp' );   // MessageToMeが''でも高さ0にならないように空白文字追加
+	});
+
+	// その他共有する設定
+	FBref_Settings.on('value', snap => Game.Settings = snap.val() );
+
 
 	// 通信状態の表示
 	FBref_connected.on('value', function(snap) {
@@ -43,17 +79,18 @@ Initialize.then( function() {  /* 初期設定終わったら */
 			$('.connection-dialog-wrapper').fadeIn();
 		}
 	});
-
-	// その他共有する設定
-	FBref_Settings.on('value', snap => Game.Settings = snap.val() );
-
-
-
 	// $('.text_disconnect').click( () => FBdatabase.goOffline() );
 	// $('.text_connect'   ).click( () => FBdatabase.goOnline()  );
 
+
+
+
+
+
+
+
 	/* 誰のターンか */
-	FBref_Game.child(`whose_turn_id`).on('value', function( FBsnapshot ) {
+	FBref_Game.child('whose_turn_id').on('value', function( FBsnapshot ) {
 		Game.whose_turn_id = Number( FBsnapshot.val() );
 
 		if ( Game.whose_turn_id === myid ) {  /* 自分の手番のとき以外はグレーに */
@@ -88,37 +125,8 @@ Initialize.then( function() {  /* 初期設定終わったら */
 		}
 	});
 
-	Game.ForAllPlayers( player_id => {
-		let FBref_pl = FBref_Players.child( player_id );
-		FBref_pl.child('TurnCount'  ).on('value', snap => SetAndPrintTurnCount   ( player_id, snap ) );
-		FBref_pl.child('Connection' ).on('value', snap => SetAndPrintConnection  ( player_id, snap ) );
-		FBref_pl.child('Open'       ).on('value', snap => SetAndPrintOpen        ( player_id, snap ) );
-		FBref_pl.child('PlayArea'   ).on('value', snap => SetAndPrintPlayArea    ( player_id, snap ) );
-		FBref_pl.child('Aside'      ).on('value', snap => SetAndPrintAside       ( player_id, snap ) );
-		FBref_pl.child('Deck'       ).on('value', snap => SetAndPrintDeck        ( player_id, snap ) );
-		FBref_pl.child('HandCards'  ).on('value', snap => SetAndPrintHandCards   ( player_id, snap ) );
-		FBref_pl.child('DiscardPile').on('value', snap => SetAndPrintDiscardPile ( player_id, snap ) );
-	} );
 
 
-	FBref_TurnInfo               .on('value', SetAndPrintTurnInfo  );
-	FBref_Supply                 .on('value', SetAndPrintSupply    );
-	FBref_Game.child('TrashPile').on('value', SetAndPrintTrashPile );
-	FBref_Game.child('phase'    ).on('value', SetAndPrintPhase     );
-	/* TrashPile は消えたときに親階層から監視しておかないと反応しない -> 削除ちゃんと反応するようになった */
-
-
-	FBref_Message.on( 'value', ( FBsnapshot ) => $('.Message').html( FBsnapshot.val() ) );
-
-	FBref_MessageToMe.on( 'value', function( FBsnapshot ) {
-		const MessageToMe = ( FBsnapshot.val() || '' );
-		$('.MessageToMe').html( MessageToMe + '&nbsp' );   // MessageToMeが''でも高さ0にならないように空白文字追加
-	});
-
-	// 一時オブジェクト．card_IDのメモを共有．
-	FBref_StackedCardIDs.on( 'value', function( FBsnapshot ) {
-		Game.StackedCardIDs = ( FBsnapshot.val() || [] );
-	});
 
 	FBref_Room.child('GameEnd').on('value', function( FBsnapshot ) {
 		const GameEnd = FBsnapshot.val();

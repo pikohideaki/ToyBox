@@ -163,8 +163,12 @@ echo "
 
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
+<script src='https://www.gstatic.com/firebasejs/3.4.1/firebase.js'></script>
 <script type='text/javascript' src='/Dominion/js/sub_InitializeFirebase.js'></script>
+
+<script type='text/javascript'>
+	const FBref_Rooms = FBdatabase.ref('/Rooms');
+</script>
 
 <?php
 	PHP2JS_Cardlist_Setlist( $Cardlist, $Setlist );

@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        // "target": "es6",
+        "noImplicitAny": false,
+        "sourceMap": true,
+    },
+    "files": [
+        "https://www.gstatic.com/firebasejs/3.4.1/firebase.js",
+        "./typings/es6-promise/es6-promise.d.ts",
+        "C:\\Dropbox\\[code]\\html\\ToyBox\\SourceTreeSync\\Dominion\\js\\sub_InitializeFirebase.ts",
+        "C:\\Dropbox\\[code]\\html\\ToyBox\\SourceTreeSync\\Dominion\\js\\Online_main_Game.ts",
+        "C:\\Dropbox\\[code]\\html\\ToyBox\\SourceTreeSync\\Dominion\\js\\CGreeter.ts",
+    ]
+}

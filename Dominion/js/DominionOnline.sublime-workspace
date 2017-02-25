@@ -1,0 +1,1110 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Discar",
+				"DiscardCardIDs"
+			],
+			[
+				"Disca",
+				"DiscardCardIDs"
+			],
+			[
+				"Ack",
+				"AcknowledgeButton"
+			],
+			[
+				"Att",
+				"AttackAllOtherPlayers"
+			],
+			[
+				"FBref_",
+				"FBref_TurnInfo"
+			],
+			[
+				"RevealedCardI",
+				"RevealedCardIDs"
+			],
+			[
+				"Revealed",
+				"RevealedCardIDs"
+			],
+			[
+				"FBref",
+				"FBref_chat"
+			],
+			[
+				"return",
+				"return_value"
+			],
+			[
+				"playe",
+				"player"
+			],
+			[
+				"Stack",
+				"StackCardID"
+			],
+			[
+				"han",
+				"HandCard"
+			],
+			[
+				"Look",
+				"LookCardWithID"
+			],
+			[
+				"Revale",
+				"RevealedCardIDs"
+			],
+			[
+				"Fb",
+				"FBref_chat"
+			],
+			[
+				"clicked",
+				"clicked_btn"
+			],
+			[
+				"place",
+				"place_to_gain"
+			],
+			[
+				"Reset",
+				"ResetStackedCardIDs"
+			],
+			[
+				"Reveale",
+				"RevealedCardIDs"
+			],
+			[
+				"Get",
+				"GetAllCards"
+			],
+			[
+				"DEck",
+				"DeckTopCard"
+			],
+			[
+				"GetCr",
+				"GetCardByID"
+			],
+			[
+				"deck",
+				"deck_top_card"
+			],
+			[
+				"Pla",
+				"PlayArea"
+			],
+			[
+				"victo",
+				"Victory"
+			],
+			[
+				"Dis",
+				"DiscardPile"
+			],
+			[
+				"Sta",
+				"StackedCardIDs"
+			],
+			[
+				"Revea",
+				"RevealedCardsID"
+			],
+			[
+				"Supp",
+				"Supply"
+			],
+			[
+				"exist",
+				"val_exists"
+			],
+			[
+				"AddT",
+				"AddToDiscardPile"
+			],
+			[
+				"FBre",
+				"FBref_Game"
+			],
+			[
+				"reveal",
+				"revealed_card_ID"
+			],
+			[
+				"Tourn",
+				"Tournament_Revealed_card_IDs"
+			],
+			[
+				"Tou",
+				"Tournament_GetCard"
+			],
+			[
+				"FB",
+				"FBref_Signal"
+			],
+			[
+				"Fbre",
+				"FBref_Players"
+			],
+			[
+				"Male",
+				"MakeHTML_button"
+			],
+			[
+				"Draw",
+				"DrawCards"
+			],
+			[
+				"Tournament_",
+				"Tournament_RevealProivince"
+			],
+			[
+				"Harvest",
+				"Harvest_ok"
+			],
+			[
+				"MyA",
+				"MyAlert-box"
+			],
+			[
+				"tur",
+				"TurnInfo"
+			],
+			[
+				"Add",
+				"AddToOpen"
+			],
+			[
+				"AddTo",
+				"AddToHandCards"
+			],
+			[
+				"action",
+				"action_buttons"
+			],
+			[
+				"Trash",
+				"TrashCardByID"
+			],
+			[
+				"FBref_MessageTo",
+				"FBref_MessageToMe"
+			],
+			[
+				"Trashe",
+				"TrashedCardCost"
+			],
+			[
+				"Coppers",
+				"Coppersmith_ok"
+			],
+			[
+				"retu",
+				"return_value2"
+			],
+			[
+				"card",
+				"card_name_eng"
+			],
+			[
+				"dis",
+				"discarded_num"
+			],
+			[
+				"cliek",
+				"clicked_btn"
+			],
+			[
+				"Nex",
+				"NextPlayer"
+			],
+			[
+				"Next",
+				"NextPlayerID"
+			],
+			[
+				"displa",
+				"display_flag"
+			],
+			[
+				"ef",
+				"effect2"
+			],
+			[
+				"chat",
+				"chat_list"
+			],
+			[
+				"turn",
+				"TurnCount"
+			],
+			[
+				"car",
+				"cardname"
+			],
+			[
+				"Size",
+				"SizeOfjQueryObj"
+			],
+			[
+				"Suppl",
+				"SupplyArea"
+			],
+			[
+				"play",
+				"playing_card_no"
+			],
+			[
+				"clicked_",
+				"clicked_card_ID"
+			],
+			[
+				"player",
+				"player_id"
+			],
+			[
+				"Rom",
+				"RoomObj"
+			],
+			[
+				"Room",
+				"RoomInfo"
+			],
+			[
+				"Player",
+				"PlayerNum"
+			],
+			[
+				"Myc",
+				"MyConfirmReturnValue"
+			],
+			[
+				"mycon",
+				"myconfirm_val"
+			],
+			[
+				"signals",
+				"signals_to_me"
+			],
+			[
+				"whose",
+				"whose_turn_id"
+			],
+			[
+				"whose_tu",
+				"whose_turn_ID"
+			],
+			[
+				"clas",
+				"class_array"
+			],
+			[
+				"Buy",
+				"BuyCard"
+			],
+			[
+				"Is",
+				"IsTreasureCard"
+			],
+			[
+				"clicke",
+				"clicked_card_no"
+			],
+			[
+				"Tra",
+				"TrashPile"
+			],
+			[
+				"clickedcard",
+				"clicked_card_no"
+			],
+			[
+				"trashed",
+				"trashed_card_cost"
+			],
+			[
+				"Su",
+				"SupplyPiles"
+			],
+			[
+				"back",
+				"background-color"
+			],
+			[
+				"size",
+				"font-size"
+			],
+			[
+				"CSu",
+				"CSupplyPile"
+			],
+			[
+				"Sup",
+				"SupplyPile"
+			],
+			[
+				"Supply",
+				"SupplyPileObj"
+			],
+			[
+				"Init",
+				"InitByObj"
+			],
+			[
+				"Card",
+				"CardName2No"
+			],
+			[
+				"Game",
+				"GameRoomID"
+			],
+			[
+				"Players",
+				"PlayersTSV_new"
+			],
+			[
+				"Playe",
+				"Players_old"
+			],
+			[
+				"backg",
+				"background"
+			],
+			[
+				"Arr",
+				"ArraySorted"
+			],
+			[
+				"border",
+				"border-color"
+			],
+			[
+				"backgr",
+				"background-color"
+			],
+			[
+				"onclic",
+				"onclick_action"
+			],
+			[
+				"onclick",
+				"onclick_actions"
+			],
+			[
+				"GainCa",
+				"GainCardToDeck"
+			],
+			[
+				"GetCard",
+				"GetCardByID"
+			],
+			[
+				"global",
+				"global_card_ID"
+			],
+			[
+				"printh",
+				"print_htmlstr2"
+			],
+			[
+				"Tras",
+				"TrashedCardCost"
+			],
+			[
+				"display",
+				"display_flag_temp"
+			],
+			[
+				"siz",
+				"size_t"
+			],
+			[
+				"Itemset",
+				"Itemset__"
+			],
+			[
+				"exi",
+				"exist_alphabet"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "Online_main_Game.ts",
+			"settings":
+			{
+				"buffer_size": 418,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "Packages/TypeScript/TypeScript.sublime-build",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/TypeScript/TypeScript.sublime-build",
+					""
+				],
+				[
+					"Packages/User/MyTypeScript.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/TypeScript/TypeScript.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 127.0,
+		"last_filter": "install",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"repo",
+				"Package Control: Add Repository"
+			],
+			[
+				"package",
+				"Preferences: Package Control Settings – User"
+			],
+			[
+				"Package",
+				"Preferences: Browse Packages"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 536.0
+	},
+	"console":
+	{
+		"height": 174.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'df21e130d211cfc94d9b0905775a7c0f' + '1e3d39e33b79698005270310898eea76'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)",
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/tsv",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/js"
+	],
+	"file_history":
+	[
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/DominionOnline.sublime-project",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_main_Game.ts",
+		"/C/Dropbox/noshiro-anish-shared/manuscript/sections/rna-zbdd.tex",
+		"/C/Dropbox/noshiro-anish-shared/manuscript/preamble.tex",
+		"/C/Dropbox/noshiro-anish-shared/manuscript/sections/frequent-structure-mining.tex",
+		"/C/Dropbox/[Sync]/勉強/2015卒論/latex_sotsuron/sotsuron_js_sub02_method_ZBDD.tex",
+		"/C/Dropbox/noshiro-anish-shared/manuscript/main.tex",
+		"/C/Dropbox/noshiro-anish-shared/manuscript/memo.md",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_日本語原稿/body.tex",
+		"/C/Dropbox/[Sync]/txt/[6]あいでぃー.md",
+		"/C/Dropbox/[software_CD,DVD]/NotePad2008J/Finale NotePad 2008 pass word.txt",
+		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/User/MyTypeScript.sublime-build",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test.ts",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test_sub.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test_sub.ts",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/ts_Online_CGame.ts",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/sftp-config.json",
+		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/TypeScript/TypeScript.sublime-build",
+		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/User/TypeScript.sublime-settings",
+		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_日本語原稿/macros.tex",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_room_main.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CPlayer.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_ButtonActions.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CGame.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_FirebaseSync.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects_06_Cornucopia.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Cardlist.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/GenSupply.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/js/sub_mylib.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CSupply.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects_02_Intrigue.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects_01_Original.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_ChatArea.js",
+		"/C/Dropbox/[Sync]/txt/[0]Todo.md",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_Signals.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_Cardlist.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/Online_game_main.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_Print.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_FBSet.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/Online_game_main.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_MakeHTML.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/CardEffectBox.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/test_generator_promise.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/Online_game_end.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/Cardlist.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/Online_Cards.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/css/default.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_SelectCards.js",
+		"/C/Users/Hideaki/Downloads/新しいテキスト ドキュメント.txt",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/sub_Randomizer.php",
+		"/C/Dropbox/[Sync]/書類/[ゆうちょダイレクト_入出金明細/temp.txt",
+		"/C/Dropbox/[Sync]/書類/[ゆうちょダイレクト_入出金明細/ゆうちょ.txt",
+		"/C/Dropbox/bdd/main_SecstrZBDD.cpp",
+		"/C/Dropbox/bdd/WeightedZBDD.hpp",
+		"/C/Dropbox/noshiro-anish-shared/ToDo.txt",
+		"/C/Dropbox/bdd/main_CompareLCM.cpp",
+		"/C/Dropbox/bdd/main_CompareLCM_rna.cpp",
+		"/C/Dropbox/bdd/main_Table_querytime2.cpp",
+		"/C/Dropbox/bdd/main_SecstrZBDD_querytime2.cpp",
+		"/C/Dropbox/bdd/main_Table_querytime.cpp",
+		"/C/Dropbox/bdd/main_test.cpp",
+		"/C/Dropbox/bdd/main_SecstrZBDD_querytime.cpp",
+		"/C/Dropbox/bdd/mylib.cpp",
+		"/C/Dropbox/bdd/SeqBDD.cpp",
+		"/C/Dropbox/bdd/SecstrZBDD.cpp",
+		"/C/Dropbox/bdd/mylib.hpp",
+		"/C/Dropbox/bdd/SeqBDD.hpp",
+		"/C/Dropbox/bdd/SecstrZBDD.hpp",
+		"/C/Dropbox/[Sync]/txt/[0]ToyBox_ToDo.md",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_game_end.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/answer.cpp",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/Online_room_main.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/sub_InitializeFirebase.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects_01_Original (Hideaki-PC の競合コピー 2017-02-02).js",
+		"/C/Users/Hideaki/AppData/Local/Temp/Rar$DI00.938/pass.txt",
+		"/C/Dropbox/bdd/SecstrZBDD_help.txt",
+		"/C/Dropbox/[Sync]/txt/[0]js_memo.md",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/tsv/GameResult.tsv",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201609_徳島研究会原稿/body.tex",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Randomizer.js",
+		"/C/Users/Hideaki/Downloads/dominiononline-3e224-Rooms-reset.json",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp31969/Dominion/js/Online_CardEffects_02_Intrigue.js",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp55509/Dominion/js/Online_ButtonActions.js",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp59859/Dominion/js/Online_room_main.js",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp57860/Dominion/js/Online_Print.js",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp53095/Dominion/Online_game_main.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects_03_Seaside.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/GameResult_AddGamePost.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/Online_ChatArea.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/CardEffectBox.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/Cardlist.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/Online_game_end.css",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/css/ChatArea.css",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_elc_2017/macros.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_elc_2017/abstract_jp.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_elc_2017/body.tex",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp43092/Dominion/js/Online_room_main.js",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_elc_2017/texsample/macros.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_elc_2017/texsample/abstract_jp.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_elc_2017/texsample/body.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/原稿_graco/body.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201609_徳島研究会原稿/tech-jsample.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/elc_2017/texsample/body.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/elc_2017/texsample/abstract_jp.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/原稿_graco/tech-jsample.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/原稿_graco/abstract_jp.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/elc_2017/texsample/ieiceguide.tex",
+		"/C/Dropbox/kawamura-noshiro-shared/patrolling/研究会原稿/ToDo.txt",
+		"/C/Dropbox/[Sync]/txt/DominionOnlineMemo.md",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/sub_common.php",
+		"/C/Users/Hideaki/AppData/Local/Temp/scp15240/Dominion/js/Online_FBSet.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/sub_Dominion_common.js",
+		"/C/Users/Hideaki/Downloads/招待.msrcIncident",
+		"/C/Users/Hideaki/Downloads/招待 (1).msrcIncident",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/test_generator_promise.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/js/jQuery_common.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/Players.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CardEffects_04_Alchemy.js",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/sub_GameResult_rank.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/GameResult_main.php",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/memo.js",
+		"/C/Dropbox/[code]/html/ToyBox/async_memo.md",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/tsv/Players.tsv",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/tsv/PlayersTEST.tsv",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Online_Signals.js"
+	],
+	"find":
+	{
+		"height": 36.0
+	},
+	"find_in_files":
+	{
+		"height": 100.0,
+		"where_history":
+		[
+			"*.js",
+			"",
+			"*.js",
+			"*.php",
+			".php",
+			"",
+			"*.js",
+			"*.php",
+			"*.js",
+			"",
+			"*.js",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"elemcount0",
+			"elemcount1",
+			"ZBDD",
+			"RNAZDD",
+			"s",
+			"row\\_sep",
+			"S[b]",
+			"column",
+			"row\\_end",
+			"row\\_begin",
+			"table",
+			"UniqueTable$, $table",
+			"BuildFromTable",
+			"$",
+			"{\\leftmostpatroller}",
+			"leftmostposition",
+			"$",
+			"{\\leftmostpoint}",
+			"$",
+			"{\\leftmostposition}",
+			"leftmostpoint",
+			"leftmostposition",
+			"leftmostpatroller",
+			"$\\leftmostposition$",
+			"$\\leftmostpoint$",
+			"a",
+			"A",
+			"Number",
+			"CleanUp",
+			"'",
+			"Game.Players[ player_id ]",
+			"Game.Me()",
+			"\"",
+			"reset_phase",
+			"FBref_Sig",
+			"FBref_MessageTo",
+			"reset_phase",
+			"(card)",
+			"魔女娘",
+			"continue",
+			"'",
+			"BaneCardEnd",
+			"id",
+			"Monitor_FBref_SignalBaneCardEnd_on",
+			"拷問人",
+			"'",
+			"役人",
+			"WaitForGainingSupplyCard",
+			"continue",
+			"Masquerade_SelectPassCard",
+			"Tournament_Revealed_card_IDs",
+			"\\",
+			"'",
+			"Game.Me()",
+			"占い師",
+			"村落",
+			"'",
+			"MyDialog",
+			"who_get_card",
+			"'",
+			"貧民街",
+			"\\",
+			"'",
+			"偵察員",
+			"RevealedCardNo",
+			"deck_top_card.card_no",
+			"破壊工作員",
+			"pl",
+			"泥棒",
+			"役人",
+			"密偵",
+			"寵臣",
+			"破壊工作員",
+			"Attack",
+			"役人",
+			"'",
+			"Game.player()",
+			".player()",
+			"貧民街",
+			" ",
+			"ok",
+			"console.log",
+			"TurnCount",
+			"PrintConnection",
+			"player_Connection",
+			"\"",
+			"基本 - ",
+			"chat",
+			"MyAlert",
+			"StackCardID",
+			"available_piles",
+			"SelectPlayersCard_Done",
+			"Turn",
+			"return_value",
+			"return_valu",
+			"return_values",
+			"return_value",
+			".on( 'click', '.SelectPlayersCard_Done', function() {\n\t\tResolve['WaitForClickingCard']( {\n\t\t\taborted : true,\n\t\t\tcard_ID : undefined,\n\t\t\tcard_no : undefined,\n\t\t} );\n\t\t$('.PlayersAreaButtons .SelectPlayersCard_Done').remove();  /* 完了ボタン消す */\n\t} );",
+			".on( 'click', '.SelectPlayersCard_Done', function() {\n\t\tResolve['WaitForClickingCard']( {\n\t\t\taborted : true,\n\t\t\tcard_ID : undefined,\n\t\t\tcard_no : undefined,\n\t\t} );\n\t\t$('.PlayersAreaButtons .SelectPlayersCard_Done').remove();  /* 完了ボタン消す */\n\t} );\n",
+			"on( 'click', '.card.SelectPlayersCard', function() {\n\t\tResolve['WaitForClickingCard']( {\n\t\t\taborted : false,\n\t\t\tcard_ID : Number( $(this).attr('data-card_ID') ),\n\t\t\tcard_no : undefined,\n\t\t} );\n\t} );",
+			"Resolve['WaitForClickingCard",
+			"clicked_card_ID",
+			"Resolve['WaitForClickingCard",
+			"exist",
+			"`",
+			"破壊工作員",
+			"Resolve['WaitForButtonClick",
+			"Resolve",
+			"Resolve['SelectSupplyCard",
+			"SelectSupplyCard",
+			"Resolve",
+			"Resolve['SelectPlayersCard",
+			"Resolve",
+			"WaitFor.*HandCard",
+			"log ) {",
+			"log",
+			"WaitForMovingHandCard",
+			"WaitForMovingPlayersCard",
+			"ResolveAcknowledgeButton",
+			"Resolve['WaitForButtonClick",
+			"++player_id",
+			"player_id++",
+			"AttackEffect",
+			"aborted",
+			"HideDoneButton",
+			"ShowDoneButton",
+			".done",
+			"MessageToMe"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"HideAbortButton",
+			"ShowAbortButton",
+			"FaceUpAllHandCards",
+			"AcknowledgeButton_MyArea",
+			"PlayersAreaButtons",
+			"includes",
+			"WaitForMarkingHandCards",
+			"AcknowledgeButton",
+			"\\t",
+			"GainCardFromSupplyByName",
+			"LookCardWithID",
+			"GetCardWithID",
+			"GetCopyOfPlayersAllCards",
+			"Number( $(this).attr('data-card_no') )",
+			"Number( $(this).attr('data-card_ID') )",
+			"StackedCardIDs",
+			"ResetFace",
+			"up",
+			"座標",
+			"\\patrolling",
+			"\\unit",
+			"位置",
+			"",
+			"位置",
+			"RevealDeckTop",
+			"AddToDeck(",
+			"AddToAside(",
+			"AddToAside",
+			"AcknowledgeButton_OtherPlayer",
+			"AcknowledgeButton_Me",
+			"RevealHandCards",
+			"FBref_chat",
+			"全点",
+			"Comp",
+			"\\t",
+			"SetAside",
+			"FBref_Settings",
+			"player => ",
+			"ResetFaceDown()",
+			"Resolve",
+			"()",
+			"// Resolve_GetCardEffect();",
+			"()",
+			"// Resolve_GetCardEffect();",
+			"()",
+			"",
+			"()",
+			"SetAndPrintPhase",
+			"G",
+			"C",
+			"A",
+			"U",
+			".action_buttons",
+			"FBref_Signal",
+			"SendSignal",
+			".phase",
+			"lr",
+			"whose_turn_id",
+			"Has",
+			"temp",
+			"CCard",
+			"players-name",
+			"PlayersName",
+			"\\t",
+			"効果",
+			"tbl-stripe",
+			"tbl-blue",
+			"tbl-stripe",
+			"tbl-blue",
+			"padding0",
+			") {",
+			"for (",
+			"cost_debt",
+			"name_jp_yomi",
+			"C:\\Users\\Hideaki\\MyVagrant\\mycentos",
+			"SetViewport",
+			"sub_Online_class",
+			"sub_Online_setup",
+			"$Filename_sGc = $_SERVER['DOCUMENT_ROOT'] .'/Dominion/sub_GameResult_common.php';",
+			"sub_GameResult_spreadsheet.php",
+			"sub_GameResult_rank.php",
+			"sub_GameResult_common.php",
+			"sub_common.php",
+			"$Filename_sc = __DIR__.'/GameResult_sub_common.php';",
+			"$Filename_setup = dirname(__DIR__).'/sub_Setup.php';\nif ( !is_readable( $Filename_setup) ) { echo $Filename_setup . ' is not readable.'; exit; }\ninclude( $Filename_setup );\n\n$Filename_sc = dirname(__DIR__).'/sub_common.php';\nif ( !is_readable( $Filename_sc) ) { echo $Filename_sc . ' is not readable.'; exit; }\ninclude( $Filename_sc );\n\n$Filename_sDc = __DIR__.'/sub_Dominion_common.php';\nif ( !is_readable( $Filename_sDc) ) { echo $Filename_sDc . ' is not readable.'; exit; }\ninclude( $Filename_sDc );\nmylib",
+			"$Filename_setup = dirname(__DIR__).'/sub_Setup.php';\nif ( !is_readable( $Filename_setup) ) { echo $Filename_setup . ' is not readable.'; exit; }\ninclude( $Filename_setup );\n\n$Filename_sc = dirname(__DIR__).'/sub_common.php';\nif ( !is_readable( $Filename_sc) ) { echo $Filename_sc . ' is not readable.'; exit; }\ninclude( $Filename_sc );\n\n$Filename_sDc = __DIR__.'/sub_Dominion_common.php';\nif ( !is_readable( $Filename_sDc) ) { echo $Filename_sDc . ' is not readable.'; exit; }\ninclude( $Filename_sDc );\n",
+			"dirname(__DIR__).'/sub_common.php'",
+			"dirname(__DIR__).'/sub_common.php",
+			"dirname(__DIR__).'/sub_Setup.php",
+			"\\t",
+			"/tsv/Scoring.tsv",
+			"Scoring.tsv",
+			"Players.tsv",
+			"\\t",
+			"$Cardlist_tsv",
+			"\\t",
+			"05_Prosperity_115x75",
+			"01_Original_115x75",
+			"background-image: url",
+			";",
+			"supply-card-wrapper",
+			"#Phase",
+			"PrintHTML",
+			"BA_UseCard",
+			"PrintSupply_GainCardWithCost",
+			"Aside",
+			"handCard_id",
+			"MoveHandCardToDiscardPile",
+			"MoveHandCardToPlayArea",
+			"MoveHandCardToDiscardPile",
+			"MoveHandCardToPlayArea",
+			".length",
+			"PlayArea   ",
+			"PlayArea",
+			"name_jp_yomi",
+			"\\t",
+			"Cardlist",
+			",",
+			"一般の",
+			" ",
+			"{\\timelimit}",
+			"\\t",
+			"Proof of \\Ref",
+			"，",
+			"多項式時間アルゴリズム",
+			"decisionpp",
+			"optpp",
+			"UStar"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Online_main_Game.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 418,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								317,
+								317
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 0,
+								"count": 36,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"incomplete_sync": null,
+							"origin_encoding": "ASCII",
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"typescript_plugin_format_options":
+							{
+								"convertTabsToSpaces": false,
+								"indentSize": 4,
+								"tabSize": 4
+							},
+							"use_tab_stops": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 34.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.doc":
+	{
+		"height": 0.0
+	},
+	"output.exec":
+	{
+		"height": 130.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
+	{
+		"height": 118.0
+	},
+	"pinned_build_system": "Packages/User/MyTypeScript.sublime-build",
+	"project": "DominionOnline.sublime-project",
+	"replace":
+	{
+		"height": 66.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"C:\\Dropbox\\Desktop\\qnote.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 241.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
