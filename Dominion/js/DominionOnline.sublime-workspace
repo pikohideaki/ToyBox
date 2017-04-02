@@ -435,15 +435,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "Online_main_Game.ts",
-			"settings":
-			{
-				"buffer_size": 418,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "Packages/TypeScript/TypeScript.sublime-build",
 	"build_system_choices":
@@ -525,8 +516,12 @@
 	],
 	"file_history":
 	[
-		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/DominionOnline.sublime-project",
+		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/User/MyTypeScript.sublime-build",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CPlayer.js",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_main_Game.ts",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test.ts",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test_sub.ts",
+		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/DominionOnline.sublime-project",
 		"/C/Dropbox/noshiro-anish-shared/manuscript/sections/rna-zbdd.tex",
 		"/C/Dropbox/noshiro-anish-shared/manuscript/preamble.tex",
 		"/C/Dropbox/noshiro-anish-shared/manuscript/sections/frequent-structure-mining.tex",
@@ -536,11 +531,8 @@
 		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_日本語原稿/body.tex",
 		"/C/Dropbox/[Sync]/txt/[6]あいでぃー.md",
 		"/C/Dropbox/[software_CD,DVD]/NotePad2008J/Finale NotePad 2008 pass word.txt",
-		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/User/MyTypeScript.sublime-build",
-		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test.ts",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test_sub.js",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test.js",
-		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/test_sub.ts",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/ts_Online_CGame.ts",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/sftp-config.json",
 		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/TypeScript/TypeScript.sublime-build",
@@ -548,7 +540,6 @@
 		"/C/Users/Hideaki/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Dropbox/kawamura-noshiro-shared/patrolling/201701_日本語原稿/macros.tex",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_room_main.js",
-		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CPlayer.js",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_ButtonActions.js",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_CGame.js",
 		"/C/Dropbox/[code]/html/ToyBox/SourceTreeSync/Dominion/js/Online_FirebaseSync.js",
@@ -955,57 +946,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "Online_main_Game.ts",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 418,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								317,
-								317
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": 0,
-								"count": 36,
-								"modified": false,
-								"selection": false,
-								"status": -1,
-								"syntax": "plain text"
-							},
-							"incomplete_sync": null,
-							"origin_encoding": "ASCII",
-							"remote_loading": false,
-							"synced": false,
-							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
-							"typescript_plugin_format_options":
-							{
-								"convertTabsToSpaces": false,
-								"indentSize": 4,
-								"tabSize": 4
-							},
-							"use_tab_stops": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
 			]
 		}
 	],
